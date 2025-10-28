@@ -1,0 +1,18 @@
+param,value,unit,description
+project_name,LEO_IoT_Constellation,string,Nombre del proyecto satelital IoT
+analysis_horizon_years,10,years,Horizonte total de simulación y modelado financiero
+satellite_life_years,5,years,Vida útil media de satélites antes de reposición (RCAPEX)
+tax_rate_corporate,0.30,ratio,Tasa efectiva de impuesto corporativo
+base_discount_rate,0.08,rate_per_year,Tasa base usada para NPV/LLCR/PLCR (WACC base)
+base_currency,USD,string,Moneda base de denominación del modelo
+liquidity_premium_lambda,0.02,ratio,Prima de iliquidez (stablecoin λ_i o fricción de mercado)
+min_dscr_covenant,1.20,ratio,Umbral contractual de DSCR mínimo (gatillo default técnico)
+dsra_months_cover,6,months,Cobertura objetivo de la cuenta DSRA
+opex_growth_rate,0.03,ratio,Crecimiento anual del OPEX
+revenue_growth_rate,0.20,ratio,Crecimiento anual de ingresos (ramp-up comercial)
+rcapex_cycle_years,5,years,Frecuencia de reposición satelital
+rcapex_amount,30,USD_millions,Monto estimado de reposición de satélites por ciclo
+working_capital_pct_revenue,0.05,ratio,Porcentaje de ingresos inmovilizado como ΔWC
+tokenization_enabled,1,binary,1=estructura tokenizada on-chain; 0=estructura tradicional
+governance_automation_flag,1,binary,1=automatización via smart contract; 0=manual
+stablecoin_denomination_flag,0,binary,1=pago en stablecoin; 0=en USD fiat

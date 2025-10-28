@@ -10,7 +10,7 @@ min_dscr_covenant,1.25,ratio,Umbral de DSCR que activa lock-up de dividendos y b
 dscr_default_trigger,1.10,ratio,Nivel de DSCR que gatilla default técnico / cash sweep forzado
 dsra_months_cover,12,months,Cobertura objetivo de la cuenta DSRA equivalente a 12 meses del servicio de deuda senior
 mra_target_pct_next_rcapex,0.50,ratio,Porcentaje del próximo RCAPEX que debe estar prefondeado en la cuenta MRA
-opex_growth_rate,0.03,ratio,Crecimiento anual esperado del OPEX operativo (salarios TT&C, backhaul, seguros)
+opex_growth_rate,0.03,ratio,Crecimiento anual esperado del OPEX operativo (salarios TT&C backhaul seguros)
 revenue_curve_profile,ramp_then_plateau,string,Perfil comercial: ramp-up agresivo hasta año 7 y meseta posterior con presión competitiva
 working_capital_pct_revenue,0.03,ratio,Porcentaje de ingresos inmovilizado como variación de capital de trabajo ΔWC
 rcapex_cycle_years,4,years,Frecuencia efectiva de reposición parcial en la constelación (bloques ~30% flota)

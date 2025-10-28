@@ -1,18 +1,31 @@
 param,value,unit,description
-project_name,LEO_IoT_Constellation,string,Nombre del proyecto satelital IoT
-analysis_horizon_years,10,years,Horizonte total de simulación y modelado financiero
-satellite_life_years,5,years,Vida útil media de satélites antes de reposición (RCAPEX)
-tax_rate_corporate,0.30,ratio,Tasa efectiva de impuesto corporativo
-base_discount_rate,0.08,rate_per_year,Tasa base usada para NPV/LLCR/PLCR (WACC base)
-base_currency,USD,string,Moneda base de denominación del modelo
-liquidity_premium_lambda,0.02,ratio,Prima de iliquidez (stablecoin λ_i o fricción de mercado)
-min_dscr_covenant,1.20,ratio,Umbral contractual de DSCR mínimo (gatillo default técnico)
-dsra_months_cover,6,months,Cobertura objetivo de la cuenta DSRA
-opex_growth_rate,0.03,ratio,Crecimiento anual del OPEX
-revenue_growth_rate,0.20,ratio,Crecimiento anual de ingresos (ramp-up comercial)
-rcapex_cycle_years,5,years,Frecuencia de reposición satelital
-rcapex_amount,30,USD_millions,Monto estimado de reposición de satélites por ciclo
-working_capital_pct_revenue,0.05,ratio,Porcentaje de ingresos inmovilizado como ΔWC
-tokenization_enabled,1,binary,1=estructura tokenizada on-chain; 0=estructura tradicional
-governance_automation_flag,1,binary,1=automatización via smart contract; 0=manual
-stablecoin_denomination_flag,0,binary,1=pago en stablecoin; 0=en USD fiat
+project_name,LEO_IoT_Constellation,string,Nombre del proyecto satelital IoT (SPV dedicado)
+analysis_horizon_years,12,years,Horizonte total de simulación financiera (despliegue+operación+reposición)
+satellite_life_years,5,years,Vida útil media de cada satélite antes de requerir reposición parcial
+tax_rate_corporate,0.25,ratio,Tasa efectiva de impuesto sobre resultado operativo después de deducir depreciación y costos elegibles
+base_discount_rate,0.074,rate_per_year,Tasa de descuento base usada para NPV/LLCR/PLCR ~ WACD promedio ponderado de la deuda
+base_currency,USD,string,Moneda base del modelo financiero y de los flujos proyectados
+liquidity_premium_lambda,0.02,ratio,Prima de iliquidez aplicada a tramos menos líquidos (stablecoin o subordinado)
+min_dscr_covenant,1.25,ratio,Umbral de DSCR que activa lock-up de dividendos y barrera de distribución
+dscr_default_trigger,1.10,ratio,Nivel de DSCR que gatilla default técnico / cash sweep forzado
+dsra_months_cover,12,months,Cobertura objetivo de la cuenta DSRA equivalente a 12 meses del servicio de deuda senior
+mra_target_pct_next_rcapex,0.50,ratio,Porcentaje del próximo RCAPEX que debe estar prefondeado en la cuenta MRA
+opex_growth_rate,0.03,ratio,Crecimiento anual esperado del OPEX operativo (salarios TT&C, backhaul, seguros)
+revenue_curve_profile,ramp_then_plateau,string,Perfil comercial: ramp-up agresivo hasta año 7 y meseta posterior con presión competitiva
+working_capital_pct_revenue,0.03,ratio,Porcentaje de ingresos inmovilizado como variación de capital de trabajo ΔWC
+rcapex_cycle_years,4,years,Frecuencia efectiva de reposición parcial en la constelación (bloques ~30% flota)
+rcapex_amount,20,USD_millions,Monto estimado de reposición satelital en cada ciclo de RCAPEX (años 6 y 10 en el caso base)
+tokenization_enabled,1,binary,1=estructura tokenizada multitramos on-chain; 0=préstamo tradicional sindicado
+num_debt_tranches,3,count,Cantidad de tramos de deuda: senior / mezzanine / subordinado-tokenizado
+governance_automation_flag,1,binary,1=governanza digital (smart contract ejecuta waterfall y covenants); 0=trustee manual
+stablecoin_denomination_flag,0,binary,1=denominación en stablecoin institucional; 0=denominación USD fiat
+base_rate_reference,SOFR_or_USDC_pool,string,Curva base para descontar flujos y calcular cupones variables
+spread_senior,0.01,rate_abs,Spread contractual tramo senior sobre la base rate
+spread_mezz,0.03,rate_abs,Spread contractual tramo mezzanine sobre la base rate
+spread_sub,0.06,rate_abs,Spread contractual tramo subordinado/tokenizado sobre la base rate
+target_wacd,0.074,rate_per_year,Costo promedio ponderado objetivo de la deuda después de estructurar los tramos
+equity_contribution_pct,0.30,ratio,Participación de equity inicial sobre el CAPEX total (resto financiado con deuda)
+grace_period_years,1,years,Período inicial interest-only para estabilizar rampa comercial
+amortization_style,sculpted,string,Estructura de amortización diseñada para sostener DSCR≈1.25 en los años post-grace
+default_model,Merton_structural,string,Criterio de default económico basado en valor de activos vs deuda pendiente en la simulación Monte Carlo
+correlation_reduction_governance,0.35,ratio,Correlación default entre tramos después de gobernanza on-chain (menor contagio operativo)

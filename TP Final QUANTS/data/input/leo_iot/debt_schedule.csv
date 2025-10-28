@@ -1,0 +1,8 @@
+period_index,year,tranche_name,interest_due,principal_due
+1,1,senior,7200000,8000000
+1,1,mezzanine,4500000,2500000
+1,1,subordinated,3600000,0
+2,2,senior,6800000,8200000
+2,2,mezzanine,4300000,2700000
+2,2,subordinated,3600000,0
+...

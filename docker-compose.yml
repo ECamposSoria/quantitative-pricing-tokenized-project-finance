@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+    image: pftoken/app:0.1.0
+    container_name: pftoken-app
+    command: python -m http.server 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      PYTHONPATH: /app
+    restart: unless-stopped

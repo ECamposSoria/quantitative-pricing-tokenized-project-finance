@@ -1,0 +1,6 @@
+parameter,value,description
+project_name,,Name of the infrastructure project
+currency,USD,Base currency for cash flows
+start_date,,Project start date (YYYY-MM-DD)
+tenor_years,0,Total tenor in years
+discount_rate,0.0,Discount rate assumption

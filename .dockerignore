@@ -1,0 +1,22 @@
+# Build context exclusions
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+**/.ipynb_checkpoints
+**/.mypy_cache
+**/.vscode
+**/.idea
+.git
+.gitignore
+notebooks/
+*.ipynb
+.cache
+.env
+ENV
+venv
+build/
+dist/
+.eggs/
+*.egg-info/
+data/output/

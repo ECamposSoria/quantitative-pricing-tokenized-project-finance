@@ -29,3 +29,4 @@ grace_period_years,1,years,Período inicial interest-only para estabilizar rampa
 amortization_style,sculpted,string,Estructura de amortización diseñada para sostener DSCR≈1.25 en los años post-grace
 default_model,Merton_structural,string,Criterio de default económico basado en valor de activos vs deuda pendiente en la simulación Monte Carlo
 correlation_reduction_governance,0.35,ratio,Correlación default entre tramos después de gobernanza on-chain (menor contagio operativo)
+

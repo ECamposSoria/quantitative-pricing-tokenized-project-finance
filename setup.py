@@ -15,6 +15,7 @@ setup(
         "jupyter",
         "numpy-financial",
         "eth-abi",
+        "pydantic>=2.5",
     ],
     python_requires=">=3.10",
 )

@@ -1,11 +1,27 @@
 """Shared pytest fixtures for the project finance tokenization suite."""
 
+from __future__ import annotations
+
+from pathlib import Path
+
 import pytest
 
+from pftoken.models import ProjectParameters
+
+
 @pytest.fixture
-def placeholder_config():
-    """Return a minimal configuration placeholder."""
-    return {}
+def project_parameters() -> ProjectParameters:
+    """Load the canonical LEO IoT parameters (validated)."""
+    base = Path(__file__).resolve().parents[1] / "data" / "input" / "leo_iot"
+    return ProjectParameters.from_directory(base)
+
+
+@pytest.fixture
+def cfads_calculator(project_parameters: ProjectParameters):
+    """Convenience fixture returning a CFADS calculator."""
+    from pftoken.models import CFADSModel
+
+    return CFADSModel(project_parameters)
 
 
 @pytest.fixture

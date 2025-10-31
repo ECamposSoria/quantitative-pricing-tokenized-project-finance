@@ -1,57 +1,60 @@
 markdown# System Memory
 
-## Last Updated: 2025-02-14 12:00 UTC
-## Version: 0.2.0
+## Last Updated: 2025-02-14 16:30 UTC
+## Version: 0.3.0
 
 ### Current Architecture
-- `pftoken` now includes the new `amm` package (core pools, pricing, analysis, utils) and an `integration` package to bridge DCF outputs with AMM signals.
-- Existing subpackages (config, models, waterfall, pricing, pricing_mc, risk, stress, simulation, optimization, derivatives, viz, utils) remain as placeholders but are wired for future work.
-- Stress module gained `liquidity_stress`, and viz package exposes `amm_viz` and `liquidity_heatmap`.
+- `pftoken` incluye el paquete `amm`, el módulo `integration` y ahora un modelo de parámetros centralizado (`ProjectParameters`) que valida entradas financieras/operativas con Pydantic.
+- Subpaquetes existentes (config, models, waterfall, pricing, pricing_mc, risk, stress, simulation, optimization, derivatives, viz, utils) disponen de andamiaje; `models` contiene lógica CFADS y loaders de datos tipados.
+- Stress module mantiene `liquidity_stress`; viz ofrece `amm_viz` y `liquidity_heatmap`.
 
 ### Technologies & Versions
 - Python: 3.12 (container base image `python:3.12-slim`)
-- Libraries: numpy, pandas, scipy, matplotlib, pytest, jupyter, numpy-financial, eth-abi
+- Libraries: numpy, pandas, scipy, matplotlib, pytest, jupyter, numpy-financial, eth-abi, pydantic
 
 ### Container Setup
 - Base Image: `python:3.12-slim`
-- Services: `app` (simple HTTP server placeholder)
+- Services: `app` (HTTP placeholder)
 - Ports: `8000:8000`
-- Volumes: project root bind-mounted to `/app`
+- Volumes: repo bind-mounted en `/app`
 - Environment Variables: `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`, `PYTHONPATH=/app`
 
 ### Implemented Features
-- AMM scaffolding: constant-product pool, concentrated liquidity placeholder, liquidity manager, swap engine, pricing/analysis utilities.
-- Integration scaffolding: DCF → AMM liquidity instructions, scenario propagation, feedback loop helpers.
-- CLI tools for AMM stress testing, range optimisation, and DCF vs. market comparison.
-- Data templates, docs, notebooks, and tests expanded to cover AMM workflows (all currently placeholders).
+- AMM scaffolding (pools V2/V3, pricing/analysis utils, swap engine, LP management).
+- Integración DCF↔AMM (pipelines, propagation, feedback loops).
+- Validación completa de parámetros (`ProjectParameters.from_directory`) con utilidades CSV y comprobaciones de pesos de tramos, correlaciones Monte Carlo, reservas y covenants.
+- Cálculo CFADS (`calculate_cfads`) con desglose de ingresos, EBITDA, impuestos, CAPEX, ΔWC y soporte de escenarios.
+- CLI scripts para estrés AMM, optimización de rangos y comparación DCF vs. mercado.
+- Datos, docs y notebooks incluyen configuraciones AMM y parámetros financieros extendidos.
 
 ### API Endpoints (if applicable)
-- None yet (library-focused project).
+- Ninguno (librería offline).
 
 ### Database Schema (if applicable)
-- Not applicable.
+- No aplica.
 
 ### Key Functions/Classes
-- `pftoken.amm.core.pool_v2.ConstantProductPool`: functional swap/add/remove liquidity scaffold.
-- `pftoken.amm.core.liquidity_manager.LiquidityManager`: simple LP share accounting.
-- `pftoken.stress.liquidity_stress.stress_liquidity`: basic liquidity shock routine.
+- `pftoken.models.ProjectParameters`: modelo maestro validado de inputs financieros/operativos.
+- `pftoken.models.calculate_cfads` & `CFADSModel`: motor CFADS con escenarios (`CFADSScenarioInputs`).
+- `pftoken.amm.core.pool_v2.ConstantProductPool`: modelo de pool constante con swaps y gestión de liquidez.
 
 ### Integration Points
-- `pftoken.integration.dcf_to_amm.allocate_liquidity` bridges deterministic cashflows with AMM liquidity.
-- Placeholder feedback loop adjusts discount curves from market spreads.
+- `pftoken.integration.dcf_to_amm.allocate_liquidity` conecta CFADS con decisiones de liquidez AMM.
+- `pftoken.integration.feedback_loop.update_discount_rate` retroalimenta spreads de mercado.
 
 ### Deployment Instructions
 - Build: `docker compose build`
 - Run: `docker compose up -d`
-- Tests: `docker compose run --rm app pytest`
+- Tests: `pytest`
 
 ### Recent Changes
-- 2025-02-14: Added AMM, integration, stress, viz scaffolding plus CLI tools, docs, data templates, and notebooks.
+- 2025-02-14: Creación del paquete AMM, integraciones y documentación inicial.
+- 2025-02-14: Implementado `ProjectParameters` (Pydantic), loaders CSV y cálculo CFADS con nuevos tests.
 
 ### Known Issues
-- Most modules (including AMM) still operate as analytical placeholders; real business logic pending.
-- Tests are placeholders with `pytest.skip`.
+- La mayoría de módulos financieros (waterfall, ratios avanzados, stress complejo) siguen como placeholders.
+- Tests de muchos paquetes continúan en `pytest.skip`; sólo parámetros/CFADS tienen cobertura real.
 
 ### Next Steps
-- Implement production-grade AMM math (fees, slippage, liquidity accounting) and connect with DCF cashflows.
-- Replace placeholder notebooks/docs/tests with executable workflows and automated coverage.
+- Completar lógica de waterfall, ratios y estrés aprovechando el modelo de parámetros validado.
+- Añadir notebooks y tests funcionales que consuman `calculate_cfads` e integren Monte Carlo.

@@ -1,16 +1,21 @@
 param,value,unit,description
 project_name,LEO_IoT_Constellation,string,Nombre del proyecto satelital IoT (SPV dedicado)
 analysis_horizon_years,12,years,Horizonte total de simulación financiera (despliegue+operación+reposición)
+periods_per_year,12,count,Periodicidad de la simulación (12 = mensual)
 satellite_life_years,5,years,Vida útil media de cada satélite antes de requerir reposición parcial
+num_satellites_initial,120,count,Número de satélites activos en el despliegue inicial
 tax_rate_corporate,0.25,ratio,Tasa efectiva de impuesto sobre resultado operativo después de deducir depreciación y costos elegibles
+initial_capex_total,171000000,USD,Capex total desplegado en el año 0
 base_discount_rate,0.074,rate_per_year,Tasa de descuento base usada para NPV/LLCR/PLCR ~ WACD promedio ponderado de la deuda
 base_currency,USD,string,Moneda base del modelo financiero y de los flujos proyectados
 liquidity_premium_lambda,0.02,ratio,Prima de iliquidez aplicada a tramos menos líquidos (stablecoin o subordinado)
 min_dscr_covenant,1.25,ratio,Umbral de DSCR que activa lock-up de dividendos y barrera de distribución
 dscr_default_trigger,1.10,ratio,Nivel de DSCR que gatilla default técnico / cash sweep forzado
+min_llcr_covenant,1.15,ratio,Umbral mínimo de LLCR requerido por covenants
 dsra_months_cover,12,months,Cobertura objetivo de la cuenta DSRA equivalente a 12 meses del servicio de deuda senior
 mra_target_pct_next_rcapex,0.50,ratio,Porcentaje del próximo RCAPEX que debe estar prefondeado en la cuenta MRA
 opex_growth_rate,0.03,ratio,Crecimiento anual esperado del OPEX operativo (salarios TT&C backhaul seguros)
+opex_ratio_revenue,0.38,ratio,Proporción de ingresos destinada a costos operativos (OPEX)
 revenue_curve_profile,ramp_then_plateau,string,Perfil comercial: ramp-up agresivo hasta año 7 y meseta posterior con presión competitiva
 working_capital_pct_revenue,0.03,ratio,Porcentaje de ingresos inmovilizado como variación de capital de trabajo ΔWC
 rcapex_cycle_years,4,years,Frecuencia efectiva de reposición parcial en la constelación (bloques ~30% flota)
@@ -23,10 +28,21 @@ base_rate_reference,SOFR_or_USDC_pool,string,Curva base para descontar flujos y 
 spread_senior,0.01,rate_abs,Spread contractual tramo senior sobre la base rate
 spread_mezz,0.03,rate_abs,Spread contractual tramo mezzanine sobre la base rate
 spread_sub,0.06,rate_abs,Spread contractual tramo subordinado/tokenizado sobre la base rate
+rate_volatility,0.015,ratio,Volatilidad anual de la curva base de tasas
 target_wacd,0.074,rate_per_year,Costo promedio ponderado objetivo de la deuda después de estructurar los tramos
 equity_contribution_pct,0.30,ratio,Participación de equity inicial sobre el CAPEX total (resto financiado con deuda)
 grace_period_years,1,years,Período inicial interest-only para estabilizar rampa comercial
 amortization_style,sculpted,string,Estructura de amortización diseñada para sostener DSCR≈1.25 en los años post-grace
 default_model,Merton_structural,string,Criterio de default económico basado en valor de activos vs deuda pendiente en la simulación Monte Carlo
 correlation_reduction_governance,0.35,ratio,Correlación default entre tramos después de gobernanza on-chain (menor contagio operativo)
-
+initial_iot_devices,250000,devices,Número de dispositivos IoT conectados al inicio del periodo 1
+iot_device_growth_rate,0.32,ratio,Tasa anual de crecimiento de dispositivos IoT conectados
+base_arpu_per_year,72,USD_per_device_year,ARPU anual promedio por dispositivo IoT en el caso base
+arpu_growth_rate,0.02,ratio,Tasa anual de crecimiento del ARPU
+monte_carlo_simulations,5000,count,Corridas de Monte Carlo para escenarios de precios/liquidez
+vol_revenue,0.18,ratio,Volatilidad (desviación estándar) anual de los ingresos
+vol_opex,0.12,ratio,Volatilidad anual de costos operativos
+vol_devices,0.10,ratio,Volatilidad anual del crecimiento de dispositivos IoT
+vol_rates,0.05,ratio,Volatilidad anual de tasas de descuento
+mc_seed_core,1234,integer,Semilla de simulación para variables operativas
+mc_seed_rates,5678,integer,Semilla de simulación para variables de tasas

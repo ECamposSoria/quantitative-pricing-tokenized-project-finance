@@ -9,6 +9,8 @@ necesarios para:
 - Ejecutar simulaciones Monte Carlo y escenarios de estrés.
 - Valorar tramos bajo métodos determinísticos y estocásticos.
 - Medir métricas de riesgo (EL, VaR, CVaR) y optimizar la estructura de capital.
+- Centralizar parámetros financieros/operativos validados (Pydantic) con utilidades de carga desde CSV.
+- Calcular CFADS con descomposición detallada por línea para escenarios determinísticos y shocks.
 - Analizar pools AMM (Uniswap v2/v3) para comparar precios de mercado vs. DCF.
 
 > **Nota:** Todos los módulos se entregan como *placeholders*; sirven como

@@ -6,3 +6,4 @@ pytest
 jupyter
 numpy-financial
 eth-abi
+pydantic>=2.5

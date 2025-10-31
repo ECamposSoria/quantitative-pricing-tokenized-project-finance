@@ -1,12 +1,12 @@
 markdown# System Memory
 
-## Last Updated: 2025-10-31 17:19 UTC
-## Version: 0.3.1
+## Last Updated: 2025-10-31 18:05 UTC
+## Version: 0.3.2
 
 ### Current Architecture
-- `pftoken` incluye el paquete `amm`, el módulo `integration` y un modelo de parámetros centralizado (`ProjectParameters`).
-- Nuevas utilidades de visualización permiten construir dashboards determinísticos con matplotlib (CFADS vs servicio de deuda, DSCR, estructura de capital, ratios LLCR/PLCR).
-- Subpaquetes para stress, viz y simulation conservan andamiaje pendiente de lógica de negocio.
+- `pftoken` mantiene el modelo de parámetros validado (`ProjectParameters`) conectado a módulos determinísticos (CFADS, ratios, dashboard) y AMM/integration scaffolding.
+- Dataset LEO IoT ajustado para representar un caso financiable (revenues mayores, RCAPEX moderado) preservando backups `*_ORIGINAL.csv`.
+- Viz package expone dashboard matricial y scripts pueden generar PNGs vía Docker/venv con Matplotlib cache configurado.
 
 ### Technologies & Versions
 - Python: 3.12 (container base image `python:3.12-slim`)
@@ -17,13 +17,12 @@ markdown# System Memory
 - Services: `app` (HTTP placeholder)
 - Ports: `8000:8000`
 - Volumes: repo bind-mounted en `/app`
-- Environment Variables: `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`, `PYTHONPATH=/app`
+- Environment Variables: `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`, `PYTHONPATH=/app`, `MPLCONFIGDIR=/app/.mplconfig`
 
 ### Implemented Features
-- Cálculo CFADS con descomposición detallada y escenarios.
-- Integración DCF↔AMM para decisiones de liquidez y feedback de spreads.
-- Dashboard base (`pftoken.viz.dashboards.build_financial_dashboard`) que genera figuras para CFADS vs deuda, DSCR, ratios LLCR/PLCR y estructura de capital.
-- CLI utilidades para estrés AMM, optimización de rangos y comparación DCF vs mercado.
+- CFADS pipeline con descomposición detallada, escenarios, y ratios (DSCR/LLCR/PLCR) integrados.
+- Dashboard base (`build_financial_dashboard`) que grafica CFADS vs servicio de deuda, DSCR, ratios LLCR/PLCR y estructura de capital.
+- LEO dataset reparametrizado: inicial ARPU/Devices mayores, OPEX/ΔWC moderados, RCAPEX de 120 MM en años 5/10.
 
 ### API Endpoints (if applicable)
 - Ninguno (librería offline).
@@ -32,13 +31,13 @@ markdown# System Memory
 - No aplica.
 
 ### Key Functions/Classes
-- `ProjectParameters.from_directory` para cargar parámetros validados.
-- `calculate_cfads` y `CFADSScenarioInputs` para estados de resultado proyectados.
-- `build_financial_dashboard` para componer figuras de reporte.
+- `ProjectParameters.from_directory` (carga validada de inputs).
+- `calculate_cfads`, `compute_dscr`, `compute_llcr`, `compute_plcr`.
+- `build_financial_dashboard`, `save_dashboard` (visualización determinística).
 
 ### Integration Points
-- `dcf_to_amm.allocate_liquidity` conecta CFADS con decisiones AMM.
-- `feedback_loop.update_discount_rate` retroalimenta spreads de mercado.
+- DCF ↔ AMM adapters (`integration` package) siguen placeholders pero conectados a parámetros validados.
+- Scripts Docker/CLI pueden generar dashboards (`MPLCONFIGDIR` arregla warning de Matplotlib).
 
 ### Deployment Instructions
 - Build: `docker compose build`
@@ -46,13 +45,13 @@ markdown# System Memory
 - Tests: `pytest`
 
 ### Recent Changes
-- 2025-02-14: Validated parameter model, CFADS pipeline e integración test.
-- 2025-02-14: Dashboard base con matplotlib y actualización de docs/README.
+- 2025-02-14: Dashboard base con Matplotlib, documentación y pruebas.
+- 2025-10-31: Ajuste de CSV LEO IoT (revenues, RCAPEX, OPEX) → DSCR≥1.25 años 1-4, LLCR≈2.0, PLCR≈2.0.
 
 ### Known Issues
-- Módulos de waterfall, stress avanzado, correlaciones y sensibilidad siguen como placeholders.
-- Ratios LLCR/PLCR usan thresholds simplificados hasta definir covenants específicos.
+- Falta lógica de waterfall, stress avanzado y Monte Carlo (placeholders).
+- RSCA (LLCR/PLCR) depende de supuestos simplificados; no hay optimización automática aún.
 
 ### Next Steps
-- Extender dashboard con resultados Monte Carlo (VaR/CVaR, heatmaps, tornado) una vez que los módulos estén implementados.
-- Automatizar exportación a notebooks/reportes (T-048/T-049).
+- Implementar waterfall y stress loops para integrar dashboards avanzados.
+- Desarrollar optimización de capital (T-036) y análisis de sensibilidad.

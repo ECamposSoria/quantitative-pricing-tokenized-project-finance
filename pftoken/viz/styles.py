@@ -1,13 +1,24 @@
-"""Visualization styling utilities
-
-This module currently exposes placeholder implementations. Replace the
-`not_implemented` function with production-ready logic when delivering the
-corresponding work package.
-"""
+"""Lightweight styling helpers for the dashboard plots."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 
-def not_implemented(*_args, **_kwargs):
-    """Placeholder stub signaling pending implementation."""
-    raise NotImplementedError("Visualization styling utilities is pending implementation.")
+
+@dataclass(frozen=True)
+class DashboardPalette:
+    """Color palette used across dashboard figures."""
+
+    primary: str = "#1f77b4"
+    secondary: str = "#ff7f0e"
+    accent_positive: str = "#2ca02c"
+    accent_negative: str = "#d62728"
+    neutral: str = "#7f7f7f"
+
+
+def get_palette() -> DashboardPalette:
+    """Return the default dashboard color palette."""
+    return DashboardPalette()
+
+
+__all__ = ["DashboardPalette", "get_palette"]

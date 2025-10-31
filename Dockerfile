@@ -2,7 +2,8 @@
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    MPLCONFIGDIR=/app/.mplconfig
 
 WORKDIR /app
 
@@ -17,6 +18,8 @@ RUN adduser \
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /app/.mplconfig && chown appuser:appuser /app/.mplconfig
 
 COPY . .
 

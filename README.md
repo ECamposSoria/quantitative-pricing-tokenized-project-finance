@@ -12,6 +12,7 @@ necesarios para:
 - Centralizar parámetros financieros/operativos validados (Pydantic) con utilidades de carga desde CSV.
 - Calcular CFADS con descomposición detallada por línea para escenarios determinísticos y shocks.
 - Analizar pools AMM (Uniswap v2/v3) para comparar precios de mercado vs. DCF.
+- Generar un dashboard base (matplotlib) con CFADS vs servicio de deuda, DSCR y estructura de capital.
 
 > **Nota:** Todos los módulos se entregan como *placeholders*; sirven como
 andamiaje para iteraciones futuras.
@@ -119,6 +120,7 @@ de negocio estén implementados.
 - `scripts/run_amm_stress.py`: Stress de liquidez AMM (placeholder con métricas básicas).
 - `scripts/optimize_pool_ranges.py`: Optimización de rangos Uniswap v3 mediante SciPy.
 - `scripts/compare_dcf_market.py`: Comparación rápida de valuaciones DCF vs. precio de pool.
+- Visualización: `pftoken.viz.dashboards.build_financial_dashboard` genera figuras base para reportes.
 
 ## CI/CD
 

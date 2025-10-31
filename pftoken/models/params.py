@@ -40,6 +40,8 @@ class FinancialBasics(BaseModel):
     horizon_years: PositiveInt
     periods_per_year: PositiveInt
     working_capital_pct: float = Field(..., ge=0.0, le=1.0)
+    equity_contribution_pct: float = Field(..., ge=0.0, le=1.0)
+    target_wacd: float = Field(..., ge=0.0)
 
 
 class DebtTranche(BaseModel):
@@ -54,6 +56,7 @@ class DebtTranche(BaseModel):
     tenor_years: PositiveFloat = Field(..., gt=0.0)
     grace_period_years: NonNegativeFloat
     priority: PositiveInt
+    amortization_style: str = "sculpted"
 
 
 class DebtStructure(BaseModel):
@@ -108,6 +111,8 @@ class RateCurveConfig(BaseModel):
     base_rate: float = Field(..., ge=0.0)
     spreads: Dict[str, float]
     volatility: float = Field(..., ge=0.0)
+    liquidity_premium_lambda: float = Field(..., ge=0.0)
+    base_rate_reference: str = "SOFR"
 
     @field_validator("spreads")
     @classmethod
@@ -173,6 +178,7 @@ class CovenantThresholds(BaseModel):
 
     min_dscr: float = Field(..., gt=0.0)
     min_llcr: float = Field(..., gt=0.0)
+    dscr_default_trigger: float = Field(..., gt=0.0)
 
 
 class ProjectParameters(BaseModel):
@@ -252,6 +258,8 @@ class ProjectParameters(BaseModel):
             horizon_years=int(float(param_map["analysis_horizon_years"])),
             periods_per_year=int(float(param_map["periods_per_year"])),
             working_capital_pct=float(param_map["working_capital_pct_revenue"]),
+            equity_contribution_pct=float(param_map["equity_contribution_pct"]),
+            target_wacd=float(param_map["target_wacd"]),
         )
 
         tranches_df = pd.read_csv(tranches_csv)
@@ -276,6 +284,8 @@ class ProjectParameters(BaseModel):
             base_rate=float(param_map["base_discount_rate"]),
             spreads=spreads,
             volatility=float(param_map["rate_volatility"]),
+            liquidity_premium_lambda=float(param_map["liquidity_premium_lambda"]),
+            base_rate_reference=str(param_map["base_rate_reference"]),
         )
 
         volatilities = {
@@ -304,6 +314,7 @@ class ProjectParameters(BaseModel):
         covenants = CovenantThresholds(
             min_dscr=float(param_map["min_dscr_covenant"]),
             min_llcr=float(param_map["min_llcr_covenant"]),
+            dscr_default_trigger=float(param_map["dscr_default_trigger"]),
         )
 
         timeline = tuple(
@@ -357,6 +368,7 @@ class ProjectParameters(BaseModel):
                 tenor_years=tenor_years,
                 grace_period_years=grace_years,
                 priority=int(getattr(row, "priority_level")),
+                amortization_style=str(getattr(row, "amortization_style", param_map.get("amortization_style", "sculpted"))),
             )
             records.append(tranche)
         if not records:

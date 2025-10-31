@@ -1,0 +1,8 @@
+{
+  "name": "senior_pool",
+  "token0": "USDc",
+  "token1": "TOKEN_SENIOR",
+  "fee_bps": 5,
+  "initial_reserve0": 1000000.0,
+  "initial_reserve1": 500000.0
+}

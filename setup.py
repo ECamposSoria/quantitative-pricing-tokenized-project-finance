@@ -12,7 +12,9 @@ setup(
         "scipy",
         "matplotlib",
         "pytest",
-        "jupyter"
+        "jupyter",
+        "numpy-financial",
+        "eth-abi",
     ],
     python_requires=">=3.10",
 )

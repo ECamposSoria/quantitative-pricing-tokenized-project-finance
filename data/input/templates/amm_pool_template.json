@@ -1,0 +1,8 @@
+{
+  "name": "<pool_name>",
+  "token0": "<base_token_symbol>",
+  "token1": "<quote_token_symbol>",
+  "fee_bps": 30,
+  "initial_reserve0": 0.0,
+  "initial_reserve1": 0.0
+}

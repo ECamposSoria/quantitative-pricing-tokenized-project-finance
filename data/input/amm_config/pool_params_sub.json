@@ -1,0 +1,8 @@
+{
+  "name": "sub_pool",
+  "token0": "USDc",
+  "token1": "TOKEN_SUB",
+  "fee_bps": 100,
+  "initial_reserve0": 250000.0,
+  "initial_reserve1": 100000.0
+}

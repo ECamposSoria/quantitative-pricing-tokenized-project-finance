@@ -13,8 +13,13 @@ def main() -> None:
         default="data/output/simulation_results/latest.csv",
         help="Simulation results to visualise.",
     )
+    parser.add_argument(
+        "--include-amm",
+        action="store_true",
+        help="Include AMM dashboards in the generated report.",
+    )
     args = parser.parse_args()
-    dashboards.not_implemented(args.input)
+    dashboards.not_implemented(args.input, include_amm=args.include_amm)
 
 
 if __name__ == "__main__":

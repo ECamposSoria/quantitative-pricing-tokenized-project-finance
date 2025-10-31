@@ -13,8 +13,13 @@ def main() -> None:
         default="config.yaml",
         help="Path to the simulation configuration file.",
     )
+    parser.add_argument(
+        "--amm",
+        action="store_true",
+        help="Enable AMM integration pipeline.",
+    )
     args = parser.parse_args()
-    pipeline.not_implemented(args.config)
+    pipeline.not_implemented(args.config, enable_amm=args.amm)
 
 
 if __name__ == "__main__":

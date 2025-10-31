@@ -15,6 +15,8 @@ from . import (
     derivatives,
     viz,
     utils,
+    amm,
+    integration,
 )
 
 __all__ = [
@@ -31,4 +33,6 @@ __all__ = [
     "derivatives",
     "viz",
     "utils",
+    "amm",
+    "integration",
 ]

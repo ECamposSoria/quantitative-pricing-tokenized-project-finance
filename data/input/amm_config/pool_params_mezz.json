@@ -1,0 +1,8 @@
+{
+  "name": "mezz_pool",
+  "token0": "USDc",
+  "token1": "TOKEN_MEZZ",
+  "fee_bps": 30,
+  "initial_reserve0": 500000.0,
+  "initial_reserve1": 250000.0
+}

@@ -9,6 +9,7 @@ necesarios para:
 - Ejecutar simulaciones Monte Carlo y escenarios de estrés.
 - Valorar tramos bajo métodos determinísticos y estocásticos.
 - Medir métricas de riesgo (EL, VaR, CVaR) y optimizar la estructura de capital.
+- Analizar pools AMM (Uniswap v2/v3) para comparar precios de mercado vs. DCF.
 
 > **Nota:** Todos los módulos se entregan como *placeholders*; sirven como
 andamiaje para iteraciones futuras.
@@ -23,9 +24,13 @@ project-finance-tokenization/
 ├── requirements.txt
 ├── setup.py
 ├── README.md
-├── .gitignore
-├── .dockerignore
 ├── pftoken/
+│   ├── amm/
+│   │   ├── analysis/
+│   │   ├── core/
+│   │   ├── pricing/
+│   │   └── utils/
+│   ├── integration/
 │   ├── config/
 │   ├── models/
 │   ├── waterfall/
@@ -39,10 +44,25 @@ project-finance-tokenization/
 │   ├── viz/
 │   └── utils/
 ├── tests/
+│   ├── test_amm/
+│   └── test_integration/
 ├── data/
+│   ├── input/
+│   │   ├── amm_config/
+│   │   └── templates/
+│   └── output/
+│       └── amm_simulations/
 ├── notebooks/
+│   ├── 06_stress_testing.ipynb
+│   ├── 08_amm_introduction.ipynb
+│   └── ...
 ├── docs/
+│   ├── amm/
+│   └── examples/amm_examples/
 ├── scripts/
+│   ├── compare_dcf_market.py
+│   ├── optimize_pool_ranges.py
+│   └── run_amm_stress.py
 └── .github/workflows/
 ```
 
@@ -76,6 +96,7 @@ local en `/app` para permitir hot-reload durante el desarrollo.
 
 - Ejecución local: `pytest`
 - Via Docker: `docker compose run --rm app pytest`
+- `tests/test_amm/`: nuevo paquete de tests placeholder para los módulos AMM.
 
 Cada archivo en `tests/` está marcado con `pytest.skip()` hasta que los módulos
 de negocio estén implementados.
@@ -83,7 +104,9 @@ de negocio estén implementados.
 ## Datos
 
 - `data/input/leo_iot/`: CSVs de ejemplo para parámetros, tramos y proyecciones.
+- `data/input/amm_config/`: Configuraciones JSON/CSV para pools tokenizados.
 - `data/input/templates/`: Plantillas para nuevos datasets.
+- `data/output/amm_simulations/`: Resultado esperado de simulaciones AMM (placeholders).
 - `data/output/`: Destino esperado de resultados de simulación, estrés y reportes.
 
 ## Scripts
@@ -91,6 +114,9 @@ de negocio estén implementados.
 - `scripts/run_simulation.py`: Orquestación de simulaciones (placeholder).
 - `scripts/generate_report.py`: Generación de dashboards (placeholder).
 - `scripts/validate_data.py`: Validación de datasets (placeholder).
+- `scripts/run_amm_stress.py`: Stress de liquidez AMM (placeholder con métricas básicas).
+- `scripts/optimize_pool_ranges.py`: Optimización de rangos Uniswap v3 mediante SciPy.
+- `scripts/compare_dcf_market.py`: Comparación rápida de valuaciones DCF vs. precio de pool.
 
 ## CI/CD
 

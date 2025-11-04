@@ -21,12 +21,12 @@ def test_cfads_waterfall_integration(project_parameters: ProjectParameters):
     statements = [calculate_cfads(params, year=y) for y in years]
     cfads = np.array([stmt.cfads for stmt in statements], dtype=float)
 
-    # Ensure RCAPEX years (5 & 10) drive positive capex and expected CFADS dips.
-    capex_by_year = {stmt.year: stmt.capex for stmt in statements}
-    assert capex_by_year[5] > 0
-    assert capex_by_year[10] > 0
-    assert cfads[years.index(5)] < 0
-    assert cfads[years.index(10)] < 0
+    # Ensure RCAPEX years (5 & 10) registran la inversión pero ya no afectan CFADS.
+    rcapex_by_year = {stmt.year: stmt.rcapex_investment for stmt in statements}
+    assert rcapex_by_year[5] > 0
+    assert rcapex_by_year[10] > 0
+    assert cfads[years.index(5)] > 0
+    assert cfads[years.index(10)] > 0
 
     # 2) Aggregate debt service (interest + principal) per year.
     debt_sched = params.debt_service_schedule.groupby("year")[
@@ -53,7 +53,5 @@ def test_cfads_waterfall_integration(project_parameters: ProjectParameters):
     )
     plcr_full = compute_plcr(cfads, initial_debt, discount_rate)
 
-    assert np.isfinite(llcr_year5)
-    assert np.isfinite(plcr_full)
-    # LLCR should worsen in heavy RCAPEX years but remain finite.
-    assert llcr_year5 < plcr_full
+    assert np.isfinite(llcr_year5) and llcr_year5 > 0
+    assert np.isfinite(plcr_full) and plcr_full > 0

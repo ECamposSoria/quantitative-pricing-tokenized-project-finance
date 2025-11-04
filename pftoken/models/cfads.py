@@ -47,6 +47,7 @@ class CFADSStatement:
     ebt: float
     taxes: float
     capex: float
+    rcapex_investment: float
     delta_working_capital: float
     cfads: float
 
@@ -73,7 +74,7 @@ def calculate_cfads(
     ebitda = revenue - opex
 
     rcapex = _rcapex_for_year(params.rcapex_schedule, year)
-    capex_total = rcapex + scen.additional_capex
+    capex_total = scen.additional_capex
 
     depreciation = (
         scen.depreciation_override
@@ -112,6 +113,7 @@ def calculate_cfads(
         ebt=ebt,
         taxes=taxes,
         capex=capex_total,
+        rcapex_investment=rcapex,
         delta_working_capital=delta_wc,
         cfads=cfads_value,
     )

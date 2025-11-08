@@ -108,9 +108,112 @@ def plot_capital_structure(tranche_labels: Sequence[str], notionals: Sequence[fl
     return fig
 
 
+def plot_waterfall_cascade(
+    years: Sequence[int],
+    interest: Sequence[float],
+    principal: Sequence[float],
+    dividends: Sequence[float],
+) -> plt.Figure:
+    """Stacked bars showing how CFADS flows through the waterfall."""
+
+    palette = get_palette()
+    fig, ax = plt.subplots()
+    ax.bar(years, interest, label="Intereses", color=palette.secondary, alpha=0.8)
+    ax.bar(
+        years,
+        principal,
+        bottom=np.array(interest),
+        label="Principal",
+        color=palette.primary,
+        alpha=0.8,
+    )
+    ax.plot(years, dividends, label="Dividendos", color=palette.accent_positive, linewidth=2)
+    ax.set_title("Waterfall: Intereses / Principal / Dividendos")
+    ax.set_xlabel("Año")
+    ax.set_ylabel("USD millones")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def plot_reserve_levels(
+    years: Sequence[int],
+    dsra_balance: Sequence[float],
+    dsra_target: Sequence[float],
+    mra_balance: Sequence[float],
+    mra_target: Sequence[float],
+) -> plt.Figure:
+    """Line chart tracking DSRA/MRA balances versus targets."""
+
+    palette = get_palette()
+    fig, ax = plt.subplots()
+    ax.plot(years, dsra_balance, label="DSRA", color=palette.primary, linewidth=2)
+    ax.plot(years, dsra_target, label="DSRA Target", color=palette.primary, linestyle="--")
+    ax.plot(years, mra_balance, label="MRA", color=palette.secondary, linewidth=2)
+    ax.plot(years, mra_target, label="MRA Target", color=palette.secondary, linestyle="--")
+    ax.set_title("Reservas DSRA / MRA")
+    ax.set_xlabel("Año")
+    ax.set_ylabel("USD millones")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def plot_covenant_heatmap(
+    years: Sequence[int],
+    dscr_values: Sequence[float],
+    thresholds: Sequence[float],
+) -> plt.Figure:
+    """Heatmap-like visualization showing DSCR vs. thresholds."""
+
+    palette = get_palette()
+    colors = []
+    for value, threshold in zip(dscr_values, thresholds):
+        if value >= threshold:
+            colors.append(palette.accent_positive)
+        elif value >= 1.0:
+            colors.append(palette.secondary)
+        else:
+            colors.append(palette.accent_negative)
+    fig, ax = plt.subplots()
+    ax.bar(years, dscr_values, color=colors)
+    ax.set_title("DSCR Heatmap")
+    ax.set_xlabel("Año")
+    ax.set_ylabel("DSCR")
+    ax.axhline(1.45, color=palette.neutral, linestyle="--", label="Target 1.45x")
+    ax.axhline(1.25, color=palette.neutral, linestyle=":", label="Warning 1.25x")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def plot_structure_radar(metrics: Iterable[tuple[str, float]], baseline: float) -> plt.Figure:
+    """Radar chart comparing concentration metrics."""
+
+    labels, values = zip(*metrics)
+    values = list(values)
+    angles = np.linspace(0, 2 * np.pi, len(values), endpoint=False)
+    values += values[:1]
+    angles = np.concatenate([angles, angles[:1]])
+
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    ax.plot(angles, values, label="Tokenized", linewidth=2)
+    ax.fill(angles, values, alpha=0.2)
+    ax.plot(angles, [baseline] * len(angles), linestyle="--", label="Traditional")
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels)
+    ax.set_title("Comparación de estructura")
+    ax.legend(loc="upper right")
+    return fig
+
+
 __all__ = [
     "plot_cfads_vs_debt_service",
     "plot_dscr_series",
     "plot_ratio_snapshot",
     "plot_capital_structure",
+    "plot_waterfall_cascade",
+    "plot_reserve_levels",
+    "plot_covenant_heatmap",
+    "plot_structure_radar",
 ]

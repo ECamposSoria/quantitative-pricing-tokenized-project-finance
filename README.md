@@ -86,10 +86,10 @@ pip install -r requirements.txt
 ### Contenedor Docker
 
 ```bash
-docker compose build
-docker compose up -d
+docker compose -f quant-token-compose.yml build
+docker compose -f quant-token-compose.yml up -d
 # Ejecutar comandos dentro del contenedor
-docker compose run --rm app pytest
+docker compose -f quant-token-compose.yml run --rm quant_token_app pytest
 ```
 
 El contenedor expone el puerto `8000` (servidor HTTP simple) y monta el código
@@ -98,7 +98,7 @@ local en `/app` para permitir hot-reload durante el desarrollo.
 ## Tests
 
 - Ejecución local: `pytest`
-- Via Docker: `docker compose run --rm app pytest`
+- Via Docker: `docker compose -f quant-token-compose.yml run --rm quant_token_app pytest`
 - `tests/test_amm/`: nuevo paquete de tests placeholder para los módulos AMM.
 
 Cada archivo en `tests/` está marcado con `pytest.skip()` hasta que los módulos
@@ -121,6 +121,22 @@ de negocio estén implementados.
 - `scripts/optimize_pool_ranges.py`: Optimización de rangos Uniswap v3 mediante SciPy.
 - `scripts/compare_dcf_market.py`: Comparación rápida de valuaciones DCF vs. precio de pool.
 - Visualización: `pftoken.viz.dashboards.build_financial_dashboard` genera figuras base para reportes.
+- Validación Excel ↔ Python: `TP_Quant_Validation.xlsx` compara CFADS/DSCR generados por el código contra la hoja T‑047. Ejecuta `pytest tests/test_excel_validation.py` o el notebook `notebooks/02_excel_vs_python.ipynb` para revisar las diferencias.
+
+## WP-02/WP-03 Pipeline
+
+- Regenera los CSV críticos a partir del Excel fuente con `python scripts/validate_input_data.py`.
+- Orquesta CFADS → waterfall → ratios mediante `pftoken.pipeline.FinancialPipeline`.
+- Ejecuta todo dentro de Docker:
+
+```bash
+docker compose -f quant-token-compose.yml -p qptf build
+docker compose -f quant-token-compose.yml -p qptf up -d
+docker compose -f quant-token-compose.yml -p qptf exec quant_token_app python scripts/validate_input_data.py
+docker compose -f quant-token-compose.yml -p qptf exec quant_token_app pytest tests/ -v
+```
+
+- Los notebooks en `notebooks/0*_*.ipynb` documentan validación T‑047, comparación Excel vs Python y la mecánica del waterfall.
 
 ## CI/CD
 

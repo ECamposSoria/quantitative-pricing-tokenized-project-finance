@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  quant_token_app:
+    build: .
+    ports:
+      - "8020:8000"
+    volumes:
+      - .:/app
+      - ./.mplconfig:/app/.mplconfig
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - MPLCONFIGDIR=/app/.mplconfig
+    command: python -m http.server 8000
+    networks:
+      - quant_token_net
+
+networks:
+  quant_token_net:
+    driver: bridge

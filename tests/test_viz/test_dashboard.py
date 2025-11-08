@@ -15,6 +15,10 @@ def test_build_financial_dashboard(project_parameters: ProjectParameters):
         "dscr_timeseries",
         "ratio_snapshot",
         "capital_structure",
+        "waterfall_cascade",
+        "reserves_levels",
+        "covenant_heatmap",
+        "structure_radar",
     }
     for fig in figures.values():
         assert isinstance(fig, mpl_fig.Figure)

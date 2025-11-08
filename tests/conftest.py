@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pftoken.models import ProjectParameters
+from pftoken.models import CFADSCalculator, ProjectParameters
 
 
 @pytest.fixture
@@ -17,11 +17,9 @@ def project_parameters() -> ProjectParameters:
 
 
 @pytest.fixture
-def cfads_calculator(project_parameters: ProjectParameters):
+def cfads_calculator(project_parameters: ProjectParameters) -> CFADSCalculator:
     """Convenience fixture returning a CFADS calculator."""
-    from pftoken.models import CFADSModel
-
-    return CFADSModel(project_parameters)
+    return CFADSCalculator.from_project_parameters(project_parameters)
 
 
 @pytest.fixture

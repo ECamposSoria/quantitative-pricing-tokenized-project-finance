@@ -1,33 +1,36 @@
 import pytest
 
-from pftoken.models import CFADSScenarioInputs, calculate_cfads
+
+EXPECTED_CFADS = {
+    1: -0.6,
+    2: -1.2,
+    3: 0.3,
+    4: 5.0,
+    5: 12.4,
+    6: 18.0,
+    7: 22.1,
+    8: 24.1,
+    9: 25.3,
+    10: 22.8,
+    11: 21.0,
+    12: 19.7,
+    13: 17.4,
+    14: 15.2,
+    15: 13.0,
+}
 
 
-def test_cfads_baseline_positive_cfads(project_parameters):
-    statement = calculate_cfads(project_parameters, year=5)
-    assert statement.year == 5
-    assert statement.revenue > 0
-    assert statement.cfads != 0
-    assert statement.ebitda == pytest.approx(statement.revenue - statement.opex, rel=1e-6)
+def test_cfads_year_1(cfads_calculator):
+    vector = cfads_calculator.calculate_cfads_vector()
+    assert vector[1] == pytest.approx(EXPECTED_CFADS[1], abs=0.01)
 
 
-def test_cfads_revenue_scales_with_arpu(project_parameters):
-    base = calculate_cfads(project_parameters, year=6)
-    higher_arpu = calculate_cfads(
-        project_parameters,
-        year=6,
-        scenario=CFADSScenarioInputs(arpu_multiplier=1.1),
-    )
-    assert higher_arpu.revenue > base.revenue
-    assert higher_arpu.cfads > base.cfads
+def test_cfads_year_5(cfads_calculator):
+    vector = cfads_calculator.calculate_cfads_vector()
+    assert vector[5] == pytest.approx(12.4, abs=0.01)
 
 
-def test_cfads_invalid_year_raises(project_parameters):
-    with pytest.raises(ValueError):
-        calculate_cfads(project_parameters, year=99)
-
-
-def test_cfads_rcapex_recorded_but_not_deducted(project_parameters):
-    statement = calculate_cfads(project_parameters, year=5)
-    assert statement.rcapex_investment > 0
-    assert statement.cfads > 0
+def test_cfads_sum_matches_spec(cfads_calculator):
+    vector = cfads_calculator.calculate_cfads_vector()
+    total = sum(vector.values())
+    assert total == pytest.approx(214.5, abs=0.01)

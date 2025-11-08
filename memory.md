@@ -1,12 +1,12 @@
 markdown# System Memory
 
-## Last Updated: 2025-10-31 18:05 UTC
-## Version: 0.3.2
+## Last Updated: 2025-11-02 14:20 UTC
+## Version: 0.4.0
 
 ### Current Architecture
-- `pftoken` mantiene el modelo de parámetros validado (`ProjectParameters`) conectado a módulos determinísticos (CFADS, ratios, dashboard) y AMM/integration scaffolding.
-- Dataset LEO IoT ajustado para representar un caso financiable (revenues mayores, RCAPEX moderado) preservando backups `*_ORIGINAL.csv`.
-- Viz package expone dashboard matricial y scripts pueden generar PNGs vía Docker/venv con Matplotlib cache configurado.
+- `ProjectParameters` ahora es un loader liviano (dataclasses) que alimenta CFADS, ratios y el nuevo `FinancialPipeline` (CFADS → waterfall → covenants → viz).
+- Dataset LEO IoT (T-047) regenerado directamente desde `Proyecto LEO IOT.xlsx`; `scripts/validate_input_data.py` garantiza coherencia.
+- Viz package genera dashboard expandido (cascada waterfall, reservas DSRA/MRA, heatmap de covenants, radar de estructura) usando resultados del pipeline.
 
 ### Technologies & Versions
 - Python: 3.12 (container base image `python:3.12-slim`)
@@ -20,9 +20,10 @@ markdown# System Memory
 - Environment Variables: `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`, `PYTHONPATH=/app`, `MPLCONFIGDIR=/app/.mplconfig`
 
 ### Implemented Features
-- CFADS pipeline con descomposición detallada, escenarios, y ratios (DSCR/LLCR/PLCR) integrados.
-- Dashboard base (`build_financial_dashboard`) que grafica CFADS vs servicio de deuda, DSCR, ratios LLCR/PLCR y estructura de capital.
-- LEO dataset reparametrizado: inicial ARPU/Devices mayores, OPEX/ΔWC moderados, RCAPEX de 120 MM en años 5/10.
+- CFADS vector exacto a T-047 (anual) + DSCR phase-aware (`compute_dscr_by_phase`).
+- Waterfall engine (interés → DSRA → principal → MRA → sweep/dividendos) con seguimiento de reservas y covenants.
+- Financial pipeline + comparator tradicional/tokenizado, Excel validation suite (`tests/test_excel_validation.py`) y TP_Quant_Validation.xlsx.
+- Dashboard extendido con nuevas visualizaciones enlazadas al pipeline.
 
 ### API Endpoints (if applicable)
 - Ninguno (librería offline).
@@ -31,9 +32,9 @@ markdown# System Memory
 - No aplica.
 
 ### Key Functions/Classes
-- `ProjectParameters.from_directory` (carga validada de inputs).
-- `calculate_cfads`, `compute_dscr`, `compute_llcr`, `compute_plcr`.
-- `build_financial_dashboard`, `save_dashboard` (visualización determinística).
+- `ProjectParameters.from_directory`, `CFADSCalculator`, `compute_dscr_by_phase`.
+- `DebtStructure`, `CovenantEngine`, `WaterfallEngine`, `FinancialPipeline`.
+- `StructureComparator`, `build_financial_dashboard`, notebooks `01-03_*` para validación/explicación.
 
 ### Integration Points
 - DCF ↔ AMM adapters (`integration` package) siguen placeholders pero conectados a parámetros validados.
@@ -45,13 +46,12 @@ markdown# System Memory
 - Tests: `pytest`
 
 ### Recent Changes
-- 2025-02-14: Dashboard base con Matplotlib, documentación y pruebas.
-- 2025-10-31: Ajuste de CSV LEO IoT (revenues, RCAPEX, OPEX) → DSCR≥1.25 años 1-4, LLCR≈2.0, PLCR≈2.0.
+- 2025-11-02: WP-02/WP-03 entrega parcial → datasets regenerados, pipeline integrado, Excel validation workbook, dashboard extendido.
 
 ### Known Issues
-- Falta lógica de waterfall, stress avanzado y Monte Carlo (placeholders).
-- RSCA (LLCR/PLCR) depende de supuestos simplificados; no hay optimización automática aún.
+- Stress/Monte Carlo y pricing AMM siguen placeholders; waterfall no ejecuta LLCR/PLCR ni ajustes PIK.
+- Excel workbook compara métricas principales pero falta automatizar importación bidireccional.
 
 ### Next Steps
-- Implementar waterfall y stress loops para integrar dashboards avanzados.
-- Desarrollar optimización de capital (T-036) y análisis de sensibilidad.
+- Implementar stress/Monte Carlo (T-021) usando nuevo pipeline como core.
+- Añadir LLCR/PLCR dentro del waterfall + reportes (T-015/T-017) y optimización de capital (T-036).

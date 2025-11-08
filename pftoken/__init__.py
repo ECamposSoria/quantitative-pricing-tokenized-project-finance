@@ -16,6 +16,7 @@ from . import (
     viz,
     utils,
     amm,
+    pipeline,
     integration,
 )
 
@@ -34,5 +35,6 @@ __all__ = [
     "viz",
     "utils",
     "amm",
+    "pipeline",
     "integration",
 ]

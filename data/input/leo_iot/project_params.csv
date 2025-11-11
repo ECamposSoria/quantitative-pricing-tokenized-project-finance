@@ -1,15 +1,15 @@
 param,value,unit,description
-debt_senior_principal,43200000,usd,Senior tranche principal
-debt_mezzanine_principal,18000000,usd,Mezzanine tranche principal
-debt_sub_principal,10800000,usd,Subordinated tranche principal
+debt_senior_principal,43200000.0,usd,Senior tranche principal
+debt_mezzanine_principal,18000000.0,usd,Mezzanine tranche principal
+debt_sub_principal,10800000.0,usd,Subordinated tranche principal
 debt_senior_rate,0.06,ratio,Senior interest rate 6.0%
 debt_mezz_rate,0.085,ratio,Mezzanine interest rate 8.5%
 debt_sub_rate,0.11,ratio,Subordinated interest rate 11.0%
-grace_period_years,4,years,Grace period duration
-ramping_period_months,24,months,Ramping period duration with sculpted amortization
-tenor_years,15,years,Total tenor
-analysis_horizon_years,15,years,Projection horizon
-periods_per_year,1,count,Projection periodicity (annual for T-047)
+grace_period_years,4.0,years,Grace period duration
+ramping_period_months,24.0,months,Ramping period duration with sculpted amortization
+tenor_years,15.0,years,Total tenor
+analysis_horizon_years,15.0,years,Projection horizon
+periods_per_year,1.0,count,Projection periodicity (annual for T-047)
 min_dscr_covenant,1.45,ratio,Minimum DSCR for sculpted amortization
 dscr_grace_threshold,1.0,ratio,Minimum DSCR during grace period
 dscr_default_trigger,1.0,ratio,DSCR trigger for technical default
@@ -20,5 +20,6 @@ spread_senior,0.01,ratio,Senior spread 100 bps
 spread_mezz,0.035,ratio,Mezzanine spread 350 bps
 spread_sub,0.06,ratio,Subordinated spread 600 bps
 target_dscr_years_5_10,1.45,ratio,DSCR target years 5-10
-dsra_months_cover,6,months,DSRA covers 6 months of service
-mra_target_pct_next_rcapex,0.5,ratio,MRA equals 50% of next RCAPEX
+dsra_months_cover,6.0,months,DSRA covers 6 months of service
+mra_target_pct_next_rcapex,0.35,ratio,MRA equals 35% of next RCAPEX
+dsra_initial,18.0,usd,DSRA initial equity funding

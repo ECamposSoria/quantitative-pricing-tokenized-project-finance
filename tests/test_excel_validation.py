@@ -41,7 +41,7 @@ def test_excel_vs_python_cfads(workbook, python_cfads):
 
 def test_excel_vs_python_dscr(workbook, python_dscr):
     ws = workbook["Ratios"]
-    outputs = {4: 0.942, 5: 1.45, 11: 1.962}
+    outputs = {4: 0.942, 5: 1.45, 11: 1.644}
     for year, target in outputs.items():
         excel_dscr = ws.cell(row=year + 1, column=4).value
         python_dscr_val = python_dscr[year]["value"]

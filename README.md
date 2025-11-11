@@ -107,6 +107,7 @@ de negocio estén implementados.
 ## Datos
 
 - `data/input/leo_iot/`: CSVs de ejemplo para parámetros, tramos y proyecciones.
+- `data/input/leo_iot/revenue_projection.csv`: ahora incluye columnas de `dsra_funding`, `dsra_release`, `mra_funding` y `mra_use` para rastrear reservas junto con `rcapex`.
 - `data/input/amm_config/`: Configuraciones JSON/CSV para pools tokenizados.
 - `data/input/templates/`: Plantillas para nuevos datasets.
 - `data/output/amm_simulations/`: Resultado esperado de simulaciones AMM (placeholders).
@@ -125,9 +126,13 @@ de negocio estén implementados.
 
 ## WP-02/WP-03 Pipeline
 
-- Regenera los CSV críticos a partir del Excel fuente con `python scripts/validate_input_data.py`.
+- Regenera los CSV críticos a partir del Excel fuente con `python scripts/validate_input_data.py`. Este script verifica montos de tramos y la nueva proyección de CFADS (con DSRA/MRA/RCAPEX).
 - Orquesta CFADS → waterfall → ratios mediante `pftoken.pipeline.FinancialPipeline`.
 - Ejecuta todo dentro de Docker:
+    - CFADS incluye un RCAPEX “diet” de 18 MUSD distribuidos entre los años 6‑15 ({1.2, 1.5, 1.65, 1.7, 1.55, 3.4, 2.25, 2.0, 1.5, 1.25} MUSD) equivalente a ~8% de la flota cada 3 años, desplazando la mayor parte del mantenimiento mayor al periodo post‑deuda.
+    - Las reservas DSRA/MRA se modelan vía las columnas `dsra_*` y `mra_*` en `revenue_projection.csv` (DSRA inicial = 18 MUSD fondeada por equity al cierre para cubrir los 4 años de gracia, MRA = 35% del próximo RCAPEX acumulado durante los 3 años previos con contribuciones solapadas).
+    - Esta calibración eleva el CFADS total a 196.5 MUSD y mantiene DSCR en el rango 1.35‑1.65x durante los años operativos (6‑15), dejando >100 bps de colchón vs. el piso de 1.25x.
+    - Fuentes y usos: 72 MUSD deuda + 54 MUSD equity; de este equity, 18 MUSD se depositan en el DSRA al cierre para cubrir los intereses del período de gracia sin recurrir a aportes posteriores.
 
 ```bash
 docker compose -f quant-token-compose.yml -p qptf build

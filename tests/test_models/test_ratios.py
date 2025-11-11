@@ -25,4 +25,4 @@ def test_dscr_amortization_year_five(dscr_results):
 
 
 def test_dscr_steady_state_year_eleven(dscr_results):
-    assert dscr_results[11]["value"] == pytest.approx(1.962, abs=0.001)
+    assert dscr_results[11]["value"] == pytest.approx(1.644, abs=0.001)

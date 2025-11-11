@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Iterable, List, Optional
 
+from pftoken.config.defaults import DEFAULT_COVENANT_LIMITS, CovenantLimits
+from pftoken.models.ratios import LLCRObservation
 
 class CovenantSeverity(str, Enum):
     LOW = "low"
@@ -39,8 +41,14 @@ class CovenantBreach:
 class CovenantEngine:
     """Evaluates covenant metrics and tracks breaches across periods."""
 
-    def __init__(self, covenants: Iterable[Covenant]):
-        self.covenants = list(covenants)
+    def __init__(
+        self,
+        covenants: Iterable[Covenant] | None = None,
+        *,
+        limits: CovenantLimits | None = None,
+    ):
+        self.limits = limits or DEFAULT_COVENANT_LIMITS
+        self.covenants = list(covenants) if covenants is not None else self._build_default_covenants()
         self.breach_history: List[CovenantBreach] = []
 
     def find_covenant(self, metric: CovenantType) -> Optional[Covenant]:
@@ -85,6 +93,36 @@ class CovenantEngine:
         else:
             actions["block_dividends"] = True
         return actions
+
+    def evaluate_llcr(self, llcr_results: Dict[str, LLCRObservation], period: int) -> List[CovenantBreach]:
+        breaches: List[CovenantBreach] = []
+        for observation in llcr_results.values():
+            if observation.value < observation.threshold:
+                breach = CovenantBreach(
+                    covenant=Covenant(
+                        name=f"LLCR {observation.tranche}",
+                        metric=CovenantType.LLCR,
+                        threshold=observation.threshold,
+                        action="restrict_releverage",
+                        severity=CovenantSeverity.MEDIUM,
+                    ),
+                    metric_value=observation.value,
+                    period=period,
+                )
+                breaches.append(breach)
+                self.breach_history.append(breach)
+        return breaches
+
+    def _build_default_covenants(self) -> List[Covenant]:
+        return [
+            Covenant(
+                name="DSCR Minimum",
+                metric=CovenantType.DSCR,
+                threshold=self.limits.min_dscr,
+                action="block_dividends",
+                severity=CovenantSeverity.MEDIUM,
+            )
+        ]
 
 
 __all__ = [

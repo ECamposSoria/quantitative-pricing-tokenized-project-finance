@@ -108,16 +108,19 @@ de negocio estén implementados.
 
 - `data/input/leo_iot/`: CSVs de ejemplo para parámetros, tramos y proyecciones.
 - `data/input/leo_iot/revenue_projection.csv`: ahora incluye columnas de `dsra_funding`, `dsra_release`, `mra_funding` y `mra_use` para rastrear reservas junto con `rcapex`.
+- `data/input/`: **Inmutable**. Nunca se modifica desde scripts; toda salida derivada vive en `data/derived/` o `data/output/`.
 - `data/input/amm_config/`: Configuraciones JSON/CSV para pools tokenizados.
 - `data/input/templates/`: Plantillas para nuevos datasets.
+- `data/derived/leo_iot/`: Parámetros de calibración generados (ej. `stochastic_params.yaml`), sincronizados manualmente desde Excel.
 - `data/output/amm_simulations/`: Resultado esperado de simulaciones AMM (placeholders).
-- `data/output/`: Destino esperado de resultados de simulación, estrés y reportes.
+- `data/output/`: Destino esperado de resultados de simulación, estrés y reportes (incluyendo las exportaciones para Excel).
 
 ## Scripts
 
 - `scripts/run_simulation.py`: Orquestación de simulaciones (placeholder).
 - `scripts/generate_report.py`: Generación de dashboards (placeholder).
 - `scripts/validate_data.py`: Validación de datasets (placeholder).
+- `scripts/export_excel_validation.py`: Exporta snapshots CSV (CFADS, ratios, waterfall) a `data/output/excel_exports/<timestamp>/` para refrescar manualmente el workbook `TP_Quant_Validation.xlsx` respetando la tolerancia de 0.01 %.
 - `scripts/run_amm_stress.py`: Stress de liquidez AMM (placeholder con métricas básicas).
 - `scripts/optimize_pool_ranges.py`: Optimización de rangos Uniswap v3 mediante SciPy.
 - `scripts/compare_dcf_market.py`: Comparación rápida de valuaciones DCF vs. precio de pool.
@@ -130,7 +133,7 @@ de negocio estén implementados.
 - Orquesta CFADS → waterfall → ratios mediante `pftoken.pipeline.FinancialPipeline`.
 - Ejecuta todo dentro de Docker:
     - CFADS incluye un RCAPEX “diet” de 18 MUSD distribuidos entre los años 6‑15 ({1.2, 1.5, 1.65, 1.7, 1.55, 3.4, 2.25, 2.0, 1.5, 1.25} MUSD) equivalente a ~8% de la flota cada 3 años, desplazando la mayor parte del mantenimiento mayor al periodo post‑deuda.
-    - Las reservas DSRA/MRA se modelan vía las columnas `dsra_*` y `mra_*` en `revenue_projection.csv` (DSRA inicial = 18 MUSD fondeada por equity al cierre para cubrir los 4 años de gracia, MRA = 35% del próximo RCAPEX acumulado durante los 3 años previos con contribuciones solapadas).
+    - Las reservas DSRA/MRA se modelan vía las columnas `dsra_*` y `mra_*` en `revenue_projection.csv` (DSRA inicial = 18 MUSD fondeada por equity al cierre para cubrir los 4 años de gracia, MRA = **50%** del próximo RCAPEX acumulado durante los 3 años previos con contribuciones solapadas).
     - Esta calibración eleva el CFADS total a 196.5 MUSD y mantiene DSCR en el rango 1.35‑1.65x durante los años operativos (6‑15), dejando >100 bps de colchón vs. el piso de 1.25x.
     - Fuentes y usos: 72 MUSD deuda + 54 MUSD equity; de este equity, 18 MUSD se depositan en el DSRA al cierre para cubrir los intereses del período de gracia sin recurrir a aportes posteriores.
 
@@ -142,6 +145,13 @@ docker compose -f quant-token-compose.yml -p qptf exec quant_token_app pytest te
 ```
 
 - Los notebooks en `notebooks/0*_*.ipynb` documentan validación T‑047, comparación Excel vs Python y la mecánica del waterfall.
+- El servicio Docker corre como usuario no root (`appuser`, UID configurable vía `UID/GID`) y expone un healthcheck (`python -m pftoken.healthcheck`). Compose aplica `restart: unless-stopped` y `mem_limit: 1g` para mantener la política de ejecución.
+
+### Stochastic Calibration Snapshot
+
+- `pftoken.models.calibration` carga tanto los parámetros estructurales (PD/LGD) como las distribuciones para variables aleatorias.
+- `pftoken.simulation.StochasticVariables` genera lognormales/beta/bernoulli/normal con soporte para antithetic variates.
+- `pftoken.simulation.CorrelatedSampler` utiliza la matriz `correlation.matrix` del YAML para producir muestras correlacionadas (Cholesky) y alimentar futuras simulaciones Monte Carlo.
 
 ## CI/CD
 

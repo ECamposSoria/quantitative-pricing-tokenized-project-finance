@@ -23,6 +23,7 @@ class ReserveState:
     mra_balance: float = 0.0
     dsra_target: float = 0.0
     mra_target: float = 0.0
+    lock_until_year: int = 0
 
     def update_targets(self, next_service: float, next_rcapex: float) -> None:
         ratio = max(self.dsra_months_cover, 0) / 12.0
@@ -43,7 +44,9 @@ class WaterfallResult:
     interest_payments: Dict[str, float] = field(default_factory=dict)
     principal_payments: Dict[str, float] = field(default_factory=dict)
     dsra_funding: float = 0.0
+    dsra_release: float = 0.0
     mra_funding: float = 0.0
+    mra_release: float = 0.0
     cash_sweep: float = 0.0
     dividends: float = 0.0
     remaining_cash: float = 0.0
@@ -87,6 +90,12 @@ class WaterfallEngine:
         next_service = self._service_for_year(debt_schedule, year + 1)
         next_rcapex = self._rcapex_for_year(rcapex_schedule, year + 1)
         reserves.update_targets(next_service, next_rcapex)
+        dsra_release = 0.0
+        if year > reserves.lock_until_year and reserves.dsra_balance > reserves.dsra_target:
+            dsra_release = reserves.dsra_balance - reserves.dsra_target
+            reserves.dsra_balance -= dsra_release
+            cash += dsra_release
+        result.dsra_release = dsra_release
         dsra_shortfall = max(reserves.dsra_target - reserves.dsra_balance, 0.0)
         dsra_funding = min(cash, dsra_shortfall)
         reserves.dsra_balance += dsra_funding
@@ -103,11 +112,17 @@ class WaterfallEngine:
             result.principal_payments[tranche.name] = paid
 
         # Step 4: Fund MRA
+        mra_release = 0.0
+        if reserves.mra_balance > reserves.mra_target:
+            mra_release = reserves.mra_balance - reserves.mra_target
+            reserves.mra_balance -= mra_release
+            cash += mra_release
         mra_shortfall = max(reserves.mra_target - reserves.mra_balance, 0.0)
         mra_funding = min(cash, mra_shortfall)
         reserves.mra_balance += mra_funding
         cash -= mra_funding
         result.mra_funding = mra_funding
+        result.mra_release = mra_release
         result.mra_balance = reserves.mra_balance
         result.mra_target = reserves.mra_target
 

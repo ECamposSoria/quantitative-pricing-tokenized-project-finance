@@ -20,3 +20,5 @@ dist/
 .eggs/
 *.egg-info/
 data/output/
+data/derived/**/*.csv
+data/derived/**/*.parquet

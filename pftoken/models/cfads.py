@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Iterable, List
 
 import pandas as pd
 
+from pftoken.config.defaults import DEFAULT_DSCR_THRESHOLDS, DSCRThresholds
+
 from .params import CFADSProjectionParams, ProjectParameters, ProjectParams
+from .cfads_components import CFADSComponentCalculator, CFADSResult
 
 
 @dataclass(frozen=True)
@@ -21,23 +24,44 @@ class CFADSProfile:
 
 
 class CFADSCalculator:
-    """Load CFADS projections directly from revenue_projection.csv."""
+    """Deterministic CFADS calculator with phase-aware adjustments."""
 
-    def __init__(self, project: ProjectParams, projection: CFADSProjectionParams):
+    def __init__(
+        self,
+        project: ProjectParams,
+        projection: CFADSProjectionParams,
+        *,
+        thresholds: DSCRThresholds | None = None,
+    ):
         self.project = project
         self.projection = projection
+        self.thresholds = thresholds or DEFAULT_DSCR_THRESHOLDS
+        self._component_calculator = CFADSComponentCalculator(
+            projection=self.projection.to_dataframe()
+        )
+        self._cfads_results: List[CFADSResult] | None = None
 
     @classmethod
     def from_project_parameters(cls, params: ProjectParameters) -> "CFADSCalculator":
-        return cls(params.project, params.cfads_projection)
+        return cls(
+            params.project,
+            params.cfads_projection,
+            thresholds=DEFAULT_DSCR_THRESHOLDS,
+        )
 
     def calculate_cfads_vector(self) -> Dict[int, float]:
         """Return {year: cfads} using the calibrated projection."""
-        return self.projection.cfads_by_year()
+        return {result.year: result.cfads for result in self.cfads_results}
 
     def load_cfads_from_projection(self) -> CFADSProfile:
         """Convenience wrapper mainly used by tests and validation scripts."""
         return CFADSProfile(self.calculate_cfads_vector())
+
+    @property
+    def cfads_results(self) -> List[CFADSResult]:
+        if self._cfads_results is None:
+            self._cfads_results = self._component_calculator.build_components()
+        return self._cfads_results
 
     def apply_grace_period_adjustment(self, debt_schedule: pd.DataFrame) -> pd.DataFrame:
         """Force principal to zero during the grace period to avoid drift."""
@@ -55,7 +79,7 @@ class CFADSCalculator:
         """Gradually scale principal during ramping (años 5-7)."""
 
         cfads_values = cfads_vector or self.calculate_cfads_vector()
-        target = target_dscr or self.project.target_dscr_years_5_10
+        target = target_dscr or self.thresholds.ramp
         df = debt_schedule.copy()
         ramp_years = max(1, int(max(self.project.ramping_period_years, 1)))
         start_year = self.project.grace_period_years + 1
@@ -76,4 +100,4 @@ class CFADSCalculator:
         return df
 
 
-__all__ = ["CFADSCalculator", "CFADSProfile"]
+__all__ = ["CFADSCalculator", "CFADSProfile", "CFADSResult"]

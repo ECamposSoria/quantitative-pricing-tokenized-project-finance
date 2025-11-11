@@ -1,0 +1,47 @@
+version: 0.1.0
+as_of: 2025-11-11
+description: Placeholder deterministic calibration for WP-02/WP-03 testing (full T-047 pending T-022/T-023).
+params:
+  senior:
+    asset_volatility: 0.22
+    spread_bps: 150
+    recovery_rate: 0.55
+    pd_floor: 0.015
+  mezzanine:
+    asset_volatility: 0.28
+    spread_bps: 325
+    recovery_rate: 0.40
+    pd_floor: 0.035
+  subordinated:
+    asset_volatility: 0.35
+    spread_bps: 575
+    recovery_rate: 0.25
+    pd_floor: 0.065
+random_variables:
+  revenue_growth:
+    distribution: lognormal
+    mu: 0.065
+    sigma: 0.18
+  churn_rate:
+    distribution: beta
+    alpha: 2.1
+    beta: 8.4
+  rate_shock:
+    distribution: normal
+    mean: 0.0
+    sigma: 0.015
+  launch_failure:
+    distribution: bernoulli
+    probability: 0.07
+  opex_inflation:
+    distribution: lognormal
+    mu: 0.03
+    sigma: 0.07
+correlation:
+  variables: [revenue_growth, churn_rate, rate_shock, launch_failure, opex_inflation]
+  matrix:
+    - [1.0, -0.35, 0.25, 0.10, 0.30]
+    - [-0.35, 1.0, -0.15, -0.05, -0.25]
+    - [0.25, -0.15, 1.0, 0.05, 0.20]
+    - [0.10, -0.05, 0.05, 1.0, 0.05]
+    - [0.30, -0.25, 0.20, 0.05, 1.0]

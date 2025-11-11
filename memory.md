@@ -1,7 +1,7 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-11 02:05 UTC
-## Version: 0.4.3
+## Last Updated: 2025-11-12 04:15 UTC
+## Version: 0.5.0
 
 ### Current Architecture
 - `ProjectParameters` ahora es un loader liviano (dataclasses) que alimenta CFADS, ratios y el nuevo `FinancialPipeline` (CFADS → waterfall → covenants → viz).
@@ -11,7 +11,7 @@ markdown# System Memory
 
 ### Technologies & Versions
 - Python: 3.12 (container base image `python:3.12-slim`)
-- Libraries: numpy, pandas, scipy, matplotlib, pytest, jupyter, numpy-financial, eth-abi, pydantic
+- Libraries: numpy, pandas, scipy, matplotlib, pytest, jupyter, numpy-financial, eth-abi, pydantic, PyYAML
 
 ### Container Setup
 - Base Image: `python:3.12-slim`
@@ -21,10 +21,16 @@ markdown# System Memory
 - Environment Variables: `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`, `PYTHONPATH=/app`, `MPLCONFIGDIR=/app/.mplconfig`
 
 ### Implemented Features
-- CFADS vector actualizado (total 196.5 MUSD) con RCAPEX diet y campos `dsra_*`/`mra_*` para fondeo y uso de reservas; DSCR phase-aware (`compute_dscr_by_phase`) se sitúa entre 1.35x y 1.65x en operación, muy por encima del piso de 1.25x.
-- Waterfall engine (interés → DSRA → principal → MRA → sweep/dividendos) con seguimiento de reservas y covenants.
-- Financial pipeline + comparator tradicional/tokenizado, Excel validation suite (`tests/test_excel_validation.py`) y TP_Quant_Validation.xlsx sincronizados con el nuevo set de datos (CFADS total = 178.5 MUSD, DSCR años 6 y 10 estresados).
-- Dashboard extendido con nuevas visualizaciones enlazadas al pipeline.
+- CFADS deterministic components (`pftoken.models.cfads_components`) verifican ingresos/OPEX/CAPEX/impuestos por año y se validan automáticamente contra Excel con tolerancia <0.01 %.
+- `RatioCalculator` produce DSCR por fase y LLCR/PLCR por tramo usando los umbrales compartidos (grace 1.0x, ramp 1.15x, steady 1.25x); los resultados alimentan `CovenantEngine`.
+- Placeholder de calibración T‑047 (`data/derived/leo_iot/stochastic_params.yaml`) consumido mediante `load_placeholder_calibration`; `MertonModel` ahora devuelve PD/LGD/EL vectorizados con pruebas unitarias.
+- `WaterfallOrchestrator` coordina CFADS → WaterfallEngine → reservas con DSRA inicial fijo (18 MUSD) y MRA = 50 % del próximo RCAPEX; registra equity IRR y saldos DSRA/MRA por período.
+- `StructureComparator` amplía el output con métricas de liquidez (cobertura DSRA/MRA) y la comparación global se integra en `FinancialPipeline`.
+- Gobernanza offline documentada en `docs/governance.md` y soportada por `GovernanceController`, `ThresholdPolicy`, `StaticOracle` y `LoggingAction`.
+- `StochasticVariables` + `CorrelatedSampler` (WP-07 T-022/T-023) generan distribuciones lognormal/beta/normal/bernoulli con antithetic variates y matrices de correlación validadas (Cholesky + eigenvalue check). Los parámetros provienen de `data/derived/leo_iot/stochastic_params.yaml`.
+- Docker multi-stage + healthcheck (`pftoken.healthcheck`), usuario no root (`appuser`), y Compose actualizado con `restart`/`mem_limit` para cumplir la política de operación.
+- `scripts/export_excel_validation.py` genera snapshots (CFADS/Ratios/Waterfall) en `data/output/excel_exports/<timestamp>/` para refrescar `TP_Quant_Validation.xlsx` sin tocar los CSV fuente.
+- README/user-guide actualizados para reflejar política de datos inmutable, DSRA/MRA baseline y el nuevo flujo de validación.
 
 ### API Endpoints (if applicable)
 - Ninguno (librería offline).
@@ -45,14 +51,18 @@ markdown# System Memory
 - Build: `docker compose build`
 - Run: `docker compose up -d`
 - Tests: `pytest`
+- Excel exports: `python scripts/export_excel_validation.py --data-dir data/input/leo_iot --output-root data/output/excel_exports`
 
 ### Recent Changes
-- 2025-11-11: RCAPEX diet (18 MUSD) adoptado para priorizar DSCR ≥ 1.35x; Excel/CSV/TP_Quant_Validation sincronizados, CFADS total pasa a 196.5 MUSD y suites de validación actualizadas. Se incrementa el DSRA inicial a 18 MUSD (equity) para cubrir íntegramente los 4 años de gracia.
+- 2025-11-12: Implementado stack WP-02/WP-03 determinístico (CFADS components, RatioCalculator, placeholder Merton PD/LGD/EL, full Waterfall orchestrator, governance controller). Se agrega exportador para Excel, documentación (`docs/calibration.md`, `docs/governance.md`) y se actualizan pruebas con la tolerancia <0.01 %.
 
 ### Known Issues
-- Stress/Monte Carlo y pricing AMM siguen placeholders; waterfall no ejecuta LLCR/PLCR ni ajustes PIK.
-- Excel workbook compara métricas principales pero falta automatizar importación bidireccional.
+- T-047 calibración real (MC surfaces, correlaciones) pendiente de T-022/T-023; el YAML actual es determinístico.
+- El governance controller es offline; falta vincularlo con contratos/token holders.
+- Dockerfile no adopta aún el pipeline multi-stage/non-root descrito; se mantiene en backlog DevOps.
+- Automatización bidireccional Excel ↔ Python sigue fuera de alcance (solo export manual vía script).
 
 ### Next Steps
-- Implementar stress/Monte Carlo (T-021) usando nuevo pipeline como core.
-- Añadir LLCR/PLCR dentro del waterfall + reportes (T-015/T-017) y optimización de capital (T-036).
+- Implementar `MonteCarloEngine`/`merton_integration` (T-021/T-024) aprovechando las nuevas distribuciones y matriz de correlación para producir trayectorias de CFADS/PD.
+- Integrar LLCR/PLCR y covenants extendidos directamente en `WaterfallEngine` (prioridades T-015/T-017) con reportes para dashboards.
+- Desplegar pricing estocástico (WP-08) una vez que los outputs Monte Carlo estén disponibles para alimentar spreads y sensibilidades.

@@ -32,3 +32,5 @@ Thumbs.db
 
 # Project data outputs
 data/output/
+data/derived/**/*.csv
+data/derived/**/*.parquet

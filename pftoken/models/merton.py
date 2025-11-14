@@ -71,11 +71,16 @@ class MertonModel:
         horizon = len(self._cfads_array)
         results: Dict[str, MertonResult] = {}
 
-        for tranche in self.tranches:
+        ordered_tranches = sorted(self.tranches, key=lambda t: t.priority_level)
+        prev_pd = 0.0
+        for tranche in ordered_tranches:
             cal = self._calibration_for_tranche(tranche.name)
             debt = tranche.initial_principal / 1_000_000.0
             dd = distance_to_default(asset_value, debt, self.discount_rate, cal.asset_volatility, horizon)
             pd = max(norm.cdf(-dd), cal.pd_floor)
+            if pd < prev_pd:
+                pd = min(0.999, prev_pd + 1e-4)
+            prev_pd = pd
             lgd = 1.0 - cal.recovery_rate
             el = pd * lgd
             results[tranche.name] = MertonResult(

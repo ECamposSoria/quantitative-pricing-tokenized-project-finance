@@ -1,7 +1,7 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-12 04:15 UTC
-## Version: 0.5.0
+## Last Updated: 2025-11-13 17:00 UTC
+## Version: 0.7.0
 
 ### Current Architecture
 - `ProjectParameters` ahora es un loader liviano (dataclasses) que alimenta CFADS, ratios y el nuevo `FinancialPipeline` (CFADS → waterfall → covenants → viz).
@@ -12,6 +12,7 @@ markdown# System Memory
 ### Technologies & Versions
 - Python: 3.12 (container base image `python:3.12-slim`)
 - Libraries: numpy, pandas, scipy, matplotlib, pytest, jupyter, numpy-financial, eth-abi, pydantic, PyYAML
+- WP-04 añadió dependencias lógicas (scipy.optimize, matplotlib) pero ya estaban fijadas en `requirements.txt`.
 
 ### Container Setup
 - Base Image: `python:3.12-slim`
@@ -31,6 +32,33 @@ markdown# System Memory
 - Docker multi-stage + healthcheck (`pftoken.healthcheck`), usuario no root (`appuser`), y Compose actualizado con `restart`/`mem_limit` para cumplir la política de operación.
 - `scripts/export_excel_validation.py` genera snapshots (CFADS/Ratios/Waterfall) en `data/output/excel_exports/<timestamp>/` para refrescar `TP_Quant_Validation.xlsx` sin tocar los CSV fuente.
 - README/user-guide actualizados para reflejar política de datos inmutable, DSRA/MRA baseline y el nuevo flujo de validación.
+- WP-04 Pricing:
+  - `pftoken.pricing.zero_curve.ZeroCurve`: curve bootstrap (depósitos/swaps), interpolación log-lineal, forwards y shocks.
+  - `pftoken.pricing.base_pricing.PricingEngine`: precio limpio, YTM vía `scipy.optimize.brentq`, duración y convexidad por tramo + visualizaciones Matplotlib.
+  - `pftoken.pricing.wacd.WACDCalculator`: escenarios tradicional vs tokenizado (after-tax) reutilizando `PricingContext`.
+- `PricingEngine` expone metadata de YTM (`ytm_label`, `risk_free_curve_rate`, `spread_over_curve`, `explanatory_note`) para dejar explícito que el solver opera con la curva libre de riesgo y que los spreads viven en el modelo tokenizado.
+- `pftoken.pricing.collateral_adjust.CollateralAnalyzer`: waterfall de recoveries (haircuts + descuento por tiempo de liquidación).
+- Curva libre de riesgo de referencia: `data/derived/market_curves/usd_combined_curve_2025-11-07.csv` (Par Yield DGS + swap ICE 10Y) cargada con `load_zero_curve_from_csv`.
+- Documentación en `docs/pricing.md` y nueva sección “WP-04 – Pricing & Curves” en `README.md`.
+- Tests unitarios/integración en `tests/test_pricing/*` y `tests/test_integration/test_pricing_pipeline.py`.
+- Tokenized spread decomposition: `pftoken.pricing.spreads.TokenizedSpreadModel` combina crédito, liquidez (Amihud + α), originación y servicing (β/γ) e infraestructura blockchain (gas/oracles/risk premium) para reemplazar los deltas fijos del WACD; el tracker exporta `data/derived/tokenized_infra_costs.csv` y está documentado en `docs/tokenized_spread_decomposition.md`.
+- Sensitivity engine: `TokenizedSpreadModel.simulate_delta_scenarios()` genera 7 escenarios estándar (Tinlake ±50 %, beta overrides, Infra ×2, stressed) y exporta `data/derived/sensitivities/wacd_delta_sensitivity_<timestamp>.csv` que alimentan `WACDCalculator`.
+- `scripts/update_blockchain_infra.py` renueva `data/derived/tokenized_infra_costs.csv` usando APIs públicas (Etherscan API V2 multi-chain con fallback automático a los endpoints legacy + CoinGecko) y deja trazabilidad de fuentes en cada fila; si una llamada falla, el motivo queda embedido en `gas_price_source`.
+- `scripts/manage_tinlake_snapshot.py` gestiona `data/derived/liquidity/tinlake_metrics.json` (flags `--force-refresh`, `--offline`, `--status`) y emite registros JSON auditables.
+- `TokenizedSpreadConfig` ahora puede auto-calibrar los multiplicadores de liquidez consultando Tinlake (DeFiLlama API) y guarda un snapshot local en `data/derived/liquidity/tinlake_metrics.json`, con las métricas crudas (TVL ~1.45B, volumen diario ~2.4M, ticket promedio ~15.5M) y timestamp.
+- El delta tokenizado del WACD se deriva ahora de los componentes (liquidez, origination, servicing e infraestructura) y se exporta junto con el breakdown por tramo; los overrides (−75/−25 bps) siguen disponibles pero quedan documentados como tal.
+- **WP-04 QF deliverables:**
+  - **QF-1 (Delta Sensitivities):** `TokenizedSpreadModel.simulate_delta_scenarios()` +
+    `WACDCalculator.compare_traditional_vs_tokenized()` generan 7 escenarios,
+    recalculan WACD after-tax y exportan `wacd_delta_sensitivity_<timestamp>.csv`.
+  - **QF-2 (Risk-Free YTM Metadata):** `PricingEngine` serializa
+    `ytm_label`, `risk_free_curve_rate`, `spread_over_curve` y cuenta con el
+    test `test_ytm_is_below_coupon_when_price_above_par` para dejar constancia de
+    que YTM < cupón cuando el precio está sobre par.
+  - **QF-3 (Tinlake Snapshot Ops):** `scripts/manage_tinlake_snapshot.py` maneja
+    refresh/status/offline con warnings >7 días y fallback conservador; la data
+    queda en `tinlake_metrics.json` + `tinlake_metadata.json` y es consumida por
+    `LiquiditySpreadComponent`.
 
 ### API Endpoints (if applicable)
 - Ninguno (librería offline).
@@ -55,14 +83,22 @@ markdown# System Memory
 
 ### Recent Changes
 - 2025-11-12: Implementado stack WP-02/WP-03 determinístico (CFADS components, RatioCalculator, placeholder Merton PD/LGD/EL, full Waterfall orchestrator, governance controller). Se agrega exportador para Excel, documentación (`docs/calibration.md`, `docs/governance.md`) y se actualizan pruebas con la tolerancia <0.01 %.
+- 2025-11-13: Entregado WP-04 Pricing (ZeroCurve, PricingEngine, WACDCalculator, CollateralAnalyzer, documentación y suite de tests). Integración completa con `FinancialPipeline` respetando la tolerancia de 0.01 %.
+- 2025-11-13: WACD tokenizado ahora usa la descomposición modular (crédito, liquidez, fees, infraestructura) con CSV reproducible y reporte detallado (`docs/tokenized_spread_decomposition.md`).
+- 2025-11-13: Se agregan referencias abiertas (Gatti 2018, Esty & Sesia 2011, Sorge 2004, Chainlink docs, CoinGecko) y el script para automatizar el tracker de infra blockchain con fuentes públicas.
+- 2025-11-13: Motor de sensibilidades delta + export CSV, metadata de YTM (riesgo libre) y CLI `scripts/manage_tinlake_snapshot.py`; docs y README actualizados para WP-04.
 
 ### Known Issues
 - T-047 calibración real (MC surfaces, correlaciones) pendiente de T-022/T-023; el YAML actual es determinístico.
 - El governance controller es offline; falta vincularlo con contratos/token holders.
 - Dockerfile no adopta aún el pipeline multi-stage/non-root descrito; se mantiene en backlog DevOps.
 - Automatización bidireccional Excel ↔ Python sigue fuera de alcance (solo export manual vía script).
+- Collateral pool aún se modela como monto agregado proporcional a la deuda; necesitamos un dataset granular (satélites, licencias, contratos, seguros) con valor liquidable, haircuts y tiempos de realización para futuras iteraciones (WP‑05/06, gobernanza on-chain).
 
 ### Next Steps
 - Implementar `MonteCarloEngine`/`merton_integration` (T-021/T-024) aprovechando las nuevas distribuciones y matriz de correlación para producir trayectorias de CFADS/PD.
 - Integrar LLCR/PLCR y covenants extendidos directamente en `WaterfallEngine` (prioridades T-015/T-017) con reportes para dashboards.
 - Desplegar pricing estocástico (WP-08) una vez que los outputs Monte Carlo estén disponibles para alimentar spreads y sensibilidades.
+- Extender WP-04 hacia sensibilidades estocásticas/FX dinámicas y enlazar los outputs con dashboards tokenizados.
+- WP-04 follow-up: derivar credit spreads endógenos (Merton/Monte Carlo) + liquidity spreads (microestructura tipo Amihud/Roll) para reemplazar los deltas tokenizados fijos en el WACD una vez completado WP‑05/06.
+- Tokenización (spreads): calibrar α/β/γ y λ utilizando resultados Monte Carlo (WP‑05/06) y evidencia de microestructura / costos reales para actualizar `TokenizedSpreadConfig` y los CSV de infraestructura (extendiendo el script con datasets DeFiLlama/Uniswap cuando definamos los proxies).

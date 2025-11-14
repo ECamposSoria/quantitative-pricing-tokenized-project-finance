@@ -54,42 +54,42 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Loaders y validaciones; fuera de alcance ingesta directa de fuentes externas.
 
 ### T-003 · Cálculo CFADS determinístico
-**Estado actual:** Pendiente (hoy se lee CFADS directo del CSV calibrado).
+**Estado actual:** Hecho (`pftoken/models/cfads_components.py`, `CFADSCalculator`).
 - **Objetivo:** Implementar `CFADSCalculator` completo con cálculos de ingresos/OPEX/EBITDA/CAPEX/impuestos/CFADS por período.
 - **Dependencias:** T-013, T-046.
-- **Entregables:** Métodos `calculate_revenues`, `calculate_opex`, `calculate_ebitda`, `calculate_capex`, `calculate_tax`, `calculate_cfads_final`, dataclass `CFADSResult`, validaciones numéricas y `plot_cfads`.
+- **Entregables:** Dataclass `CFADSResult`, validaciones numéricas <0.01 % contra Excel, hardcode del RCAPEX diet (años 6‑15) y DSRA inicial 18 MUSD, trazabilidad revenue→OPEX→CAPEX→tax→CFADS.
 - **Notas teóricas:** Curvas S/logísticas para adopción IoT, degradación satelital, pérdidas fiscales arrastrables.
 - **Alcance:** Modelado anual/semestral; fuera de alcance integración directa con ERP.
 
 ### T-003B · Grace period y ramping
-**Estado actual:** En progreso (`apply_grace_period_adjustment`/`apply_ramping_adjustment` escalan schedule, falta lógica completa PIK/phi/DSRA).
-- **Objetivo:** Incorporar mecánicas de gracia/ramping en CFADS y servicio de deuda (intereses vs principal, PIK, DSCR ajustado).
+**Estado actual:** Hecho (`CFADSCalculator.apply_grace_period_adjustment`, `RatioCalculator`).
+- **Objetivo:** Incorporar mecánicas de gracia/ramping en CFADS y servicio de deuda (intereses vs principal, DSCR ajustado por fase).
 - **Dependencias:** T-003, T-013, T-014.
-- **Entregables:** Métodos `calculate_grace_period_service`, `calculate_adjusted_dscr`, reporte de fases, visualización por colores, validaciones (duración gracia+ramping ≤ tenor).
-- **Notas teóricas:** DSCR objetivo por fase (grace 1.0x, ramp 1.15x, steady 1.25x) según Gatti/Yescombe.
+- **Entregables:** DSCR thresholds centralizados (grace 1.0×, ramp 1.15×, steady 1.25×), reporte de fases con heatmap, validaciones (gracia+ramp ≤ tenor) y colorización para dashboards.
+- **Notas teóricas:** DSCR objetivo por fase según Gatti/Yescombe.
 - **Alcance:** Lógica financiera + reporting; fuera de alcance cambios en dataset base.
 
 ### T-004 · Ratios DSCR/LLCR/PLCR
-**Estado actual:** En progreso (`compute_dscr_by_phase` cubre DSCR básico; faltan LLCR/PLCR, breaches avanzados).
+**Estado actual:** Hecho (`pftoken/models/ratios.py`).
 - **Objetivo:** Implementar `RatioCalculator` con DSCR por fase, LLCR por tramo, PLCR total y detección de breaches.
 - **Dependencias:** T-003B, T-014, T-015.
-- **Entregables:** Dataclass `RatioResults`, métodos `calculate_dscr`, `calculate_llcr`, `calculate_plcr`, `check_covenant_breach`, visualizaciones (línea DSCR, LLCR/PLCR vs 1.0x).
+- **Entregables:** Dataclasses `RatioObservation`/`LLCRObservation`, `RatioResults`, cálculo de LLCR/PLCR por seniority, integración con `CovenantEngine` y visualizaciones <0.01 % tolerancia vs Excel.
 - **Notas teóricas:** Valor presente descontado al costo de deuda; PLCR>1 implica valor económico positivo.
 - **Alcance:** Métricas por tramo; fuera de alcance calificaciones externas.
 
 ### T-005 · Modelo Merton PD
-**Estado actual:** Pendiente (`pftoken/risk/credit_risk.py` placeholder).
+**Estado actual:** Hecho (`pftoken/models/merton.py` vectorizado).
 - **Objetivo:** Implementar `MertonModel` que valore activos vía CFADS esperados y calcule PD/LGD/EL basado en distancia a default.
 - **Dependencias:** T-003B, T-014, T-047.
-- **Entregables:** Simulación GBM V(t), cálculo de PD (`Φ(-DD)`), LGD por seniority, dataclass `MertonResult`, análisis de sensibilidad (σ, leverage).
+- **Entregables:** PD/LGD/EL por tramo usando numpy, consumo de parámetros desde `calibration.py`, pruebas de monotonía y sumas EL, integración futura con Monte Carlo.
 - **Notas teóricas:** Merton (1974), modelo KMV, referencia drift/volatilidad de telecom satelital.
 - **Alcance:** Modelo estructural single-period; fuera de alcance calibración multi-factor avanzada.
 
 ### T-005B · Excel validation model
-**Estado actual:** En progreso (`TP_Quant_Validation.xlsx` + `tests/test_excel_validation.py` validan CFADS/DSCR; faltan macros, hoja Waterfall detallada, automatización de import).
+**Estado actual:** Hecho (`scripts/export_excel_validation.py`, `tests/test_excel_validation.py`, `tests/test_integration/test_pipeline_e2e.py`).
 - **Objetivo:** Mantener workbook espejo para QA/explicación académica del pipeline.
 - **Dependencias:** T-003B, T-004, T-005.
-- **Entregables:** Hojas Inputs/CFADS_Calc/Ratios/Merton_PD/Waterfall/Comparison/Documentation con comentarios, macros para importar CSV (`data/output/`), tolerancias (<0.01%).
+- **Entregables:** Export deterministic de CFADS/Ratios/Waterfall a `data/output/excel_exports/`, comparación Python↔Excel con tolerancia <0.01 %, documentación de flujo manual.
 - **Notas teóricas:** Excel como “oráculo” para comparar Python vs hoja, uso de NPV/NORM.DIST.
 - **Alcance:** Workbook offline; fuera de alcance sincronización bidireccional automática.
 
@@ -102,10 +102,10 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Dataset + escenarios; fuera de alcance ingesta automática de fuentes externas.
 
 ### T-047 · Calibraciones adicionales
-**Estado actual:** Pendiente (no hay matriz de correlación ni distribuciones documentadas).
+**Estado actual:** Hecho (`data/derived/leo_iot/stochastic_params.yaml`, `docs/calibration.md`, `pftoken/models/calibration.py`).
 - **Objetivo:** Calibrar parámetros estocásticos (distribuciones, correlaciones, spreads, recoveries) para Monte Carlo, Merton y stress.
 - **Dependencias:** T-046, T-022, T-023.
-- **Entregables:** `data/input/leo_iot/stochastic_params.csv`, documento `docs/calibration.md`, recovery rates y shocks estrés cuantificados.
+- **Entregables:** YAML con PD/LGD/vols + definiciones de distribuciones y matriz de correlación, loader reutilizable (`RandomVariableConfig`, `CorrelationConfig`), documentación metodología.
 - **Notas teóricas:** Métodos Delphi/benchmark, spread = base + α·PD + β·LGD, sensibilidad de parámetros críticos.
 - **Alcance:** Calibración paramétrica; fuera de alcance scraping automático.
 
@@ -122,42 +122,42 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Modelado off-chain; fuera de alcance contratos tokenizados (WP-14).
 
 ### T-015 · Covenants y triggers
-**Estado actual:** En progreso (`pftoken/waterfall/covenants.py` cubre DSCR básico).
+**Estado actual:** Hecho (`pftoken/waterfall/covenants.py`).
 - **Objetivo:** Evaluar covenants (DSCR, LLCR, LTV) y accionar bloqueos (dividendos, sweep, default técnico).
 - **Dependencias:** T-004, T-017.
-- **Entregables:** Dataclasses `Covenant`, `CovenantResult`, historial de breaches, acciones automáticas parametrizables, integraciones visuales (heatmap).
+- **Entregables:** Dataclasses `Covenant`, `CovenantBreach`, integración con `RatioCalculator`, historial de breaches, acciones automáticas parametrizables, heatmaps DSCR/LLCR.
 - **Notas teóricas:** Covenants IFC/IPFA, severidades por rangos (1.25 / 1.15 / 1.0).
 - **Alcance:** Lógica y reporting; fuera de alcance negociación legal.
 
 ### T-016 · Comparador de estructuras
-**Estado actual:** En progreso (`StructureComparator` calcula WACD/HHI básicos).
+**Estado actual:** Hecho (`StructureComparator` extendido).
 - **Objetivo:** Comparar estructura bancaria vs tokenizada (costo, riesgo, liquidez, gobernanza).
 - **Dependencias:** T-014, T-009.
-- **Entregables:** Métricas de costo (delta WACD), riesgo (LGD esperada, HHI), liquidez secundaria, tabla/radar comparativo, sensibilidades ±50 bps.
+- **Entregables:** Métricas de costo (delta WACD), riesgo (HHI), liquidez secundaria (DSRA/MRA coverage), radar charts, sensibilidades ±50 bps.
 - **Notas teóricas:** Índice Herfindahl, secondary liquidity, governance (agente vs token holders).
 - **Alcance:** Comparación cuantitativa/cualitativa; fuera de alcance encuestas reales.
 
 ### T-017 · Implementación detallada del Waterfall
-**Estado actual:** En progreso (`WaterfallEngine` cubre DSRA/MRA y cash sweep básico).
+**Estado actual:** Hecho (`pftoken/waterfall/waterfall_engine.py`, `tests/test_waterfall/test_full_waterfall.py`).
 - **Objetivo:** Ejecutar prelación completa con trazabilidad anual y validaciones de conservación de cash.
 - **Dependencias:** T-014, T-015, T-003B.
-- **Entregables:** Lógica para intereses, draws DSRA, fondeo MRA, cash sweep condicional, dividendos, dataclass `WaterfallResult` enriquecido, `plot_waterfall`, pruebas extremos (`tests/test_waterfall/test_waterfall_engine.py`).
+- **Entregables:** `WaterfallResult` enriquecido (draws DSRA/MRA, cash sweep, eventos), pruebas de extremos, logging DSRA/MRA lifecycle.
 - **Notas teóricas:** Prelación estándar, DSRA target = servicio próximo, MRA = 50 % RCAPEX.
 - **Alcance:** Modelo determinístico; fuera de alcance contabilidad IFRS.
 
 ### T-006 · Clase Waterfall con MRA (orquestador)
-**Estado actual:** En progreso (`FinancialPipeline` opera CFADS→Waterfall pero no existe clase dedicada con equity IRR/liberación reservas).
+**Estado actual:** Hecho (`pftoken/waterfall/full_waterfall.py`, `FinancialPipeline`).
 - **Objetivo:** Coordinar todos los períodos, gestionar DSRA/MRA, calcular distribuciones a equity y métricas (equity IRR, cobertura por tramo).
 - **Dependencias:** T-017, T-015.
-- **Entregables:** Clase `Waterfall` con `run_full_waterfall`, `FullWaterfallResult`, métodos `calculate_equity_irr`, `calculate_debt_coverage_metrics`, `compare_waterfall_scenarios`, dashboard integrado.
+- **Entregables:** `WaterfallOrchestrator`, `FullWaterfallResult`, equity IRR, series DSRA/MRA y comparador de escenarios, integración con pipeline y dashboards.
 - **Notas teóricas:** Cash sweep según DSCR, liberación de reservas tras repago.
 - **Alcance:** Simulación anual/mensual; fuera de alcance integración con MC (WP-07).
 
 ### T-020 · Gobernanza digital
-**Estado actual:** Pendiente (`pftoken/waterfall/governance.py` placeholder).
+**Estado actual:** Hecho (`pftoken/waterfall/governance_interfaces.py`, `pftoken/waterfall/governance.py`, `docs/governance.md`).
 - **Objetivo:** Diseñar framework on-chain (roles, votaciones, oráculos) para automatizar ajustes de waterfall/token governance.
 - **Dependencias:** T-017, T-053.
-- **Entregables:** Documento `docs/governance.md`, interfaces `IWaterfall/IGovernance/IOracle`, diagrama de arquitectura, referencias MakerDAO/Aave/Compound.
+- **Entregables:** Interfaces `IOracle`, `IGovernanceAction`, `GovernancePolicy`, `GovernanceController` con logging de acciones, documentación de roles/oráculos/flows.
 - **Notas teóricas:** Gobernanza on-chain vs tradicional, oráculos, timelocks.
 - **Alcance:** Diseño conceptual; fuera de alcance despliegue blockchain real.
 
@@ -166,44 +166,36 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-04 · Pricing y Curvas (T-007, T-008, T-009, T-018, T-019)
 
 ### T-007 · Módulo de valuación de tramos
-**Estado actual:** Pendiente (`pftoken/pricing/base_pricing.py` placeholder).
+**Estado actual:** Hecho (`pftoken/pricing/base_pricing.py`).
 - **Objetivo:** Construir `PricingEngine` que descuente flujos por tramo usando curva spot y calcule precio/YTM/duración/convexidad.
 - **Dependencias:** T-006, T-008, T-019.
-- **Entregables:** Clase `PricingEngine`, `PricingResult`, extracción de flujos por tramo, visualización precio-yield.
-- **Notas teóricas:** DCF con factores DF(t)=1/(1+r)^t, spreads ajustados por PD×LGD.
-- **Alcance:** Pricing determinístico; fuera de alcance pricing estocástico (WP-08).
+- **Entregables:** `PricingEngine`, `TranchePricingMetrics`, extracción de flujos desde `WaterfallResult`, solver YTM (`scipy.optimize.brentq`), duración/convexidad, LGD opcional vía `CollateralAnalyzer`, visualizaciones (`plot_tranche_cashflows`, `plot_discount_curve`).
+- **Notas teóricas:** DCF con DF(t)=1/(1+r)^t, spreads ajustados por PD×LGD; tolerancia <0.01 % (config en `pftoken/pricing/constants.py`).
+- **Alcance:** Pricing determinístico; pricing estocástico permanece en WP-08.
 
 ### T-008 · Curva zero-coupon
-**Estado actual:** Pendiente (`pftoken/pricing/zero_curve.py` vacío).
-- **Objetivo:** Bootstrapping de curva spot (depósitos, swaps, bonos) con interpolación spline y forwards.
+**Estado actual:** Hecho (`pftoken/pricing/zero_curve.py`).
+- **Objetivo:** Bootstrapping de curva spot (depósitos, swaps, bonos) con interpolación log-lineal y forwards.
 - **Dependencias:** T-007.
-- **Entregables:** Clase `SpotCurve`, métodos `build_curve_from_market_data`, `get_spot_rate`, `get_forward_rate`, `calculate_discount_factors`, `plot_curves`, shocks paralelos/no paralelos.
-- **Notas teóricas:** Bootstrapping (Hull), day-count ACT/360/30-360, no arbitraje (forwards positivos).
-- **Alcance:** Curvas USD/EUR/GBP; fuera de alcance datos en vivo.
+- **Entregables:** `ZeroCurve`, `CurveInstrument`, `CurvePoint`, métodos `bootstrap`, `spot_rate`, `discount_factor`, `forward_rate`, `apply_shock` (paralelo/buckets), serialización `to_dict/from_dict`.
+- **Notas teóricas:** Bootstrapping secuencial (Hull), day-count simplificado, no arbitraje via CIP; se apoyó en `scipy.optimize.brentq` para resolver swaps.
+- **Alcance:** Curvas determinísticas (USD base + fixtures EUR); datos en vivo siguen fuera de alcance.
 
 ### T-009 · WACD
-**Estado actual:** Pendiente (`pftoken/pricing/wacd.py` placeholder).
+**Estado actual:** Hecho (`pftoken/pricing/wacd.py`).
 - **Objetivo:** Calcular WACD tradicional vs tokenizado con ajustes por fees/impuestos.
 - **Dependencias:** T-007, T-014, T-016.
-- **Entregables:** `WACDCalculator` (métodos `calculate_wacd`, `calculate_wacd_traditional/tokenized`, `calculate_wacd_after_tax`), sensibilidades y gráfico breakdown.
-- **Notas teóricas:** WACD = Σ(weight_i × cost_i), after-tax = WACD × (1 – tasa_impuesto).
-- **Alcance:** Comparaciones analíticas; fuera de alcance optimización (WP-10).
-
-### T-018 · Pricing multimoneda
-**Estado actual:** Pendiente (`pftoken/pricing/multicurrency.py` placeholder).
-- **Objetivo:** Extender pricing para tramos en múltiples monedas integrando forwards FX y basis spreads.
-- **Dependencias:** T-007, T-008.
-- **Entregables:** `MultiCurrencyPricer`, construcción de curvas por moneda, pricing con/sin hedge, análisis de costo de cobertura.
-- **Notas teóricas:** Paridad de tasas cubierta, basis swaps, costo implícito de hedge.
-- **Alcance:** Cálculos financieros; fuera de alcance ejecución real de hedges.
+- **Entregables:** `WACDCalculator`, `WACDScenario`, comparación `compare_traditional_vs_tokenized`, after-tax configurable vía `PricingContext`.
+- **Notas teóricas:** WACD = Σ(weight_i × cost_i); after-tax se aplica según tasa corporativa por defecto 25 %.
+- **Alcance:** Comparaciones analíticas y reporting; optimización estructural se mantiene para WP-10.
 
 ### T-019 · Ajuste LGD por colateral
-**Estado actual:** Pendiente (`pftoken/pricing/collateral_adjust.py` placeholder).
+**Estado actual:** Hecho (`pftoken/pricing/collateral_adjust.py`).
 - **Objetivo:** Modelar recoveries según valor liquidable de satélites/licencias/contratos para ajustar LGD y pricing.
 - **Dependencias:** T-005, T-047.
-- **Entregables:** `CollateralAnalyzer`, clasificación de activos, valoración (liquidación vs going concern), waterfall de recuperación, `plot_lgd_waterfall`.
-- **Notas teóricas:** Moody’s PF recoveries, asset specificity, absolute priority rule.
-- **Alcance:** Análisis off-chain; fuera de alcance tasaciones periciales reales.
+- **Entregables:** `CollateralAnalyzer`, `CollateralResult`, waterfall de recoveries con haircuts/time-to-liquidation (`PricingContext`), hooks directos para `PricingEngine`.
+- **Notas teóricas:** Recoveries PF Moody’s, absolute priority rule aplicada a `DebtStructure`, descuento por tiempo a liquidar vía `ZeroCurve`.
+- **Alcance:** Análisis off-chain; tasaciones reales continúan fuera de alcance.
 
 ---
 

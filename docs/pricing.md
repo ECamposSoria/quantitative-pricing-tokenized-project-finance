@@ -118,6 +118,18 @@ Los tests solo validan metadatos (cantidad de ejes), evitando snapshots PNG.
   derivado y expone la descomposición completa (incluyendo export a CSV/JSON);
   siempre queda disponible un modo override para reproducir el supuesto manual.
 
+### Notas de interpretación (WP-04)
+
+- **Curva de referencia**: `data/derived/market_curves/usd_combined_curve_2025-11-20.csv` (FRED DGS 1/2/3/5/7/10/15/20/30, 20-nov-2025). Esto elevó el nivel del WACD vs. la versión previa (≈+94 bps) porque las tasas largas subieron (10Y ~4.10%) y ahora se descuenta con la curva real en vez de un flat asumido.
+- **Spreads en tablas**: los bps reportados en la descomposición (crédito, liquidez, originación, servicing, infraestructura) son componentes de prima de riesgo sobre la curva libre de riesgo, no el cupón total. Ej.: Subordinated sigue teniendo cupón 11%; la tabla muestra los incrementales de riesgo, no reemplaza el cupón contractual.
+- **Infraestructura uniforme**: los costos de gas/oracle/monitoring se calculan con un principal de referencia (total deuda) y se aplican de forma homogénea por tramo; la variación por riesgo vive en otros componentes (crédito/liquidez).
+- **Piso de crédito (5 bps)**: asegura que los spreads de crédito no colapsan a cero en tramos muy seguros; referencia: Bao, Pan & Wang (2011, JF) sobre costos de transacción mínimos en mercados de crédito. Sensibilidad: variando el piso 3–10 bps, el delta WACD se mueve ~±2.5 bps (after-tax):  
+  - floor 3 bps → WACD trad 6.2597%, token 5.7416%, delta −51.81 bps  
+  - floor 5 bps → WACD trad 6.2725%, token 5.7416%, delta −53.08 bps  
+  - floor 7 bps → WACD trad 6.2852%, token 5.7416%, delta −54.36 bps  
+  - floor 10 bps → WACD trad 6.3047%, token 5.7416%, delta −56.31 bps  
+  La magnitud del ahorro por tokenización se mantiene robusta (<5 bps de variación).
+
 ## Tests
 
 ```

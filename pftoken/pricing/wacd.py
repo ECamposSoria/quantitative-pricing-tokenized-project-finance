@@ -63,6 +63,8 @@ class WACDCalculator:
             if spread_config is not None
             else deepcopy(DEFAULT_TOKENIZED_SPREAD_CONFIG)
         )
+        if self.spread_config.infra_reference_principal is None:
+            self.spread_config.infra_reference_principal = self.debt_structure.total_principal
         self.spread_model = spread_model or TokenizedSpreadModel(debt_structure, self.spread_config)
         self._breakdowns: Optional[Dict[str, PerTrancheSpreadBreakdown]] = None
         self._scenario_spreads: Optional[Dict[str, Dict[str, float]]] = None

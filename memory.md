@@ -1,6 +1,6 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-13 17:00 UTC
+## Last Updated: 2025-11-22 02:50 UTC
 ## Version: 0.7.0
 
 ### Current Architecture
@@ -82,6 +82,12 @@ markdown# System Memory
 - Excel exports: `python scripts/export_excel_validation.py --data-dir data/input/leo_iot --output-root data/output/excel_exports`
 
 ### Recent Changes
+- 2025-11-22: Añadida curva de mercado `data/derived/market_curves/usd_combined_curve_2025-11-20.csv` (FRED DGS 1/2/3/5/7/10/20/30, 2025-11-20) y usada en WP-04; PricingEngine/WACD ahora se ejecutan con curva de mercado en lugar de base plana. Se uniformó el costo de infraestructura usando un principal de referencia (total debt) y se introdujo un floor de spread de crédito (5 bps) para evitar deltas nulas en senior; WACD recalculado con delta ponderada ≈ -70.77 bps (after-tax ≈ -53 bps). Tests de pricing actualizados/pasados.
+- 2025-11-22: Ajustado `collateral_inventory.csv` con correcciones conservadoras: spectrum 20M (25% haircut), ground gateways aclarados como footprint pequeño, agregado backlog de contratos (50M book, 56% haircut), IP haircut 55%, MRA ajustado a política real (35% del RCAPEX diet 18M, peak ~3.4M → 3.6M book), añadido satélites en órbita con recuperación 0. Se actualizaron notas en `docs/collateral_sources.md`.
+- 2025-11-22: Se agregó `docs/collateral_sources.md` con fuentes/precedentes (Straight Path vs FiberTower, Intelsat C-band, Eutelsat-EQT ground infra, OneWeb/Globalstar/SAS satélites, Speedcast/Iridium contratos, WIP) y guías de haircut/tiempo para poblar `collateral_inventory.csv`.
+- 2025-11-21: `MertonModel` deja de forzar monotonicidad de PD entre tramos para respetar el piso calibrado; se corrige `test_merton_pd_lgd_el`.
+- 2025-11-21: Se añadió serialización `to_dicts/from_dicts` a `DebtStructure` (T-014) con prueba de roundtrip; el corporate tax permanece fijado en 25% (21% federal + ~4% estatal) para el caso Delaware/TX-FL-CA.
+- 2025-11-21: Se añadieron `docs/requirements.md` (requerimientos funcionales/no funcionales con métricas target) y una versión extendida de `docs/architecture.md` que documenta el flujo CFADS → Waterfall → Pricing y deja explícito el gap de colateral granular; README/memory referencian estos supuestos.
 - 2025-11-12: Implementado stack WP-02/WP-03 determinístico (CFADS components, RatioCalculator, placeholder Merton PD/LGD/EL, full Waterfall orchestrator, governance controller). Se agrega exportador para Excel, documentación (`docs/calibration.md`, `docs/governance.md`) y se actualizan pruebas con la tolerancia <0.01 %.
 - 2025-11-13: Entregado WP-04 Pricing (ZeroCurve, PricingEngine, WACDCalculator, CollateralAnalyzer, documentación y suite de tests). Integración completa con `FinancialPipeline` respetando la tolerancia de 0.01 %.
 - 2025-11-13: WACD tokenizado ahora usa la descomposición modular (crédito, liquidez, fees, infraestructura) con CSV reproducible y reporte detallado (`docs/tokenized_spread_decomposition.md`).

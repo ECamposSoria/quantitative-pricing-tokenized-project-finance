@@ -1,0 +1,2780 @@
+🧭 Resumen Ejecutivo (Reafirmado)
+(Mantenemos el resumen previo, ya que capturó los puntos principales: La arquitectura de Bitcoin (UTXO) prioriza seguridad y es lenta ($\approx 60$ minutos de finalidad), excluyéndose de HFT y arbitraje rápido. Ethereum (EVM) introduce programabilidad y 
+smart contracts
+, siendo clave para DeFi, pero su escalabilidad limitada (15 TPS) genera alta volatilidad de costos (
+gas fees
+). Solana emplea un diseño de procesamiento paralelo que ofrece velocidad ($\approx 0.4$ segundos de tiempo de bloque) y bajos costos, haciéndola apta para HFT y 
+market making
+, a costa de preocupaciones sobre centralización. La fragmentación de liquidez mediante 
+wrapped tokens
+ genera oportunidades de arbitraje 
+cross-chain
+ y riesgos técnicos/de contraparte. El análisis cuantitativo de métricas de rendimiento (TPS, 
+Finality
+) es crucial para el diseño de estrategias rentables.)
+📚 Conceptos Explicados (Exhaustividad Detallada)
+I. Arquitectura y Fundamentos de Bitcoin (Modelo UTXO)
+[Unspent Transaction Output (UTXO) Model]
+Definición: Modelo de contabilidad 
+stateless
+ (sin estado global de cuenta) utilizado por Bitcoin. Los fondos se representan como salidas de transacciones no gastadas (UTXOs), que son consumidas como entradas para generar nuevas salidas. En este modelo, cada "moneda" es una salida de una transacción previa. Por qué importa: Permite la 
+validación paralela
+ de transacciones, ya que la validación solo depende de la disponibilidad y validez del UTXO específico, evitando conflictos de estado global. Prioriza la simplicidad y ofrece 
+mayor privacidad
+ al generar nuevas direcciones (
+UTXOs
+) para el cambio en cada transacción. Ejemplo: Si Alice tiene un UTXO de 2 BTC y quiere enviar 1.5 BTC a Bob, la transacción consume el UTXO de 2 BTC como entrada, genera 1.5 BTC para Bob como salida, y devuelve 0.5 BTC a Alice como cambio (un nuevo UTXO). Relaciones: Se compara con el modelo 
+Account
+ de Ethereum, el cual es 
+stateful
+ y requiere ejecución secuencial. Errores comunes: Carece de funcionalidad nativa de 
+smart contracts
+, o soporta solo una versión limitada (Bitcoin Script). Referencia:.
+[Proof-of-Work (PoW) Consenso y Dificultad]
+Definición: Mecanismo de consenso que requiere que los mineros realicen una prueba de trabajo intensiva en energía (fuerza bruta) para resolver un problema criptográfico. El minero busca un número (
+nonce
+) que, al combinarse con los datos del bloque y aplicar una función 
+Hash
+, cumpla con una dificultad establecida (típicamente, que el 
+Hash
+ comience con una cantidad 
+n
+ de ceros). Por qué importa: El proceso aleatorio de descubrimiento de bloques y el alto costo computacional son las principales razones de los lentos 
+Block Times
+ de Bitcoin. El 
+Block Time
+ es conservador para mejorar la seguridad, incluso si impacta la velocidad. Fórmula (Ajuste de Dificultad): La dificultad se ajusta para mantener el 
+Block Time
+ promedio constante ($\approx 10$ minutos). Esto ocurre cada 2,016 bloques (aproximadamente cada 2 semanas). Si el 
+Hash Rate
+ (potencia de minería) aumenta, la dificultad se incrementa (más ceros requeridos) para compensar y mantener la tasa de bloques estable. Referencia:.
+[Finalidad Probabilística de Bitcoin]
+Definición: La transacción se vuelve 
+prácticamente irreversible
+ después de un número suficiente de bloques. No alcanza una certeza criptográfica absoluta del 100%. Por qué importa: Es el principal impedimento para el 
+trading
+ rápido. Los 
+exchanges
+ típicamente requieren entre 3 a 6 confirmaciones antes de considerar válido un depósito o retiro. Cálculo: 
+. Ejemplo: 6 confirmaciones proveen aproximadamente un 99.9% de certeza de que una transacción es irreversible. Referencia:.
+[Rendimiento y Limitaciones de Bitcoin]
+Definición: Las métricas de rendimiento demuestran que Bitcoin es inadecuado para operaciones que requieren rapidez o bajo costo.
+TPS (Transacciones por Segundo):
+ Aproximadamente 7 TPS.
+Costo de Transacción:
+ Puede ser muy alto, llegando a $20-$50 durante la congestión de la red. El costo es altamente variable (volátil). Fórmula (TPS Aproximado): 
+. Uso: Ideal para 
+almacenamiento de valor a largo plazo
+ (
+Long-term holdings
+) y 
+liquidaciones OTC grandes
+ (
+Large OTC settlements
+), donde la seguridad supera a la velocidad. Referencia:.
+II. Arquitectura de Ethereum (Modelo Account/EVM)
+[Account/EVM Model]
+Definición: Modelo 
+stateful
+ (con estado global) donde cada dirección (EOA o Contract Account) mantiene un balance. Es comparable a un sistema de cuenta bancaria tradicional. Por qué importa: Este modelo permite la 
+ejecución de 
+Smart Contracts
+ (código Turing-completo) y la gestión de un 
+Estado Global (
+World State
+)
+ compartido. La programabilidad habilitada es el fundamento de DeFi. Mecanismo: Las transacciones se ejecutan 
+secuencialmente
+, alterando el estado compartido. Esto garantiza que no haya doble gasto (
+double-spending
+). Relaciones: Contraste directo con la validación paralela de UTXO; el diseño 
+stateful
+ limita la escalabilidad al requerir ejecución ordenada. Referencia:.
+[Ethereum Virtual Machine (EVM) y Smart Contracts]
+Definición: La EVM es el entorno de ejecución Turing-completo donde se procesa el 
+bytecode
+ de los 
+smart contracts
+ (típicamente compilado desde Solidity). Por qué importa: Permite el concepto de 
+Moneda Programable
+ (
+Programmable Money
+). Los activos son controlados por código (
+code-driven
+), lo que automatiza procesos de 
+lending
+, 
+trading
+ y liquidación. La ejecución es 
+trustless
+ (confiable, sin intermediarios). Mecanismo: Cada nodo completo ejecuta cada transacción para mantener el consenso de la red. La interacción con un 
+smart contract
+ implica llamar a una función y modificar el estado de la 
+blockchain
+. Referencia:.
+[Sistema de Gas y Volatilidad de Costos]
+Definición: El 
+Gas
+ es la unidad de costo computacional de cada operación. Cada instrucción tiene un costo fijo en gas. El sistema de gas previene bucles infinitos y compensa a los validadores. Costo: El costo de la transacción se paga en la moneda nativa (ETH). Una transferencia simple cuesta $\approx 21,000$ unidades de gas. Fórmula: 
+. Volatilidad: Los 
+gas fees
+ surgen debido a 
+mercados de tarifas basados en subastas
+ (mayor demanda = mayor precio) y la 
+escasez de espacio de bloque
+. Eventos de alta demanda (NFT 
+mints
+, alta volatilidad o liquidaciones apalancadas) pueden hacer que las tarifas suban dramáticamente (ej. $50 a más de $200 por 
+swap
+ en 2021, o picos de $100 en el gráfico de 2023). Referencia:.
+[Finalidad Determinística y TPS]
+Definición: Ethereum utiliza 
+Proof-of-Stake
+ (PoS), reemplazando a PoW en septiembre de 2022 (
+The Merge
+). El 
+Block Time
+ es fijo en 12 segundos. Finalidad: La finalidad es determinística, alcanzada después de 2 
+epochs
+ (64 bloques), lo que toma aproximadamente 12.8 minutos, aunque en la práctica, se observa en $\approx 6.4$ minutos. Este proceso de finalización es diez veces más rápido que Bitcoin. TPS y Escalabilidad: En la 
+Layer 1
+ (L1), el rendimiento es moderado, aproximadamente 15 TPS. Fórmula (Cálculo de TPS): 
+. Referencia:.
+[MEV (Maximal Extractable Value) y Composabilidad]
+Definición: MEV es el valor máximo que un validador puede extraer reordenando o insertando transacciones en un bloque. Riesgos de Trading: La exposición del 
+mempool
+ (transacciones pendientes) revela la intención de 
+trade
+ y permite ataques como el 
+front-running
+ (colocar una orden antes de la transacción de la víctima) y el 
+sandwich attack
+ (comprar antes y vender inmediatamente después de la transacción de la víctima). Las 
+gas wars
+ (guerra de tarifas) son un riesgo asociado, ya que los usuarios pagan más para asegurar la inclusión rápida. Composabilidad: Permite que los 
+smart contracts
+ interactúen sin problemas (como "Money Legos"). Esto posibilita 
+transacciones atómicas
+ complejas, como un 
+flash loan
+, 
+swap
+ y repago, todo en una sola operación, garantizando que todo se ejecute o nada se ejecute. Referencia:.
+[Layer 2 Solutions (L2)]
+Definición: Soluciones de escalabilidad construidas sobre la L1 (Ethereum) para mejorar la velocidad y reducir costos, heredando la seguridad de Ethereum. Mecanismo: Ejecutan transacciones 
+off-chain
+ y luego comprimen los datos para publicarlos periódicamente en L1 (
+checkpointing
+), siendo mucho más barato que ejecutar cada transacción individualmente en L1. Rendimiento: Ofrecen significativamente mayor 
+throughput
+ (100–4,000 TPS) a un costo mucho menor ($\approx $0.10–1$ por transacción). Ejemplos incluyen 
+Optimistic Rollups
+ (Arbitrum $\approx 4,000$ TPS, Optimism $\approx 2,000$ TPS) y 
+ZK-Rollups
+ (zkSync). Trade-offs: Seguridad ligeramente reducida (en el caso de 
+Optimistic Rollups
+, debido al tiempo de desafío) y 
+liquidez fragmentada
+. Referencia:.
+III. Arquitectura de Solana (Procesamiento Paralelo)
+[Procesamiento Paralelo y Sealevel]
+Definición: Arquitectura diseñada para la ejecución 
+multihilo
+ de transacciones concurrentes, a diferencia de la ejecución secuencial de la EVM. Solana utiliza 
+Sealevel
+, un motor de ejecución que permite a las transacciones especificar de antemano las cuentas que leerán y escribirán. Por qué importa: Las transacciones sin acceso superpuesto a cuentas pueden ejecutarse en paralelo, logrando una 
+escalabilidad horizontal
+ (mayor 
+core count
+ = mayor 
+throughput
+). Esto elimina el "Global State Lock" de Ethereum. Rendimiento: 
+Block Time
+ ultra-rápido de $\approx 0.4$ segundos. 
+Throughput
+ sostenido de 2,000–4,000 TPS, con picos de 7,000+ TPS. Ejemplo: 100 
+swaps
+ independientes pueden correr concurrentemente. Referencia:.
+[Proof-of-History (PoH)]
+Definición: Innovación clave de Solana que funciona como un "reloj criptográfico". PoH establece un orden claro y verificable para las transacciones 
+antes
+ de que sean procesadas. Por qué importa: Reduce significativamente la latencia y minimiza la necesidad de coordinación entre validadores, lo que facilita el alto 
+throughput
+. Referencia:.
+[Finalidad y Hardware Trade-off]
+Finalidad: Ofrece una 
+Finalidad Económica
+ de $\approx 13$ segundos (32 slots). Esto es 277 veces más rápido que Bitcoin y 30 veces más rápido que Ethereum. Trade-off (Centralización): La arquitectura está 
+optimizada para 
+hardware
+ (requiere servidores potentes, ej. 128GB+ RAM). Esto resulta en costos operativos más altos y un número menor de validadores ($\approx 2,000$ validadores frente a más de 1 millón en Ethereum), lo que plantea preocupaciones sobre la centralización. Costos de Transacción: Las tarifas medianas son ultra-bajas, aproximadamente $0.00025, y generalmente se mantienen por debajo de $0.01 incluso durante la congestión. Aplicaciones de Trading: Ideal para 
+High-Frequency Trading (HFT)
+ y 
+market making
+ gracias a su baja latencia y el soporte nativo de 
+Central Limit Order Books (CLOB)
+ 
+on-chain
+, similar a los 
+Exchanges
+ Centralizados (CEXs). Referencia:.
+IV. Cross-Chain Assets y Dinámicas de Liquidez
+[Token Mapping Problem]
+Definición: El desafío de la fragmentación de la liquidez de un activo (ej. BTC) a través de múltiples 
+blockchains
+ debido a la existencia de diversas versiones 
+wrapped
+. Ejemplo: La liquidez de Bitcoin se distribuye entre WBTC, renBTC, y sBTC en Ethereum, y Wrapped BTC (vía Wormhole/Portal) en Solana, cada una manteniendo 
+pools
+ de liquidez separados. Implicaciones de Trading:
+Discrepancias de Precio:
+ Variaciones de precio entre el activo nativo (BTC) y sus versiones 
+wrapped
+ (WBTC) (ej. un 
+premium
+ o 
+discount
+ de $10–100). Estos 
+spreads
+ se amplían durante periodos de alta volatilidad.
+Diferencias de Liquidez:
+ La profundidad de liquidez varía significativamente. WBTC en Ethereum goza de liquidez profunda (más de $500M en Curve pools), mientras que Wrapped BTC en Solana tiene liquidez más delgada ($\approx $50M$).
+Cross-Chain Arbitrage:
+ Oportunidades que surgen al explotar estas diferencias, lo que a menudo requiere el uso de 
+bridges
+. Referencia:.
+[Wrapped Tokens (Tokens Envueltos)]
+Definición: Versiones de un activo nativo (ej. BTC) que circulan en una 
+blockchain
+ foránea (ej. WBTC en Ethereum). Están respaldados 1:1 por el activo subyacente, que está bloqueado por un custodio o un 
+smart contract
+. Mecánica de WBTC: 
+Custodia Centralizada
+ por BitGo. El proceso implica enviar BTC al custodio, BitGo lo verifica (requiere 6 confirmaciones de Bitcoin), y un 
+merchant
+ emite (mientea) el WBTC equivalente en Ethereum. Riesgos Asociados: Cada "salto" 
+cross-chain
+ introduce:
+Riesgo de Custodia (Centralización):
+ Confianza en el custodio (BitGo) para mantener las claves de los activos bloqueados.
+Vulnerabilidades de Smart Contract:
+ Riesgo de 
+exploits
+ en el código de los 
+smart contracts
+ o 
+bridges
+. (Más de $2 billones fueron robados en 
+exploits
+ de 
+bridges
+ solo en 2022).
+Riesgo Regulatorio:
+ Potencial de intervención gubernamental o prohibiciones. Referencia:.
+[Protocolos Cross-Chain (Bridges)]
+Definición: Mecanismos que facilitan la comunicación y transferencia de 
+tokens
+ entre diferentes 
+blockchains
+. Ejemplo de Protocolos: 
+Portal (Wormhole)
+, 
+CCTP
+ (para transferir USDC), 
+Stargate
+ (permite 
+swaps
+ y 
+bridges
+ atómicos), y 
+LayerZero
+ (mensajería 
+omnichain
+). Impacto Cuantitativo: La velocidad de los 
+bridges
+ ha mejorado drásticamente, lo cual es vital para el arbitraje. Anteriormente, transferir ETH a Solana podía tardar 15–30 minutos; con CCTP v2, esto se reduce a menos de 1 minuto. Los fees y retrasos del 
+bridge
+ deben ser factorizados en el cálculo de la rentabilidad del arbitraje. Referencia:.
+V. Dinámica de CEX vs DEX y Riesgo Cuantitativo
+[Centralized Exchanges (CEX)]
+Definición: Plataformas operadas por entidades centralizadas (Binance, Coinbase, Kraken) donde las operaciones son 
+off-chain
+ y las liquidaciones son instantáneas. Ventajas Cuantitativas: 
+Profunda Liquidez
+ (Binance maneja el 98% del volumen de trading de Bitcoin) y precios típicamente más favorables. Son los más parecidos a los mercados tradicionales (ofrecen margen, futuros). Riesgo Centralizado: 
+Riesgo de Custodia
+ (
+"Not your keys, not your coins"
+). Al depositar fondos, el usuario pierde el control total y queda expuesto al riesgo de contraparte (ej. quiebra/desaparición de FTX). Referencia:.
+[Decentralized Exchanges (DEX)]
+Definición: Plataformas 
+on-chain
+ que operan mediante 
+smart contracts
+ (Uniswap, Raydium, Curve, Pancakeswap). Facilitan el 
+trading peer-to-peer
+. Ventajas: 
+Autocustodia
+ (
+Self-custody
+) y no requieren KYC. Elimina el riesgo de contraparte centralizada. Desventajas: Las operaciones son 
+on-chain
+, incurriendo en 
+costos de gas por cada interacción
+. Baja escalabilidad en L1 Ethereum. El 
+Total Value Locked
+ (TVL) en DeFi alcanzó un pico de más de $50 billones (2020–2024). Referencia:.
+[Automated Market Maker (AMM) y Slippage]
+Definición: Modelo de DEX que usa 
+pools
+ de liquidez en lugar de libros de órdenes. Pionero por Uniswap, basado en el principio de 
+constant product market making
+. Fórmula (Constant Product Model - Uniswap V2): 
+ Donde $X$ y $Y$ son las reservas de 
+tokens
+ en el 
+pool
+, y $K$ es la constante. 
+Slippage (Deslizamiento):
+ Métrica clave de ejecución. Es la diferencia entre el precio esperado y el precio de ejecución. Ocurre con operaciones grandes o en 
+pools
+ con liquidez delgada. Los 
+quants
+ deben operar en 
+pools
+ con alta liquidez (profundidad) para minimizar este riesgo. Referencia:.
+[Impermanent Loss (Pérdida No Permanente)]
+Definición: Pérdida temporal en la que incurre un proveedor de liquidez (LP) por mantener activos en un 
+pool
+ AMM, comparado con mantener los mismos activos simplemente en su billetera (
+hodl
+). Esta pérdida es función del cambio de precios relativos entre los activos en el 
+pool
+. Por qué importa: Es un riesgo inherente para los LPs en DEXs, quienes deben sopesar esta pérdida potencial contra las tarifas de 
+trading
+ que ganan. Referencia:.
+[Evolución de Arquitectura: Trade-offs Centrales]
+La elección de la 
+blockchain
+ adecuada depende del caso de uso y el apetito de riesgo, reflejando el 
+trade-off central
+ en el diseño de arquitecturas 
+blockchain
+:
+Bitcoin/Ethereum:
+ Priorizan la 
+seguridad y descentralización
+. Esto resulta en limitaciones de escalabilidad (TPS bajo) y altos costos.
+Solana:
+ Prioriza la 
+velocidad y bajo costo
+. Esto implica sacrificar cierto grado de descentralización (pocos validadores, altos requisitos de 
+hardware
+).
+Para un 
+quant
+, entender estas métricas y sus implicaciones es clave para seleccionar la infraestructura: la lentitud de Bitcoin lo limita a 
+settlements
+, Ethereum es ideal para lógica compleja y DeFi (pero solo si las 
+gas fees
+ lo permiten), y Solana es la opción predilecta para la ejecución de HFT y arbitraje rápido. Referencia:.
+📖 Glosario (Detallado y Consolidado)
+Concepto
+Definición breve
+Sinónimos
+UTXO
+Modelo contable 
+stateless
+ (sin estado global) de salidas de transacciones no gastadas, usado por Bitcoin.
+Unspent Transaction Output.
+Proof-of-Work (PoW)
+Algoritmo de consenso de Bitcoin basado en resolver un problema criptográfico intensivo en cómputo.
+Prueba de Trabajo.
+Finalidad Probabilística
+Propiedad donde la irreversibilidad de una transacción aumenta exponencialmente con cada bloque subsiguiente (ej. 6 bloques en Bitcoin = $\approx 60$ minutos).
+Finalidad de Transacción.
+EVM
+Entorno de ejecución Turing-completo de Ethereum que procesa 
+smart contracts
+.
+Ethereum Virtual Machine.
+Gas Fee
+Costo computacional de una operación en EVM, pagado en ETH, que es volátil debido a la subasta del espacio de bloque.
+Tarifa de Gas, Costo de Transacción.
+PoS
+Algoritmo de consenso de Ethereum basado en el depósito de activos (
+stake
+) por parte de los validadores.
+Proof-of-Stake.
+MEV
+Valor extraíble por reordenar o insertar transacciones en un bloque, explotado mediante 
+front-running
+ y 
+sandwich attacks
+.
+Maximal Extractable Value.
+Composabilidad
+Habilidad de los 
+smart contracts
+ para interactuar, permitiendo transacciones atómicas complejas.
+Money Legos.
+Wrapped Token
+Versión 1:1 de un activo nativo (ej. BTC) que circula en otra 
+blockchain
+ (ej. WBTC en Ethereum), introduciendo riesgo de custodia.
+Token Envuelto.
+Parallel Processing
+Ejecución concurrente de transacciones independientes en Solana, habilitada por Sealevel.
+Multihilo.
+PoH
+Mecanismo de Solana que actúa como un "reloj criptográfico" para establecer un orden claro antes del procesamiento.
+Proof-of-History.
+Slippage
+Diferencia entre el precio esperado y el precio real de ejecución, magnificado en 
+pools
+ de baja liquidez.
+Deslizamiento.
+Impermanent Loss
+Pérdida temporal para los proveedores de liquidez en AMMs comparado con 
+hodling
+ los activos.
+Pérdida No Permanente.
+L2 (Layer 2)
+Soluciones de escalabilidad sobre Ethereum L1 que ejecutan transacciones 
+off-chain
+ y las comprimen, heredando la seguridad.
+Rollups (Optimistic, ZK), Capa 2.
+Token Mapping Problem
+Desafío de la fragmentación de la liquidez de un activo debido a múltiples versiones 
+wrapped
+ en diferentes cadenas.
+Fragmentación de liquidez.
+Como Quant, abordaremos el desarrollo exhaustivo de los temas cubiertos en la Clase II de Blockchain y Criptomonedas I, integrando la presentación visual con el desarrollo conceptual oral, enfocándonos en los mecanismos cuantitativos y de riesgo que definen estos ecosistemas.
+Desarrollo Completo de Conceptos Cuantitativos y Financieros
+1. Introducción y Logística
+La clase, impartida bajo el marco de UCEMA - QUANt, se estructura para discutir Stablecoins, Primitivas de DeFi (incluyendo 
+lending
+, 
+liquidity pools
+ e 
+Impermanent Loss
+ o IL), y 
+Perpetual Futures
+ con un caso de estudio en Hyperliquid.
+En la introducción, se abordó la operación de 
+Binance Alpha
+, un servicio que parece ser una suerte de "curación" de 
+pools
+ y 
+tokens
+. Esto ofrece 
+early access
+ a los usuarios para operar estos activos, generalmente asociado a una cuenta Binance existente. Aunque se percibe como 
+decentralized finance
+ (DeFi) y permite la exportación de 
+keys
+ (lo que implica responsabilidad de custodia compartida), su origen ligado a una cuenta centralizada plantea dudas sobre su naturaleza completamente descentralizada.
+2. Stablecoins: Mecanismos, Riesgo y el Trilema
+Las 
+stablecoins
+ son fundamentales en el ecosistema cripto por varias razones:
+Son la base principal para el 
+trading
+ en 
+exchanges
+.
+Funcionan como refugio durante periodos de alta volatilidad.
+Sirven como colateral para protocolos de DeFi (como 
+lending
+ y 
+perpetuals
+).
+Actúan como 
+On/Off Ramps
+, conectando la moneda fiduciaria (
+fiat
+) con el mundo cripto (fiat $\leftrightarrow$ crypto).
+El mecanismo de las 
+stablecoins
+ busca anclar su precio a un activo estable (típicamente 
+ anclar su precio a un activo estable (típicamente 
+ (típicamente 
+sten riesgos de 
+depegging
+, donde el precio se desvía de su paridad.
+2.1 El Trilema de las Stablecoins
+La construcción de una 
+stablecoin
+ implica un 
+trade-off
+ fundamental, similar al teorema CAP en sistemas distribuidos (Consistencia, Disponibilidad, Tolerancia a Partición). 
+No se pueden tener las 3 propiedades a la vez
+:
+Estabilidad:
+ Mantener el precio en 
+Descentralización:
+ Ausencia de un punto central de fallo (código, no humanos).
+Eficiencia de Capital:
+ Baja colateralización.
+El mecanismo elegido determina qué propiedades se sacrifican.
+2.2 Tres Mecanismos de Stablecoins
+A. Fiat-Backed (Colateralizadas por Divisas Fiduciarias)
+Mecanismo:
+ Reservas USD 1:1. 
+Propiedades:
+ Estable, eficiente, 
+Centralizado
+.
+USDT (Tether):
+ El gigante, con Market Cap sobre $90B+. Afirma reservas 1:1, pero se basa en activos de bajo riesgo (como 
+Treasury Bonds
+ de EE. UU.) en lugar de dólares físicos. Transparencia limitada a 
+attestations
+ trimestrales, no auditorías completas. Su modelo de negocio se basa en ganar intereses por la inversión de estas reservas.
+Riesgos:
+ Opacidad (falta de auditoría completa externa). Riesgo regulatorio (escrutinio de SEC y CFTC). 
+Centralización:
+ Tether puede congelar fondos. 
+Trade-off
+: Liquidez masiva vs. Transparencia.
+USDC (Circle):
+ El regulado, con Market Cap sobre $30B+. Backing 100% USD + US Treasuries a corto plazo. Transparencia: 
+Attestations
+ mensuales (Grant Thornton). Está regulado como 
+money transmitter
+ en USA.
+Caso SVB (Marzo 2023):
+ El colapso de Silicon Valley Bank (10 de marzo) afectó a Circle, que tenía $3.3B en el banco. USDC cayó temporalmente a 
+1.00$ en 48h. Lección: mostró vulnerabilidad al riesgo bancario tradicional.
+BUSD (Binance USD):
+ Regulado por NYDFS. En febrero de 2023, la SEC ordenó a Paxos (su emisor) detener la emisión, llevando a que su Market Cap tendiera a 
+isor) detener la emisión, llevando a que su Market Cap tendiera a 
+ción: Riesgo Regulatorio. Incluso 
+stablecoins
+ "seguras" pueden ser cerradas, y la regulación en EE. UU. es impredecible.
+Generalidades Fiat-Backed:
+ Son las más estables y tienen liquidez profunda, siendo aceptadas en todos los CEX. Riesgo de congelamiento por el emisor y riesgo de contraparte.
+B. Crypto-Collateralized (Sobre-colateralizadas)
+Mecanismo:
+ Colateralización excesiva con criptoactivos (ej. ETH, WBTC). 
+Propiedades:
+ Estable, Descentralizado, 
+Ineficiente
+ (en capital).
+DAI (MakerDAO):
+ Requiere un Collateralization Ratio (CR) del 150%+. 
+Ejemplo:
+ Bloquear 
+100$ DAI.
+Funcionamiento (Vaults):
+ Se deposita el colateral (ETH) en un 
+smart contract
+ (vault). Se genera DAI contra ese colateral. Para recuperar el ETH, se devuelve el DAI + una tasa (
+stability fee
+/interés).
+Liquidaciones (DAI):
+ Si el precio del ETH cae y el ratio de colateral baja (ej. debajo de 150%), un 
+smart contract
+ vende el ETH para pagar la deuda de DAI. Hay una penalización del 13% del colateral, incentivando a 
+keepers
+ (bots) a liquidar.
+Black Thursday (Marzo 2020):
+ El precio de ETH cayó 50% en horas. La congestión de red causó 
+gas fees
+ altísimos. Resultó en 
+ horas. La congestión de red causó 
+gas fees
+ altísimos. Resultó en 
+sultó en 
+akerDAO a emitir MKR para cubrir la deuda.
+Evolución:
+ Inicialmente 100% crypto, hoy $\sim 60%$ del 
+backing
+ es USDC (debido a la búsqueda de eficiencia y estabilidad), lo que genera una controversia sobre su descentralización.
+LUSD (Liquity USD):
+ Mecanismo similar, pero solo usa ETH como colateral. CR Mínimo de 110% (más eficiente que DAI). Protocolo inmutable (sin gobernanza). Cobra un 
+fee
+ único de 0.5% al abrir el 
+vault
+.
+Trading con Crypto-Collateralized:
+ Totalmente descentralizado y transparente. Resistente a la censura e ideal para DeFi. 
+Ineficiente en capital
+ (CR $\ge$ 150%). Riesgo de liquidación en momentos de volatilidad.
+C. Algorítmicas
+Mecanismo:
+ Un algoritmo mantiene el 
+peg
+, típicamente usando un token volátil de soporte. 
+Propiedades:
+ Eficiente, Descentralizado, 
+Inestable
+.
+UST (Terra):
+ El mecanismo se basaba en un algoritmo y el token LUNA. La paridad se mantenía a través de un arbitraje incentivado:
+Si $\text{UST} > $1.00$: 
+Traders
+ queman LUNA para mintear UST y venderlo.
+Si $\text{UST} < $1.00$: 
+Traders
+ compran UST barato, lo queman para obtener LUNA.
+Promesa:
+ 20% APY en Anchor.
+Realidad:
+ Colapsó en mayo de 2022. El 
+depeg
+ inicial (a 
+ mayo de 2022. El 
+depeg
+ inicial (a 
+peg
+ inicial (a 
+8$) desencadenó un ciclo de 
+reflexividad
+: quema de UST $\to$ emisión masiva e hiperinflación de LUNA $\to$ caída de precio de LUNA $\to$ más desconfianza $\to$ más 
+depeg
+. La falta de respaldo real y la insostenibilidad del 20% APY fueron las causas principales.
+Lección:
+ No hay 
+free lunch
+ en finanzas. Los algoritmos solos no resisten 
+shocks
+ de mercado y se recomienda evitar 
+stablecoins
+ algorítmicas puras.
+FRAX (Modelo Híbrido):
+ El sobreviviente. Mecanismo: Colateral parcial (USDC) + algoritmo (FXS). Su clave es el ajuste dinámico del CR. Si hay 
+depeg
+, el CR aumenta para inyectar más colateral. Su éxito radica en un enfoque conservador (siempre mantuvo CR alto, $80%+$) y en no prometer 
+yields
+ insostenibles.
+2.3 Análisis Cuantitativo de Riesgo (Notebook A)
+El objetivo es evaluar riesgos utilizando datos históricos (precios, 
+market cap
+, volumen) de CoinGecko.
+Modelo de Puntuación de Riesgo (
+Risk Scoring Model
+):
+ Se utiliza una ponderación de factores para asignar un puntaje de 0 a 100 (donde mayor puntaje = más seguro):
+Estabilidad de precio: 35%
+Market cap: 20%
+Volumen: 15%
+Transparencia: 20%
+Mecanismo: 10%
+Cálculo de Arbitraje por Depeg (
+Depeg Arbitrage Calculator
+):
+ Mide la rentabilidad de una operación de arbitraje ante un evento de 
+depeg
+.
+Escenario:
+ USDC a 
+$0.88$ (depeg -12%).
+Cálculo:
+ Comprar 
+1.00$.
+Profit (bruto):
+ 
+Riesgo:
+ Asumir que el 
+peg
+ se recuperará (caso contrario, como UST, la pérdida es total).
+Lección clave:
+ Los modelos cuantitativos y la diversificación ayudan a evaluar y mitigar los riesgos, ya que no todas las 
+stablecoins
+ son iguales.
+3. Primitivas de DeFi (Finanzas Descentralizadas)
+3.1 Lending y Borrowing (Aave & Compound)
+Estos protocolos actúan como bancos descentralizados.
+Mecanismo:
+ Suministrar activos (
+Supply assets
+) para obtener rendimiento (
+earn yield
+). El préstamo (
+borrow
+) se realiza contra colateral sobrecolateralizado.
+Tasas Dinámicas:
+ Las tasas de interés (APY) son dinámicas y se ajustan según la demanda; mayor demanda $\to$ mayor APY. Por ejemplo, se puede 
+supply
+ USDC al 5% APY y 
+borrow
+ al 7% APY. El protocolo se queda con el 
+spread
+ (2%).
+Collateralization y LTV:
+ El 
+LTV (Loan-to-Value)
+ es el porcentaje que se puede pedir prestado. 
+ 
+Ejemplo:
+ Si ETH tiene 75% LTV, al depositar 
+7,500$ USDC.
+Liquidaciones en Lending:
+ Si el valor del colateral cae por debajo del 
+threshold
+ (LTV máximo) $\to$ se dispara la liquidación. Un 
+liquidator
+ paga la deuda, toma el colateral y recibe un bono (5-10%) como incentivo.
+Riesgo vs. Retorno (Compound):
+ Se observó en la sesión que algunas tasas de 
+borrow
+ pueden ser inferiores a las de 
+supply
+ debido a incentivos (subsidios) del protocolo, a menudo con el token nativo (ej. COMP). Esto crea un 
+spread
+ que, aunque en teoría parece libre de riesgo, está sujeto al riesgo del 
+smart contract
+. El 
+Risk-Free Rate
+ en DeFi es muy difícil de lograr.
+Utilización Cuantitativa:
+ Es posible apalancar una posición (pedir prestado para comprar más activo) o realizar 
+short selling
+ (pedir prestado un activo volátil, venderlo, y recomprarlo más barato para pagar el préstamo).
+3.2 Liquidity Pools (LPs) y AMM (Automated Market Makers)
+Los 
+Automated Market Makers
+ (AMM) son mercados descentralizados que no utilizan un libro de órdenes (
+Orderbook
+) tradicional. El precio de intercambio se determina por el ratio de los activos en el 
+pool
+.
+3.2.1 La Fórmula del Producto Constante
+El modelo más básico y común es el del Producto Constante (usado por Uniswap v2): 
+ Donde $x$ es la cantidad de un token, $y$ es la cantidad del otro token, y $k$ (el producto) permanece constante.
+Ejemplo Numérico:
+ Pool ETH/USDC: 100 ETH $\times$ 200,000 USDC $= 20,000,000$ (k).
+Cálculo de Slippage:
+ Si alguien compra 10 ETH (quedando 90 ETH en el pool), para mantener $k=20,000,000$, el USDC debe aumentar a 222,222 USDC. El precio nuevo es el cociente de las reservas: $\frac{222,222}{90} = $2,469$ por ETH, lo que muestra el impacto del 
+slippage
+.
+3.2.2 Impermanent Loss (IL)
+El riesgo principal de ser Proveedor de Liquidez (LP) es la 
+Pérdida Impermanente
+.
+Definición:
+ Es la pérdida que se mide al comparar el valor de los activos dentro del 
+pool
+ (como LP) contra el valor que tendrían si simplemente se hubieran mantenido (
+holdear
+, HODL).
+Causa:
+ Divergencia de precio entre los dos activos.
+Realización:
+ La pérdida es "impermanente" porque solo se realiza al retirar los fondos. Si el precio vuelve al valor original, IL $= 0$.
+Fórmula del Impermanent Loss (IL):
+ 
+ Donde $P_{ratio} = \frac{\text{Precio final}}{\text{Precio inicial}}$.
+Relación Creciente:
+ La pérdida es peor con una mayor divergencia de precios. Si $P_{ratio}=2x$, IL $\approx -5.7%$. Si $P_{ratio}=5x$, IL $\approx -25.5%$. La curva de IL es asimétrica y convexa.
+Rentabilidad LP:
+ Ser LP es rentable si las 
+Fees
+ (ganadas por el volumen de 
+trading
+) superan al 
+IL
+. La ganancia neta siempre se calcula como $\text{Fees} - \text{IL}$.
+Condiciones ideales:
+ Pools de alto volumen (más 
+fees
+) y baja volatilidad (menor IL).
+3.2.3 Estrategias para Minimizar IL
+Se busca operar con pares que mantengan su correlación o paridad:
+Pares de 
+stablecoin
+ (USDC/DAI).
+Activos altamente correlacionados (ETH/stETH, BTC/WBTC).
+Liquidez Concentrada (Uniswap v3), que permite poner liquidez en rangos estrechos de precio.
+Short timeframes
+: Entrar y salir antes de movimientos grandes de precio.
+3.3 Comparación de Rendimientos DeFi
+Los retornos deben ser ajustados por riesgo.
+Estrategia DeFi
+APY Típico
+Nivel de Riesgo
+Riesgos Cuantitativos a Considerar
+Lending (USDC)
+5-8%
+Bajo
+Riesgo de 
+Smart Contract
+.
+LP Stablecoins
+10-20%
+Muy Bajo
+Casi sin IL.
+LP Volátil
+30-100%
+Alto
+IL Significativo.
+Leverage Farming
+100%+
+Extremo
+Riesgo de Liquidación.
+El enfoque ideal para medir el rendimiento es el 
+Sharpe Ratio
+ (
+Return / Risk
+).
+4. Perpetual Futures y Hyperliquid
+4.1 Perpetual Futures (Perps)
+Los 
+Perpetual Futures
+ son derivados similares a los futuros tradicionales, pero 
+sin fecha de expiración
+. Fueron inventados por BitMEX en 2016 y son la clase de activo más líquida en cripto (más de 
+ro 
+sin fecha de expiración
+. Fueron inventados por BitMEX en 2016 y son la clase de activo más líquida en cripto (más de 
+se de activo más líquida en cripto (más de 
+en operar BTC, ETH y 
+altcoins
+ con 
+leverage
+ (hasta 100x+).
+4.1.1 Funding Rate: El Mecanismo de Anclaje
+El problema central es que el precio del 
+perp
+ puede divergir del precio 
+spot
+. El 
+Funding Rate
+ (tasa de 
+funding
+ o financiación), pagado típicamente cada 8 horas, resuelve esto.
+Funding Positivo:
+ Ocurre si el precio 
+perp
+ $>$ precio 
+spot
+ (mercado 
+long
+ / comprador) $\to$ Los 
+longs
+ pagan a los 
+shorts
+.
+Funding Negativo:
+ Ocurre si el precio 
+perp
+ $<$ precio 
+spot
+ (mercado 
+short
+ / vendedor) $\to$ Los 
+shorts
+ pagan a los 
+longs
+.
+Incentivo:
+ El arbitraje que busca cobrar este 
+funding
+ mantiene los precios alineados.
+Cálculo Anualizado (Ejemplo):
+ Si el 
+funding rate
+ es $+0.01%$ cada 8 horas: 
+4.1.2 Leverage y Liquidaciones
+El 
+leverage
+ (apalancamiento) amplifica ganancias y pérdidas.
+Riesgo Crítico:
+ El 
+leverage
+ reduce el margen de error. Con $10x$ de 
+leverage
+, un movimiento del $10%$ en contra resulta en una pérdida del $-100%$ del capital y la 
+liquidación
+.
+Tabla de Riesgo de Liquidación:
+ 
+$5x$ leverage $\to$ Liquidación con caída del $20%$.
+$50x$ leverage $\to$ Liquidación con caída del $2%$.
+Liquidaciones:
+ Ocurren cuando la pérdida excede el 
+maintenance margin
+. El 
+Liquidation Price
+ se calcula para saber en qué punto se perderá todo el capital.
+Cascadas de Liquidación:
+ Grandes liquidaciones generan presión de venta, lo que hace caer el precio, lo que liquida más posiciones, amplificando la volatilidad (ej. 
+Flash crash
+ o 
+wick events
+).
+Mark Price vs. Last Price:
+ Las liquidaciones usan el 
+Mark Price
+ (precio índice, promedio de 
+exchanges
+) en lugar del 
+Last Price
+ (último 
+trade
+), ya que este último es más manipulable.
+4.2 Hyperliquid Platform
+Hyperliquid es una 
+Native L1 blockchain
+ dedicada exclusivamente al 
+perps trading
+.
+Arquitectura:
+ Usa un sistema de 
+Orderbook
+ basado en cadena (CLOB), no AMM.
+Rendimiento:
+ Utiliza consenso HyperBFT (
+custom PoS
+), con un tiempo de bloque ultra-rápido de $\sim 0.2$ segundos.
+Costos:
+ Subsidia las 
+gas fees
+, resultando en 
+stos:
+ Subsidia las 
+gas fees
+, resultando en 
+os:
+ Subsidia las 
+gas fees
+, resultando en 
+:
+ Subsidia las 
+gas fees
+, resultando en 
+Subsidia las 
+gas fees
+, resultando en 
+bsidia las 
+gas fees
+, resultando en 
+idia las 
+gas fees
+, resultando en 
+ia las 
+gas fees
+, resultando en 
+ las 
+gas fees
+, resultando en 
+as 
+gas fees
+, resultando en 
+ 
+gas fees
+, resultando en 
+as fees
+, resultando en 
+ fees
+, resultando en 
+ees
+, resultando en 
+s
+, resultando en 
+ resultando en 
+esultando en 
+ultando en 
+tando en 
+ndo en 
+o en 
+en 
+ 
+$0$ para los 
+traders
+. Esto es clave para operar un 
+Orderbook
+ en cadena a alta frecuencia.
+KYC y Custodia:
+ Es totalmente 
+permissionless
+ y 
+Sin KYC
+ (
+Know Your Customer
+). Es 
+non-custodial
+, lo que significa que el usuario controla sus fondos.
+Provisión de Liquidez (HLP Vault):
+ El 
+vault
+ de HLP actúa como la contraparte de los 
+traders
+. Los 
+Hyperliquid Liquidity Providers
+ (HLP) ganan 
+trading fees
+ y se benefician del 
+profit
+ cuando los 
+traders
+ pierden. El riesgo es el 
+drawdown
+ si los 
+traders
+ tienen un 
+rally
+ masivo. El APY histórico es variable (20-50%).
+Tokenomics (HYPE):
+ El token nativo HYPE (lanzamiento Dic. 2024) ofrece utilidad en descuentos de 
+fees
+ y 
+boosts
+ de APY por 
+staking
+. Es un modelo deflacionario donde las 
+fees
+ son quemadas.
+4.3 Análisis Cuantitativo de Funding (Notebook C)
+Observación clave:
+ Los 
+funding rates
+ revelan el sentimiento del mercado.
+Interpretación:
+ Un 
+funding
+ muy positivo implica un mercado muy 
+bullish
+ (los 
+longs
+ pagan a los 
+shorts
+), señalando un mercado sobre-apalancado y, por ende, un 
+riesgo de corrección
+.
+Señal de Trading:
+ 
+Extreme funding
+ es una oportunidad 
+contrarian
+ (ir a la contra del sentimiento extremo).
+Estrategia Cuantitativa:
+ El arbitraje de 
+funding rate
+ (siendo 
+delta neutral
+ y cobrando la prima) ha demostrado ser una estrategia de 
+alpha
+ modesto pero consistente.
+5. Estrategias y Retornos Ajustados por Riesgo
+5.1 Construcción de Portfolio de Stablecoins
+La diversificación es crucial, incluso entre 
+stablecoins
+.
+Conservador (Máxima Seguridad):
+ 70% USDC, 20% DAI, 10% FRAX.
+Moderado (Seguridad + Descentralización):
+ 50% USDC, 30% DAI, 20% LUSD.
+Agresivo (Mayor Yield, Mayor Riesgo):
+ 40% USDC, 30% FRAX, 30% DeFi yield (alto riesgo).
+5.2 Retornos Ajustados por Riesgo (Risk-Adjusted Returns)
+No se debe mirar solamente el APY nominal. Para una correcta evaluación, se debe considerar:
+Impermanent Loss (IL)
+.
+Riesgo de 
+Smart Contract
+ (
+exploits
+).
+Riesgo de Liquidación
+ (si hay apalancamiento).
+Madurez del Protocolo
+ (ej. Hyperliquid es joven, menos 
+battle-tested
+).
+Prima de Riesgo:
+ La diferencia entre el APY ofrecido y la tasa libre de riesgo de los 
+Treasury Bills
+. Esta prima representa el riesgo compuesto del protocolo y de la 
+blockchain
+ subyacente.
+El enfoque final debe ser siempre el 
+Sharpe Ratio
+ (Retorno / Riesgo) para comparar efectivamente las estrategias DeFi.
+Como Quant en el ámbito de las finanzas cuantitativas, es crucial diseccionar la información para entender los procesos subyacentes y las métricas operacionales. A continuación, se presenta un análisis exhaustivo y estructurado de los conceptos y razonamientos vertidos en la Clase III, integrando tanto el material de la presentación como el desarrollo oral.
+Análisis Cuantitativo y Desarrollo de Conceptos de la Clase III: Macro Drivers, Tokenización y Señales Aplicadas
+La Clase III de "Blockchain y Criptomonedas" se centra en la relación entre los mercados tradicionales y el ecosistema cripto, la revolución de la tokenización de activos del mundo real (RWA), y la implementación práctica de señales de 
+trading
+ mediante 
+backtesting
+. La duración programada de la clase es de 3 horas con un intermedio de 15 minutos.
+I. Repaso de la Clase Anterior (Clase 2 Recap)
+Los temas clave abordados en la sesión anterior incluyeron:
+Mecánica y Riesgo de Stablecoins:
+ Análisis de diferentes tipos como USDT, USDC y DAI, incluyendo aquellas colateralizadas con moneda 
+fiat
+ y las algorítmicas o híbridas.
+Estrategias de 
+Yield
+ en DeFi y Pérdida Impermanente (
+Impermanent Loss
+):
+ Cómo generar rendimiento proveyendo liquidez en pares estables y no estables.
+Futuros Perpetuos y Tasas de 
+Funding
+:
+ Se discutieron los 
+perpetuals
+ (contratos sin vencimiento, utilizados para apalancamiento y especulación/gestión de riesgo) y los mecanismos de las tasas de 
+funding
+.
+Optimización y Diversificación de Portafolio:
+ La clase destacó que el cripto ofrece múltiples fuentes de ingreso más allá del 
+spot trading
+.
+II. Factores Macroeconómicos (Macro Drivers) y su Impacto en Cripto
+El análisis macro se aborda para entender cómo los mercados tradicionales inciden en los precios de las criptomonedas.
+A. Escenario Real: Subidas de Tasas de la Fed y el 
+Crypto Crash
+Se analizó el evento conocido como "The Fed Pivot" en marzo de 2022, cuando la Reserva Federal (Fed) implementó subidas de tasas agresivas, elevando el tipo de interés del 0% al 5.5%.
+Objetivo de la Fed:
+ Combatir la inflación, que alcanzó un máximo de 40 años (9.1% de CPI).
+Reacción del Mercado:
+ Bitcoin (BTC) se desplomó desde aproximadamente $69K hasta $15K (una caída del -78%).
+Mecanismo (Razón Subyacente):
+ Cuando las tasas suben, el dinero se vuelve más costoso (
+expensive
+). Esto provoca que los inversores se deshagan de activos de riesgo (como cripto y acciones tecnológicas).
+B. Evolución de la Correlación Cripto
+Históricamente, el cripto se percibía como un activo 
+"descorrelacionado"
+.
+Período 2013-2019:
+ BTC se movía de manera independiente. Existía la narrativa de que BTC era el "oro digital" o un "refugio seguro" (
+safe haven
+) durante las crisis.
+Realidad Actual (Correlación Alta):
+ Hoy, la correlación de cripto es alta (entre 
+0.7 y 0.8
+ con el S&P 500). El mercado cripto ahora se negocia como un activo de riesgo (
+risk-on asset
+), sensible a la política de la Fed, y opera de forma similar a las acciones tecnológicas.
+C. Variables Macroeconómicas Clave (Key Macro Drivers)
+Existen dos factores macro principales que influyen en el precio de los criptoactivos:
+Tasas de Interés (Federal Funds Rate):
+Tasas más altas: 
+Bearish
+ para cripto.
+Tasas más bajas: 
+Bullish
+ para cripto.
+Fuerza del Dólar (DXY Index):
+Dólar más fuerte: 
+Bearish
+ para cripto.
+Dólar más débil: 
+Bullish
+ para cripto.
+D. La Política de la Reserva Federal (Fed)
+La Fed, creada en 1913, es el banco central de EE. UU. y es responsable ante el Congreso.
+Mandato Dual:
+Máximo Empleo (baja tasa de desempleo).
+Estabilidad de Precios (objetivo de inflación del 2%).
+Herramientas de Política:
+Federal Funds Rate:
+ Tasa de interés que los bancos se cobran entre sí por préstamos 
+overnight
+. Es la principal palanca de la Fed. Se sube para reducir la inflación y se baja para estimular el crecimiento.
+Quantitative Easing (QE):
+ La Fed compra bonos, inyectando liquidez en el sistema ("Money printer go brrr"). QE es 
+Bullish
+ ya que aumenta la oferta monetaria y los precios de los activos se inflan. Ejemplo: QE 2020 post-COVID llevó a BTC de $10K a $69K.
+Quantitative Tightening (QT):
+ La Fed vende bonos, lo cual es 
+Bearish
+.
+Indicadores Clave del Pivote de la Fed
+Para anticipar cambios en la política monetaria (
+Fed Pivot
+), se deben observar indicadores macroeconómicos:
+Datos de Inflación (CPI, PCE):
+ Si la inflación baja, la Fed podría recortar tasas (Bullish). Si sube, podría subir más las tasas (Bearish).
+Datos de Empleo (Non-Farm Payrolls):
+ Si el empleo es fuerte, la Fed mantiene tasas altas. Si es débil, podría recortar tasas para estimular.
+E. Teoría de Liquidez Global y DXY (Índice del Dólar)
+Tesis de Liquidez Global:
+ Los precios de los activos (incluyendo cripto) son impulsados por la liquidez global, definida como el capital disponible en el sistema financiero. Más liquidez se traduce en precios más altos; menos liquidez, en precios más bajos.
+Medición de Liquidez:
+ Se monitorea la oferta de dinero M2 de EE. UU..
+DXY (Dollar Index):
+ Mide la fortaleza del dólar estadounidense contra una canasta de 6 monedas. La composición de la canasta incluye el Euro (57.6%), el Yen Japonés (13.6%), la Libra Esterlina (11.9%), y el Dólar Canadiense (9.1%).
+Correlación DXY vs. BTC (Ejemplos Históricos):
+2020-2021 (Debilidad del Dólar):
+ DXY cayó de 103 a 89 (-13%). BTC subió de $10K a $69K (+590%).
+2022 (Fortaleza del Dólar):
+ DXY subió de 89 a 114 (+28%). BTC cayó de $45K a $15K (-67%).
+F. Régimen de Correlación BTC vs. S&P 500 y NASDAQ
+El aumento de la correlación se evidencia al comparar BTC con el S&P 500 y, aún más, con el NASDAQ (índice con acciones de tecnología).
+Correlación Histórica BTC vs S&P 500:
+2013-2019: 0.1-0.3 (mayormente descorrelacionado).
+2020-2021: 0.4-0.6 (correlación moderada).
+2022-2024: 0.7-0.9 (alta correlación).
+BTC vs. NASDAQ:
+ La correlación es frecuentemente más fuerte, llegando a 0.8-0.9. BTC se comporta como una "acción tecnológica apalancada" (
+leveraged tech stock
+).
+Análisis de Régimen de Correlación:
+Régimen de Alta Correlación (0.7+):
+ Caracterizado por mercados estables y dominancia institucional. La estrategia de 
+trading
+ recomendada es 
+seguir las tendencias del mercado de acciones
+. El riesgo principal es que el cripto ofrece poca diversificación.
+Régimen de Correlación Media (0.4-0.7):
+ Períodos transicionales con señales mixtas. La estrategia es utilizar múltiples indicadores.
+G. Metodología Cuantitativa de Correlación (LIVE DEMO A)
+Se propone el cálculo de la correlación de 30 días (
+30-day rolling correlation
+) entre BTC y S&P 500, utilizando datos macro (S&P 500, NASDAQ, Gold, DXY, Federal Funds Rate) y precios de BTC y ETH.
+El cálculo de la correlación de Pearson, $r_{X, Y}$, para una ventana de $n=30$ días se basa en la covarianza de los retornos de los activos $X$ (BTC) e $Y$ (S&P 500), dividido por el producto de sus desviaciones estándar en ese período:
+Hallazgos Típicos del Análisis (2021-2023):
+ Correlación promedio de $\approx 0.75$ (alto). Picos de $0.85+$ se observaron durante el ciclo de subidas de tasas de la Fed.
+III. Fundamentos de Tokenización (RWA Fundamentals)
+La tokenización es el proceso de convertir activos del mundo real (RWAs, 
+Real-World Assets
+) en 
+tokens
+ digitales en una 
+blockchain
+.
+A. Oportunidad de Mercado y Ejemplos
+La oportunidad es masiva, con un Mercado Abordable Total (
+Total Addressable Market
+, TAM) estimado en 
+$16 billones
+ (trillions, T) para 2030, según BCG.
+Ejemplos de Tokenización:
+ Bonos del Tesoro de EE. UU. (OUSG de Ondo Finance), oro físico (PAXG de Paxos Gold), bienes raíces (RIO de Realio), y bonos corporativos.
+B. Categorías de Tokens RWA y Protocolos
+Renta Fija y Bonos del Tesoro (
+Treasury & Fixed Income
+):
+ Permite obtener rendimientos de finanzas tradicionales (ej. 4-5% tasa libre de riesgo) en DeFi. Ejemplos: OUSG, USDY, BENJI.
+Ondo Finance (ONDO):
+ Plataforma institucional de RWA, tokeniza bonos del Tesoro de EE. UU. (OUSG) respaldados por T-bills a corto plazo.
+Oro Tokenizado (
+Tokenized Gold
+):
+ Respaldado 1:1 con oro físico en bóvedas. Ejemplos: PAXG (Paxos Gold), XAUT (Tether Gold).
+Paxos Gold (PAXG):
+ Un 
+token
+ PAXG equivale a 1 onza troy (
+troy oz
+) de oro físico. Regulado y almacena el oro en bóvedas de Londres. Es 
+redeemable
+ (se puede canjear por oro físico) y está sujeto a auditorías.
+C. Crecimiento del Sector RWA y Riesgos
+El sector RWA ha mostrado resiliencia en mercados bajistas.
+Crecimiento del TVL (Total Value Locked):
+ 2021: $1B; 2022: $2B; 2023: $5B; 2025 (Meta): $15B+.
+Factores Bullish:
+ TAM masivo ($16T), creciente interés institucional, mejora en la claridad regulatoria, rendimientos reales incluso en mercados bajistas, y maduración tecnológica.
+Riesgo de Contraparte:
+ La discusión revela que el mayor riesgo es de contraparte, especialmente en proyectos sin regulación sólida. La regulación es vista como beneficiosa, ya que baja el riesgo y permite a los participantes "vender confianza".
+IV. Señales de Trading Aplicadas y Backtesting
+Se introducen estrategias de 
+trading
+ cuantitativas basadas en momentum y reversión a la media, con un enfoque en la implementación y el 
+backtesting
+.
+A. Promedios Móviles y Señales de 
+Momentum
+Un promedio móvil (
+Moving Average
+, MA) es un precio promedio sobre un período que actúa como filtro pasa-bajos, suavizando el ruido de corto plazo e identificando la dirección de la tendencia.
+Simple Moving Average (SMA):
+ Asigna igual peso a todos los puntos de datos.
+Golden Cross (Señal de Compra/Bullish):
+ Ocurre cuando un MA de corto plazo (ej. 50 días) cruza 
+POR ENCIMA
+ de un MA de largo plazo (ej. 200 días). Señala el inicio de una tendencia alcista a largo plazo.
+Death Cross (Señal de Venta/Bearish):
+ Ocurre cuando un MA de corto plazo (ej. 50 días) cruza 
+POR DEBAJO
+ de un MA de largo plazo (ej. 200 días). Señala el inicio de una tendencia bajista a largo plazo.
+B. Estrategia de Cruce de Promedios Móviles (MA Crossover) y Backtesting
+Se ejemplifica el 
+backtesting
+ de una estrategia MA Crossover en ETH/USD con datos diarios de 2+ años.
+Reglas de la Estrategia:
+Entrada: Golden Cross (50-day MA > 200-day MA). Entrar en posición larga (100% del capital).
+Salida: Death Cross (50-day MA < 200-day MA). Salir de la posición (pasar a 
+cash
+).
+Resultados Típicos (2021-2023):
+ Los resultados del 
+backtesting
+ arrojaron un Retorno Total de 
++45%
+ y un Ratio de Sharpe de 
+0.85
+, con un 
+Max Drawdown
+ de -32% y una Tasa de Ganancia (
+Win Rate
+) del 54%.
+El retorno de la estrategia se compara con el retorno de mantener el activo (
+Buy and Hold
+) para determinar el valor agregado (Alpha).
+C. Indicadores de Reversión a la Media y Confirmación de Tendencia
+RSI (Relative Strength Index):
+ Oscilador de momentum (escala 0-100) que mide la velocidad y magnitud de los cambios de precios.
+Fórmula del RSI:
+ 
+ Donde RS (
+Relative Strength
+) es la razón entre el promedio de ganancias y el promedio de pérdidas en un periodo determinado.
+Estrategia RSI (Sobredemanda/Sobreventa):
+ Señal de compra cuando el RSI cruza por debajo de 30 (sobreventa) y luego confirma al cruzar de vuelta por encima de 30. Señal de venta cuando cruza por encima de 70 (sobredemanda) y luego cruza por debajo de 70.
+Análisis de Volumen:
+ El volumen es una métrica clave para 
+confirmar
+ los movimientos de precio.
+Alto volumen = Fuerte convicción en el movimiento.
+Bajo volumen = Movimiento débil, propenso a revertirse.
+Enfoque Multi-Factor:
+ Es crucial no usar indicadores simples de forma aislada, ya que tienen debilidades y generan señales falsas; necesitan confirmación de otros factores (como volumen o contexto macro).
+V. Arbitraje de Tasa de Funding (Cash-and-Carry Arbitrage)
+Esta estrategia explota la prima que existe entre el precio 
+spot
+ (mercado real) y el precio del futuro perpetuo, capitalizando el pago periódico del 
+Funding Rate
+.
+A. La Estrategia Cash-and-Carry
+La estrategia busca ser 
+delta neutral
+ (el P&L no depende del movimiento del precio, $\Delta = 0$).
+Setup:
+ Comprar 1 unidad de BTC en el mercado 
+spot
+ y vender (
+short
+) 1 unidad de BTC en el futuro perpetuo. La posición corta se colateraliza con el BTC comprado en 
+spot
+.
+Beneficio:
+ Si la tasa de 
+funding
+ es positiva (generalmente $> +0.05%$ por 8 horas), la posición corta recibe el pago de 
+funding
+ cada 8 horas, generando un ingreso pasivo anualizado.
+B. Análisis de Costos y Break-Even
+Los costos de transacción (en puntos básicos, 
+Bipies
+) son un factor crítico, ya que el 
+profit
+ del 
+funding
+ también se mide en puntos básicos.
+Costo de Entrada (Ejemplo $10,000, Taker):
+ Tarifa Spot $\approx 0.1%$ ($10) + Tarifa Futuros $\approx 0.04%$ ($4).
+Tasa de Funding de Break-Even:
+ Se requiere una tasa de 
+funding
+ de aproximadamente $0.04%$ por 8 horas (anualizado a cerca del 40%) para que la operación sea rentable tras cubrir los costos de entrada/salida.
+C. Condiciones de Aplicación
+Condiciones Ideales (Profitable):
+ Tasa de 
+funding
+ alta y persistentemente positiva $(> 0.05% \text{ por } 8\text{H})$. Esto suele ocurrir en mercados alcistas (
+strong bull market
+), con alto 
+FOMO
+ minorista y alta demanda de apalancamiento (
+leverage
+).
+Condiciones a Evitar:
+ 
+Funding
+ negativo o cercano a cero, ya que implicaría pagar el diferencial. También alta volatilidad, lo que aumenta el riesgo de liquidación en futuros y 
+slippage
+.
+El análisis histórico de dos años muestra que el promedio del 
+funding rate
+ fue muy bajo (ej. $\approx 0.008%$ para BTC), lo que confirma que la estrategia solo es rentable en momentos muy específicos de sentimiento extremadamente 
+bullish
+.
+VI. Evaluación de Proyectos RWA (LIVE DEMO D)
+Se utiliza una metodología cuantitativa para evaluar la viabilidad de inversión en 
+tokens
+ RWA (ej. ONDO, PAXG, RIO) extrayendo datos de CoinGecko y DeFiLlama, incluyendo el TVL (
+Total Value Locked
+).
+A. Métricas de Evaluación Clave
+Se definen métricas para construir un 
+score
+ de inversión:
+Ratio Market Cap/TVL:
+ Mide la capitalización de mercado del 
+token
+ con respecto al capital bloqueado en el protocolo. Un ratio más bajo se interpreta como subvaluación.
+Liquidity Score:
+ Se calcula como la razón entre el Volumen y el Market Cap (Volumen / Market Cap). Un 
+score
+ más alto indica mayor liquidez.
+Proximidad a Máximos Históricos (
+All Time High
+):
+ Se evalúa qué tan cerca está el precio actual del ATH para medir el potencial de 
+upside
+.
+B. Scoring de Inversión (Resultados Típicos)
+La ponderación de estas métricas permite generar un 
+score
+ y una recomendación.
+Rank 1: ONDO Finance:
+ Puntuación de 82/100, con recomendación 
+STRONG BUY
+. Se destaca por su alto volumen, una valuación "Fair" (MC/TVL de 1.5), y un TVL en crecimiento (+45% QoQ).
+Rank 2: PAXG (Paxos Gold):
+ Puntuación de 75/100.
+El objetivo es crear un 
+dashboard
+ que permita tomar decisiones de manera metódica.
+VII. Estrategias de Entrada y Gestión del Riesgo
+A. Estrategias de Entrada: DCA vs. Tácticas
+Dollar-Cost Averaging (DCA):
+ Consiste en invertir una cantidad fija a intervalos regulares (ej., $100 semanales). 
+Ventajas:
+ Elimina la emoción (no requiere 
+timing
+) y promedia el precio de entrada.
+Entrada Táctica (
+Timing the Market
+):
+ Esperar señales específicas (ej., 
+Golden Cross
+, RSI sobrevendido, pico de 
+funding rate
+) para entrar. 
+Ventajas:
+ Potencialmente mejores retornos y precios de entrada.
+Enfoque Híbrido (Estrategia Recomendada):
+ Combinar ambos: 70% DCA (posición 
+core
+) y 30% táctico (compras oportunistas, ej., durante caídas fuertes con RSI < 30 o rebotes del 
+Death Cross
+).
+B. Gestión del Riesgo: 
+Position Sizing
+ (Kelly Criterion)
+La Regla del 1-2%:
+ No arriesgar nunca más del 1-2% del portafolio en una sola operación (
+trade
+).
+Criterio de Kelly (Avanzado):
+ Es una fórmula para determinar el tamaño óptimo de la posición para maximizar el crecimiento esperado del capital a largo plazo.
+Fórmula:
+ 
+ Donde:
+$W$ es la tasa de ganancia (
+Win rate
+).
+$R$ es la razón entre la ganancia promedio y la pérdida promedio ($\text{R} = \frac{\text{Average win}}{\text{Average loss}}$).
+VIII. Reflexiones Cuantitativas y Discusión Adicional
+A. Ineficiencias del Mercado Cripto
+El mercado cripto es menos líquido que los mercados tradicionales y esta fragmentación genera ineficiencias que son, en teoría, más fáciles de explotar.
+Dificultad de Explotación:
+ Aunque es fácil ver las ineficiencias (como cruces de precio en el libro de órdenes entre diferentes 
+exchanges
+), es difícil ejecutarlas a alta frecuencia debido a problemas tecnológicos como el 
+slippage
+.
+Riesgo de MEV (
+Miner Extractable Value
+):
+ En 
+blockchains
+ como Ethereum, la implementación del arbitraje se complica porque el validador puede reordenar las transacciones y extraer la ganancia del arbitraje si otro 
+trader
+ paga un 
+gas price
+ más alto, convirtiendo el juego en un 
+trade-off
+ de costos y prioridad en la cola.
+Trading y Análisis Técnico:
+ Las estrategias basadas puramente en análisis técnico (como MAs) son cuestionadas por la falta de consistencia probada en el tiempo y el bajo 
+signal-to-noise ratio
+ en las finanzas. Se sugiere que las señales deben combinarse con 
+features
+ asociados a la liquidez y el contexto del ecosistema (ej. volumen) para aumentar su valor predictivo (Alpha).
+B. El Concepto de Valor y 
+Pricing
+Se concluye que activos tokenizados (como un bono) no deberían tener el mismo 
+pricing
+ 
+on-chain
+ que 
+off-chain
+, ya que el activo 
+on-chain
+ carece de la garantía del regulador (ej. CNV en Argentina), lo que implica una 
+prima de riesgo
+ asociada a la contraparte descentralizada.
+C. Lenguajes de Programación para Finanzas Cuantitativas
+Para 
+High-Frequency Trading
+ (HFT), los lenguajes compilados y de bajo nivel son prioritarios:
+C++ y Go:
+ Utilizados por su rapidez y eficiencia en la gestión de infraestructura.
+Rust:
+ Usado para 
+smart contracts
+ en 
+blockchains
+ como Solana.
+K (o Q, de Kdb+):
+ Lenguaje altamente eficiente para el análisis de datos de alta frecuencia y gran volumen, 150 veces más rápido que Python para ciertos usos, aunque de sintaxis compleja.
+Excelente. Procederemos a la disección técnica y rigurosa de los conceptos extraídos de la clase, adoptando una perspectiva de 
+Quantitative Finance
+ para explicar la lógica algorítmica y la infraestructura subyacente.
+Análisis Cuantitativo de Conceptos de Blockchain y DeFi
+Conceptos y explicaciones
+Blockchain (Cadena de bloques)
+Definición breve:
+ Un libro mayor (ledger) descentralizado compuesto por una secuencia de bloques vinculados criptográficamente mediante funciones 
+hash
+.
+Explicación completa:
+ Desde una perspectiva de estructuras de datos, la blockchain es una lista enlazada donde cada bloque (el elemento de la lista) incluye la función 
+hash
+ del bloque anterior. Esta interconexión secuencial, validada por criptografía, garantiza que cualquier intento de modificar un bloque requeriría la recalibración de todos los bloques subsiguientes, haciéndola computacionalmente inviable. Contiene un registro de cambios en el "estado de la naturaleza", como transferencias de activos digitales (e.g., 
+Wallet A sent Wallet B 1 eth
+) o interacciones programáticas con contratos inteligentes (
+Wallet X interacted with Wallet Y (contract)
+).
+Contexto en la clase:
+ Se mencionó como un repaso introductorio al módulo I, enfatizando su estructura secuencial mediante hashes y su función como registro de estado.
+Relaciones y dependencias:
+ Hash de bloque, Descentralización, Nodos, Estado de la Naturaleza.
+Descentralización / Ledger Descentralizado
+Definición breve:
+ Principio fundamental donde el control y la propiedad del registro contable (ledger) no reside en una única entidad central, sino que está distribuido y replicado en múltiples nodos.
+Explicación completa:
+ La descentralización mitiga el riesgo de 
+single point of failure
+ y la censura. El sistema opera como un "libro mayor descentralizado" donde ningún participante es el propietario exclusivo. Los nodos mantienen copias actualizadas del libro, y todos son candidatos a proponer nuevos bloques. Este modelo, basado en teoría de juegos e incentivos (consenso), se considera estable siempre que no ocurra un Ataque del 51%.
+Contexto en la clase:
+ Discutido en el Módulo I como una idea clave, comparándola con un libro contable distribuido y sin dueño.
+Relaciones y dependencias:
+ Nodos, Consenso, Ataque del 51%.
+Nodos (Nodes) y Nodos RPC (Remote Procedure Call)
+Definición breve:
+ Componentes de la red que almacenan, validan y replican la cadena de bloques, interactuando con sistemas externos mediante el protocolo RPC.
+Explicación completa:
+ Los nodos son la infraestructura física que mantiene la copia del ledger. Pueden ser 
+públicos
+ (accesibles a cualquiera, pero sujetos a 
+rate limiting
+ y latencia) o 
+privados
+ (levantados por un usuario para su propio uso, e.g., en AWS). Existen dos modos de operación fundamentales para las 
+quants
+: 
+Read Only (R/O)
+, que permite consultar el estado actual de la cadena (e.g., el precio de un par de tokens), y 
+Read/Write (R/W)
+, que permite proponer y enviar transacciones. El protocolo 
+RPC
+ (
+Remote Procedure Call
+) es el estándar de comunicación que permite a las aplicaciones externas interactuar y transmitir transacciones a la blockchain.
+Contexto en la clase:
+ Detallado en el Módulo III (Infraestructura), enfatizando que los nodos RPC son la API que usamos para "hablar" con la blockchain.
+Relaciones y dependencias:
+ Proveedores RPC, Mempool, Web3.py.
+Mempool
+Definición breve:
+ Área de espera temporal de un nodo para las transacciones que han sido propuestas y firmadas, pero aún no han sido incluidas en un bloque.
+Explicación completa:
+ Cada nodo mantiene su propia memoria de transacciones pendientes. Cuando un usuario envía una transacción, esta reside inicialmente en el 
+mempool
+ del nodo al que se conectó y luego se propaga (broadcast) a otros nodos de la red. La velocidad de propagación es crítica para las estrategias de alta frecuencia, y los proveedores de RPC se diferencian marcadamente en la latencia de descubrimiento de transacciones en el mempool.
+Contexto en la clase:
+ Se mencionó al discutir las responsabilidades de los nodos y la latencia de los proveedores de RPC.
+Relaciones y dependencias:
+ Transacción, Nodos RPC, Latencia.
+Criptografía (Clave Pública y Clave Privada)
+Definición breve:
+ Uso de algoritmos de curva elíptica para generar pares de claves asimétricas que aseguran la autenticidad y seguridad de las transacciones.
+Explicación completa:
+ La seguridad de la cadena se basa en la criptografía. Los algoritmos (como el usado en Ethereum) son similares a los sistemas SSH. La 
+Clave Privada
+ es la secuencia de caracteres hexadecimales que debe mantenerse secreta, ya que se utiliza para 
+firmar
+ las transacciones. La 
+Clave Pública
+ y la 
+Address
+ (dirección de la wallet) se derivan de la clave privada y son visibles públicamente. La posesión de la clave privada es el control absoluto de los fondos.
+Contexto en la clase:
+ Explicado en el Módulo I como un componente clave de la seguridad de la blockchain.
+Relaciones y dependencias:
+ Transacción, Signers, Wallet Address.
+Consenso (Proof of Work - PoW y Proof of Stake - PoS)
+Definición breve:
+ Mecanismos algorítmicos que aseguran la validez de las transacciones, resolviendo el problema de la doble inclusión en un entorno distribuido.
+Explicación completa:
+ Ambos son métodos cruciales para decidir qué transacciones son válidas y cuáles no.
+Proof of Work (PoW):
+ Empleado por Bitcoin. Los mineros compiten resolviendo un problema computacionalmente intensivo (encontrar un 
+nonce
+ tal que, al combinarse con la data, produzca un 
+hash
+ que comience con N ceros). La recompensa incentiva el esfuerzo, y el costo energético desalienta la manipulación.
+Proof of Stake (PoS):
+ Utilizado por Ethereum post-Merge. Los 
+validadores
+ apuestan (
+stake
+) una cantidad mínima de token nativo (e.g., 32 ETH) para obtener la oportunidad aleatoria de proponer el siguiente bloque. La probabilidad de ser elegido es proporcional al monto 
+staked
+ sobre el total 
+staked
+ en la red. El mecanismo incluye penalizaciones severas (
+slashing
+) si se proponen transacciones fraudulentas, creando un fuerte incentivo económico (
+skin in the game
+) para el comportamiento honesto.
+Contexto en la clase:
+ Detallado al revisar la seguridad y el rol de mineros y validadores en el Módulo I.
+Relaciones y dependencias:
+ Ataque del 51%, Slashing, Nonce.
+Ataque del 51%
+Definición breve:
+ Riesgo teórico donde una única entidad obtiene control sobre más del 50% de la capacidad de minado (PoW) o del total 
+staked
+ (PoS) de la red, comprometiendo el consenso y la inmutabilidad de la cadena.
+Explicación completa:
+ En un sistema PoW o PoS, la seguridad se basa en que la mayoría de los participantes actúen honestamente. Si un atacante supera el umbral del 50%, podría censurar transacciones o ejecutar 
+double-spending
+. Aunque la clase señala que esto es extremadamente difícil de lograr en cadenas grandes debido a la infraestructura masiva requerida, sigue siendo el principal vector de riesgo de la descentralización.
+Contexto en la clase:
+ Mención dentro de la discusión sobre descentralización, como la condición necesaria para que alguien pueda "poseer" la blockchain.
+Relaciones y dependencias:
+ Descentralización, Proof of Work, Proof of Stake.
+Smart Contracts (Contratos Inteligentes)
+Definición breve:
+ Código autoejecutable almacenado en una dirección de la blockchain que define reglas inmutables y permite la construcción de lógica programática (dApps).
+Explicación completa:
+ Son la diferencia tecnológica fundamental entre Bitcoin y Ethereum. Permiten construir protocolos financieros complejos (swapping, 
+lending
+, etc.). Su característica clave es la 
+programación orientada a eventos
+. A diferencia del software tradicional que corre indefinidamente (
+jobs
+, 
+background processes
+), un 
+smart contract
+ se invoca a través de una transacción (el evento), se ejecuta atómicamente y termina, modificando el estado si la lógica es válida (regulada por la EVM). No tienen 
+timers
+. Se asemeja al funcionamiento de una 
+Lambda Function
+ de AWS, disparada por un evento externo.
+Contexto en la clase:
+ Módulo I y II. Base tecnológica para Ethereum y los 
+hands-on
+ de creación de tokens.
+Relaciones y dependencias:
+ EVM, ERC-20, Data (Transacción), ABI.
+EVM (Ethereum Virtual Machine)
+Definición breve:
+ Máquina virtual turing-completa que ejecuta el código de los 
+smart contracts
+ y garantiza la validez de la lógica de las transacciones en Ethereum y blockchains compatibles.
+Explicación completa:
+ Es el entorno de ejecución que define las "reglas del juego". La EVM ejecuta el 
+bytecode
+ de la transacción y regula que la lógica sea válida. Si una operación no tiene suficiente gas o si la lógica programada falla, la EVM revierte la transacción, manteniendo la integridad del estado. Las 
+EVM-compatible blockchains
+ (como Arbitrum, Polygon) utilizan el mismo algoritmo de firma y 
+addressing
+, permitiendo el uso de la misma 
+wallet
+ (Metamask) y herramientas.
+Contexto en la clase:
+ Explicación de la diferencia tecnológica con Bitcoin y su rol regulador.
+Relaciones y dependencias:
+ Gas, Smart Contracts, Gas Limit.
+Gas, Gas Limit, Gas Price y Costo de Transacción
+Definición breve:
+ Unidades de cómputo que miden el esfuerzo de procesamiento de una transacción, actuando como el "combustible" del sistema.
+Explicación completa:
+ El Gas es la unidad mínima de consumo.
+Gas Limit:
+ La cantidad máxima de unidades de gas que el remitente está dispuesto a gastar para prevenir bucles infinitos (
+for loops
+) o bloqueos en la EVM. El excedente no utilizado es devuelto.
+Gas Price (Tarifa):
+ La prima que se paga para que la transacción sea incluida y procesada más rápido. Funciona como una subasta; depende de la congestión de la red. En sistemas modernos, se descompone en 
+Base Fee
+ y 
+Max Priority Fee per Gas
+.
+Costo Mínimo de Gas:
+ El costo total de la transacción (excluyendo el 
+Value
+ transferido) se calcula como el producto de: 
+. El 
+Value
+ (cantidad de token nativo enviado) es adicional a este costo.
+Contexto en la clase:
+ Módulo II, como parámetros adicionales que definen la ejecución y prioridad de una transacción.
+Relaciones y dependencias:
+ Transacción, EVM, Rate Limiting.
+Decimales y Precisión (Unidades de Wei)
+Definición breve:
+ Convención numérica utilizada en EVM donde los tokens se representan internamente como números enteros gigantes, compensando la falta de aritmética de punto flotante.
+Explicación completa:
+ Los lenguajes de 
+smart contracts
+ (como Solidity) no utilizan números de punto flotante para evitar errores de precisión (
+floating-point errors
+). Para manejar decimales (fracciones), se adoptó una escala de $10^{18}$ (o 18 decimales, denominados Wei en Ethereum). Una unidad de Ether se almacena como $1 \times 10^{18}$ en la cadena. Esto asegura que la precisión de los cálculos financieros (críticos en DeFi, e.g., el cálculo de 
+slippage
+ en Uniswap) sea absoluta y no redondeada.
+Contexto en la clase:
+ Se explicó al detallar el 
+Value
+ de la transacción, aclarando por qué los montos son tan grandes en la data cruda.
+Relaciones y dependencias:
+ Smart Contracts, Solidity, Uniswap V2 (Pool reserves).
+ERC-20 (Standard de Token)
+Definición breve:
+ Interfaz técnica estándar que define las funciones mínimas que debe implementar un token fungible en la EVM.
+Explicación completa:
+ Al ser un estándar ampliamente respetado, permite que cualquier protocolo DeFi (como Uniswap) sepa cómo interactuar con el token. Si un token respeta la interfaz, funcionará en el ecosistema. Los métodos obligatorios incluyen:
+totalSupply
+: Cantidad total de tokens existentes.
+balanceOf(address)
+: Consulta el balance de una dirección.
+transfer(address recipient, uint amount)
+: Envía tokens directamente.
+approve
+ y 
+transferFrom
+ (Lógica de Allowance):
+ Permiten que un tercero (e.g., un 
+smart contract
+ de 
+swapping
+ o 
+lending
+) retire fondos en nombre del dueño de la 
+wallet
+, siempre hasta el límite previamente aprobado (
+allowance
+). El riesgo de 
+Max Approve
+ fue señalado como un peligro en ciertos protocolos.
+Contexto en la clase:
+ Explicado al detallar cómo interactuar con 
+smart contracts
+ y durante el ejercicio práctico de creación de la criptomoneda "QuantToken".
+Relaciones y dependencias:
+ Smart Contracts, ABI, Allowance.
+Eventos y Logs (On-Chain Data)
+Definición breve:
+ Registros inmutables emitidos por los 
+smart contracts
+ durante su ejecución, que sirven para describir la lógica interna y reconstruir el estado de la naturaleza.
+Explicación completa:
+ Los eventos son el mecanismo principal para extraer datos de la cadena de forma eficiente y estructurada. Permiten decodificar la información de los cambios de estado. Por ejemplo, el evento 
+Transfer
+ de un token ERC-20 registrará quién fue el origen, el destino y la cantidad.
+Rigor y Uso Cuantitativo:
+ Los 
+logs
+ son fundamentales para el análisis 
+on-chain
+ y la generación de señales. Mediante el uso de 
+Filtros
+, se puede buscar logs de eventos específicos (como 
+Swap
+ o 
+Transfer
+) dentro de un rango de bloques, lo que permite monitorear volúmenes, 
+inflows
+ o 
+outflows
+ a gran escala.
+Contexto en la clase:
+ Discutido en el Módulo II (Interacciones con 
+smart contracts
+) y aplicado en el Módulo IV (Web3.py) para crear filtros de transacciones.
+Relaciones y dependencias:
+ Filtros, ABI, Analytics.
+ABI (Application Binary Interface)
+Definición breve:
+ Interfaz del contrato, típicamente en formato JSON, que describe todos los métodos y eventos públicos, permitiendo a las aplicaciones externas interactuar con el 
+smart contract
+.
+Explicación completa:
+ Es el "diccionario" que traduce las llamadas de función legibles (como 
+transfer(address, uint)
+) a los hashes de función y la codificación binaria que la EVM puede entender. Cuando se usa una librería externa (como Web3.py), se necesita el ABI para inicializar el objeto del contrato y saber qué funciones se pueden llamar.
+Contexto en la clase:
+ Se mostró cómo obtener el ABI de un contrato verificado (e.g., USDC) desde un 
+scanner
+ y se usó en el 
+walkthrough
+ de Web3.py para instanciar el Router de Uniswap.
+Relaciones y dependencias:
+ Smart Contracts, Web3.py, Interfaz.
+Proveedores RPC de Servicio (Infura, Alchemy, BloxRoute, BlockNative)
+Definición breve:
+ Servicios comerciales que ofrecen nodos RPC dedicados, proporcionando conexiones de alta fiabilidad y baja latencia a la blockchain.
+Explicación completa:
+ Si bien existen nodos públicos, los 
+providers
+ pagos (y sus planes 
+freemium
+) garantizan una mejor respuesta técnica que los nodos públicos. Son esenciales para entornos de producción y 
+high-frequency trading
+.
+Latencia:
+ La velocidad de propagación de transacciones y el descubrimiento de eventos en el mempool es una métrica clave. Los proveedores premium, como BloxRoute, ofrecen una latencia significativamente menor (casi instantánea), lo cual es crítico para estrategias de Arbitraje o MEV (Miner Extractable Value, aunque no se nombró, está implícito en la discusión de velocidad).
+Contexto en la clase:
+ Módulo III, donde se contrastó la latencia de los proveedores gratuitos (Alchemy, Infura) con los proveedores de pago (BloxRoute).
+Relaciones y dependencias:
+ RPC, Mempool, Latencia.
+Providers y Signers (Metamask)
+Definición breve:
+ Componentes de infraestructura digital que permiten conectar la aplicación a la cadena (
+Provider
+) y asegurar la transacción mediante firma criptográfica (
+Signer
+).
+Explicación completa:
+Providers:
+ Funcionan como el "puente" (
+Bridge to Ethereum
+) entre el código de la aplicación (dApps) y la lógica de la blockchain.
+Signers:
+ Entidades (e.g., una 
+wallet
+ o una clave privada cargada) responsables de tomar la transacción cruda y aplicarle la firma criptográfica usando la clave privada, asegurando su validez.
+Metamask:
+ Es un software híbrido que combina ambas funciones, actuando como 
+provider
+ para la conexión y como 
+signer
+ para la firma de transacciones.
+Contexto en la clase:
+ Se usó para demostrar la firma de transacciones y la conexión a las testnets.
+Relaciones y dependencias:
+ Clave Privada, Metamask.
+Web3.py y Web3.js (Librerías de Interacción)
+Definición breve:
+ 
+Software Development Kits
+ (SDK) que simplifican la interacción programática con blockchains EVM-compatibles, abstrayendo las complejidades del protocolo JSON-RPC.
+Explicación completa:
+ Estas librerías (Python y Javascript) son el medio principal para desarrolladores y 
+quants
+ que buscan automatizar la extracción de datos (R/O) y la ejecución de transacciones (R/W). Permiten llamar métodos RPC de forma simplificada, en lugar de construir manualmente los objetos JSON para cada solicitud.
+Métodos Clave (Web3.py):
+eth.call()
+: Utilizado para simular la ejecución de un contrato (
+quoting
+) sin costo de gas.
+eth.send_transaction()
+/
+ContractFunction.transact()
+: Utilizado para enviar una transacción real a la red, retornando el hash de la transacción.
+Contexto en la clase:
+ Módulo IV, donde se introdujeron como herramientas esenciales para la conexión de 
+scripts
+ de Python a la blockchain.
+Relaciones y dependencias:
+ RPC, ABI, Transacción, Quoting.
+Gamble on Success vs. Gamble on Failure (Filosofía de Desarrollo)
+Definición breve:
+ Paradigmas de manejo de errores en sistemas de software. 
+Gamble on Success
+ asume que el proceso funcionará; 
+Gamble on Failure
+ asume que fallará y planifica en consecuencia.
+Explicación completa:
+ En lenguajes como Python, es fácil asumir que una llamada de función (
+get_block
+) será exitosa (
+Gamble on Success
+). Sin embargo, en sistemas distribuidos de alta latencia, esto lleva a fallos difíciles de diagnosticar. La aproximación recomendada (
+Gamble on Failure
+) es asumir la falla (e.g., no encontrar el bloque) y manejar explícitamente las excepciones (
+TransactionNotFound
+), implementando lógicas de reintento (
+retry
+) o propagando el error de manera controlada. Esto es vital para 
+workloads
+ de producción que interactúan con APIs externas (RPC).
+Contexto en la clase:
+ Mención dentro de la discusión sobre los métodos de Web3.py y la necesidad de manejar excepciones explícitamente.
+Relaciones y dependencias:
+ Web3.py, Transacción, Robustez.
+Uniswap V2 y Automated Market Maker (AMM)
+Definición breve:
+ Protocolo DeFi descentralizado que permite el intercambio de tokens sin libros de órdenes (order books) ni intermediarios, utilizando un modelo matemático de creación de mercado automatizado.
+Explicación completa:
+ Uniswap V2 utiliza el modelo 
+CPMM
+ (
+Constant Product Market Maker
+). En este modelo, los Proveedores de Liquidez (LPs) depositan pares de tokens en un 
+pool
+. El precio se ajusta automáticamente en función del balance de tokens en el pool. Los LPs reciben comisiones del 0.30% por transacción.
+Restricción de Gas Nativo:
+ V2 requiere que el token nativo (ETH) se envuelva (
+Wrapped
+) a WETH para participar en los 
+pools
+.
+Contexto en la clase:
+ Módulo V, donde se introdujo la lógica de AMM y el 
+whitepaper
+ asociado.
+Relaciones y dependencias:
+ CPMM, Liquidez, Slippage, Wrapped Ethereum.
+Constant Product Market Maker (CPMM)
+Definición breve:
+ Modelo matemático que rige Uniswap V2, manteniendo constante el producto de las reservas de dos activos en un 
+pool
+.
+Explicación completa:
+ La fórmula central es: 
+ Donde $x$ es la cantidad de Token A (reserva), $y$ es la cantidad de Token B (reserva), y $k$ es el valor constante que se mantiene inalterado. Cuando un usuario intercambia $\Delta x$ por $\Delta y$, el nuevo estado del pool $(x - \Delta x)$ y $(y + \Delta y)$ debe seguir cumpliendo la misma constante $k$: 
+ Esta fórmula determina el precio de intercambio y garantiza la provisión de liquidez en todo momento, ajustando automáticamente el precio en función de los 
+inputs
+ y 
+outputs
+. La curvatura del gráfico $x \cdot y = k$ implica que el impacto en el precio (slippage) depende del punto de operación actual del pool.
+Contexto en la clase:
+ Explicación detallada de la fórmula básica y la lógica de las reservas.
+Relaciones y dependencias:
+ Slippage, Liquidez, Quoting.
+Slippage (Deslizamiento)
+Definición breve:
+ La diferencia de precio experimentada por un 
+trader
+ entre el momento en que se calcula el 
+quote
+ (precio esperado) y el momento en que la transacción es ejecutada y confirmada en el bloque.
+Explicación completa:
+ En un AMM, las transacciones grandes mueven el punto de operación de la curva $x \cdot y = k$, modificando la relación de reservas $x/y$ y, por lo tanto, el precio. El 
+slippage
+ se produce porque el precio depende del tamaño del 
+trade
+ relativo al tamaño total del pool. Los 
+traders
+ cuantitativos buscan operar idealmente en la zona más "lineal" del pool para minimizar el impacto en el precio.
+Contexto en la clase:
+ Mencionado al analizar las fórmulas clave de Uniswap V2 y el impacto de las transacciones grandes.
+Relaciones y dependencias:
+ CPMM, Transacción, Quoting.
+Quoting (Obtención de Precio en Simulación)
+Definición breve:
+ El proceso de calcular el precio de salida de un 
+swap
+ (la cantidad de token que se recibirá) mediante una llamada simulada a la 
+smart contract
+ del Router.
+Explicación completa:
+ Se utiliza el método RPC 
+eth_call
+ (o 
+ContractFunction.call
+ en Web3.py) para simular la ejecución de la función de 
+swap
+ en la EVM localmente. Esto es crucial porque permite obtener una estimación de precios en tiempo real sin gastar gas ni modificar el estado de la cadena. Los 
+quants
+ usan estas llamadas para determinar si un precio es favorable (antes de comprometerse con un 
+send_transaction
+) y para buscar oportunidades de Arbitraje.
+Contexto en la clase:
+ Parte del Módulo IV y V, esencial para el desarrollo de la tarea propuesta.
+Relaciones y dependencias:
+ eth.call, Arbitraje, Transacción.
+Swap Path (Ruta de Intercambio)
+Definición breve:
+ Una secuencia ordenada (array) de direcciones de tokens que define el recorrido de un 
+swap
+ a través de múltiples 
+pools
+ de liquidez.
+Explicación completa:
+ Si un 
+trader
+ desea intercambiar Token A por Token D, y no existe un pool directo A/D, la operación puede enrutarse a través de pools intermediarios, como A -> B, B -> C, y C -> D. El 
+Swap Path
+ es la lista de direcciones que define este camino. Esto es manejado por el 
+Router
+ del protocolo DEX.
+Contexto en la clase:
+ Se mencionó en la tarea propuesta y en la discusión sobre los métodos del Router de Uniswap/Sushiswap.
+Relaciones y dependencias:
+ Router, Swap, Arbitraje.
+Halving (Bitcoin)
+Definición breve:
+ Evento programático en Bitcoin que ocurre aproximadamente cada cuatro años, reduciendo a la mitad la recompensa que reciben los mineros por validar un bloque.
+Explicación completa:
+ El 
+Halving
+ es un mecanismo deflacionario diseñado para controlar la emisión de nuevos Bitcoins y generar escasez. La recompensa se reduce exponencialmente ($1/2^x$). Este proceso continuará hasta que se generen todos los Bitcoins previstos (alrededor del año 2135, con base en el 
+hash rate
+ actual). Desde una perspectiva macroeconómica, el 
+halving
+ impacta la oferta y, por ende, es una señal fundamental para la valoración del activo.
+Contexto en la clase:
+ Se mencionó brevemente en respuesta a una pregunta sobre si el 
+halving
+ estaba relacionado con la normalidad de la cantidad de decimales.
+Relaciones y dependencias:
+ Bitcoin, Proof of Work.
+clase 5 
+¡Absolutamente! Como Quant, mi misión es desmenuzar la estructura técnica y financiera subyacente. A continuación, detallo exhaustivamente cada concepto extraído de las diapositivas y la transcripción, aplicando el rigor analítico requerido.
+Extracción Exhaustiva de Conceptos de Blockchain y Finanzas Cuantitativas
+I. Marco del Curso y Fundamentos de Conectividad
+Blockchain y Criptomonedas II
+Definición breve:
+ Nombre del curso, dictado en la Clase II (12/11/25).
+Explicación según clase:
+ Parte del programa UCEMA - QUANT.
+Conceptos relacionados:
+ UCEMA - QUANT, Clase II.
+Agenda (Módulos V-IX)
+Definición breve:
+ Estructura programática de la clase, cubriendo asincronía, mercados centralizados (CeXes), API de Binance y la librería CCXT.
+Conceptos relacionados:
+ Librería asynco, API de Binance, Mercados centralizados, Librería CCXT.
+Métodos RPC (Remote Procedure Call)
+Definición breve:
+ Métodos estándar utilizados para la conectividad y comunicación con la capa base de la blockchain.
+Explicación según clase:
+ Se hizo una primera introducción a estos métodos en la clase anterior, específicamente asociados a la Blockchain de Ethereum.
+Conceptos relacionados:
+ Blockchain de Ethereum, Conectividad.
+II. Concurrencia y Rendimiento (asynco)
+Librería asynco (Python)
+Definición breve:
+ Módulo fundamental de Python para escribir código concurrente.
+Explicación según clase:
+ Permite comenzar una operación intensiva en tiempo (I/O o Network requests) antes de que la anterior finalice. Busca optimizar el tiempo total de procesamiento, siendo fundamental para estrategias de Baja Latencia o 
+High Frequency Trading
+ (HFT).
+Ejemplos mencionados:
+ Network requests (pegarle a una API), leer/escribir al disco, consultas a Bases de Datos.
+Código Concurrente
+Definición breve:
+ Paradigma de programación que permite lanzar operaciones en simultáneo, agrupando tareas que van a incurrir en tiempos de espera (I/O Waiting).
+Ejemplos mencionados:
+ Lanzar 5 órdenes (requests) a distintos exchanges a la vez.
+Conceptos relacionados:
+ Multiprocessing, Multi-threading (conceptos distintos pero relacionados con la gestión de tareas).
+I/O Waiting
+Definición breve:
+ El tiempo que la CPU permanece inactiva esperando que se complete una operación de Entrada/Salida o de red.
+Explicación según clase:
+ En el 
+Caso Sincrónico
+, el 
+I/O Waiting
+ de cada 
+Request
+ se acumula secuencialmente, mientras que en el 
+Caso Asincrónico
+, las esperas se solapan o se utilizan para iniciar otros procesos, reduciendo el tiempo total.
+Conceptos relacionados:
+ CPU Processing, Caso Sincrónico, Caso Asincrónico.
+Roundtrip (de costo)
+Definición breve:
+ El tiempo que toma enviar una solicitud a un servidor (exchange o blockchain) y recibir una respuesta.
+Explicación según clase:
+ Este costo se puede medir en $100$ ms o $2$ ms dependiendo de la infraestructura y debe ser minimizado, por ejemplo, manteniendo un 
+Estado Consistente
+ en memoria local.
+Conceptos relacionados:
+ Latencia, Estado Consistente.
+III. Infraestructura y Modelado de Datos
+Entornos Virtuales (Python)
+Definición breve:
+ Ambiente aislado que contiene la instalación de Python, sus librerías y dependencias específicas para un proyecto.
+Explicación según clase:
+ Son cruciales como buena práctica para prevenir la colisión de dependencias entre diferentes proyectos. El comando básico para crearlo es 
+python -m venv
+.
+Conceptos relacionados:
+ Dependencias, 
+Pip Install
+.
+Containerización (Docker)
+Definición breve:
+ Arquitectura que empaqueta una aplicación junto con sus dependencias y binarios, facilitando deployments profesionales.
+Explicación según clase:
+ Permite levantar imágenes con distintos sistemas operativos (ej. Linux en Windows usando WSL 2) y orquestrar múltiples copias (Containers) mediante Docker Compose.
+Conceptos relacionados:
+ Docker Compose, WSL 2, Releases, Deployments.
+Web3 (Librería)
+Definición breve:
+ Librería esencial de Python para interactuar con la blockchain de Ethereum (y sus 
+forks
+).
+Explicación según clase:
+ Permite levantar un 
+provider
+ y gestionar la conexión al nodo RPC, incluyendo la configuración para Websockets.
+Conceptos relacionados:
+ Provider, Nodo RPC, Websockets.
+Websockets (WS)
+Definición breve:
+ Protocolo de conexión persistente y "viva" utilizado para mantener una comunicación estable con servicios como un nodo RPC.
+Explicación según clase:
+ Requiere un 
+handshake
+ inicial de 
+upgrade
+ y mantiene la conexión viva mediante el mecanismo de 
+Ping-Pong
+.
+Conceptos relacionados:
+ Handshake, Ping-Pong, Conexión viva.
+Token (Modelado)
+Definición breve:
+ Representación programática de un activo digital.
+Explicación según clase:
+ El modelado más básico incluye: 
+Token Address
+ (dirección on-chain), 
+Token Decimals
+ (necesario para la correcta lectura de cantidades) y 
+Token Name
+.
+Conceptos relacionados:
+ Token Address, Token Decimals, Tupla.
+IV. Exchanges Descentralizados (DEX) y Patrones de Diseño
+Interfaces de Mercado (Patrón de Diseño)
+Definición breve:
+ Una abstracción o clase base que define métodos estándar (
+quote
+, 
+get_price
+, 
+swap
+) para interactuar con cualquier mercado (DEX o CEX).
+Explicación según clase:
+ Su uso permite a los algoritmos interactuar indistintamente con Sushiswap, Quickswap, etc., y facilita enormemente el 
+Unit Testing
+.
+Conceptos relacionados:
+ Unit Testing, Test de Integración, Test de Regresión.
+DEX (Sushiswap, Quickswap)
+Definición breve:
+ Ejemplos de Exchanges Descentralizados, a menudo 
+forks
+ del protocolo Uniswap V2.
+Explicación según clase:
+ Para interactuar programáticamente requieren la localización de sus contratos clave: Router, Factory y sus respectivos ABIs.
+Conceptos relacionados:
+ Uniswap V2, Forks, Router, Factory.
+Factory (Contrato)
+Definición breve:
+ Contrato 
+Singleton
+ (existe uno solo por chain/protocolo) cuya función es crear nuevos 
+pools
+ o pares de liquidez.
+Explicación según clase:
+ Contiene el método 
+getPair
+ que, dados dos tokens, devuelve la dirección del par de liquidez existente.
+Conceptos relacionados:
+ Router, Pair, ABI, Singleton.
+Router (Contrato)
+Definición breve:
+ Contrato 
+Singleton
+ que rutea los trades, simplificando la operación de 
+swap
+ para el usuario.
+Explicación según clase:
+ Permite llamar a funciones clave como 
+getAmountsOut
+ para obtener cotizaciones sin interactuar directamente con el pool.
+Conceptos relacionados:
+ Factory, Swap, 
+getAmountsOut
+.
+ABI (Application Binary Interface)
+Definición breve:
+ Interfaz del contrato inteligente que define su estructura y métodos. Es necesaria para que el código externo (ej. Python/Web3) pueda interactuar con él en la blockchain.
+Conceptos relacionados:
+ Contrato Inteligente, Factory, Router.
+Reservas (Pool)
+Definición breve:
+ La cantidad de Token 0 y Token 1 almacenada en un par de liquidez.
+Fórmula clave:
+ Su relación define el precio instantáneo según la fórmula de Uniswap V2: $X \cdot Y = K$.
+Explicación según clase:
+ Se obtienen mediante el método 
+getReserve
+ del contrato 
+Pair
+. El orden de Token 0 y Token 1 está determinado determinísticamente por el ordenamiento alfabético/numérico de sus direcciones 
+on-chain
+.
+Conceptos relacionados:
+ Token 0, Token 1, Ordenamiento On-Chain.
+Wrapped Tokens
+Definición breve:
+ Tokens nativos (como ETH o MATIC) envueltos en un contrato ERC-20 para ser usados en pools DEX, ya que estos contratos solo soportan ERC-20.
+Ejemplos mencionados:
+ Rap Ethereum (WETH), Rap Matic.
+Conceptos relacionados:
+ ERC-20, Tokens nativos.
+Checksum Addresses
+Definición breve:
+ Formato de dirección necesario para que la librería Web3 pueda interpretar correctamente los 
+strings
+ de las direcciones y pasarlos como 
+bytes
+ a la blockchain.
+Conceptos relacionados:
+ Web3, Hex address (bytes).
+V. Seguridad y Ejecución de Trades On-Chain
+Slippage (Deslizamiento)
+Definición breve:
+ El cambio de precio que ocurre entre el cálculo de la cotización (
+quote
+) y el momento real de la ejecución de la transacción en la blockchain.
+Explicación según clase:
+ Un 
+slippage
+ no controlado puede llevar a pérdidas sustanciales (ej. $40,000$) y se mitiga estableciendo la 
+Cantidad Mínima de Salida
+.
+Conceptos relacionados:
+ Cantidad Mínima de Salida, Quote, Front-running.
+Cantidad Mínima de Salida
+Definición breve:
+ Parámetro crucial en un 
+swap
+ que define el monto mínimo de tokens de salida que el 
+trader
+ acepta recibir.
+Explicación según clase:
+ Si la cantidad real de salida es menor a este umbral (ej. 95% del 
+quote
+), la transacción falla sin perder los fondos, protegiendo contra el 
+slippage
+.
+Approval y Allowance
+Definición breve:
+ Mecanismo de seguridad ERC-20 que requiere que el usuario (dueño de la 
+wallet
+) dé permiso explícito a un tercero (
+spender
+, generalmente el 
+pool
+) para mover una cantidad específica (
+allowance
+) de sus tokens.
+Explicación según clase:
+ El 
+Approval
+ es el acto de habilitar al 
+pool
+ a tomar tokens; el 
+Allowance
+ es el monto máximo permitido. Este paso se hace en una transacción previa (Pre-Approval) al 
+swap
+.
+Conceptos relacionados:
+ Spender, Swap, ERC-20.
+Flashbots / Transacciones Privadas
+Definición breve:
+ Servicios (ej. Flashbots) o infraestructuras privadas que permiten enviar transacciones directamente a los validadores/mineros sin exponerlas en la 
+mempool
+ pública.
+Explicación según clase:
+ Ayuda a mitigar el 
+front-running
+. Permite agrupar transacciones secuenciales en 
+Bundles
+.
+Conceptos relacionados:
+ Bundles, Front-running, Back Running.
+Back Running / Ataque Sándwich
+Definición breve:
+ Estrategia MEV (Miner Extractable Value) donde un actor ejecuta una transacción inmediatamente 
+después
+ de una orden grande que ha movido el precio, buscando un arbitraje. El 
+Ataque Sándwich
+ implica ejecutar 
+antes
+ (front-running) y 
+después
+ (back running) de la transacción víctima.
+VI. Mercados Centralizados (CeXes) y Derivados
+Mercados Centralizados (CeXes)
+Definición breve:
+ Plataformas de trading con reglas y estructuras similares a los mercados financieros tradicionales (operan 24/7, usan Order Books).
+Características clave:
+ Requieren KYC (Know Your Customer), son más rápidos, tienen mayor liquidez, pero suelen tener 
+fees
+ más caros y el trading es contra el 
+exchange
+.
+Ejemplos mencionados:
+ Binance, OKX, Bitfinex, Bybit, Kraken.
+Trading en Spot
+Definición breve:
+ Operaciones con liquidación instantánea de monedas, similar al mercado FX (Foreign Exchange).
+Margin Trading
+Definición breve:
+ Permite apalancar una posición tomando fondos prestados del mercado, colateralizando con activos propios (una suerte de 
+short
+).
+Derivados
+Definición breve:
+ Instrumentos financieros avanzados con alto volumen y liquidez, como futuros con delivery en 
+token
+ o 
+stablecoin
+, y futuros perpetuos.
+Futuros Perpetuos (Perpetuals)
+Definición breve:
+ Contratos de futuros sin fecha de vencimiento que siguen el precio de un índice subyacente.
+Mecanismo:
+ Utilizan el 
+Funding Rate
+ para forzar la convergencia entre el 
+Mark Price
+ y el 
+Index Price
+.
+Funding Rate
+Definición breve:
+ Tasa de interés que se paga periódicamente entre traders 
+long
+ y 
+short
+ para mantener la paridad del precio del perpetuo con el precio spot.
+Explicación según clase:
+ Si muchos están 
+long
+, el precio tiende a subir, generando un 
+funding rate
+ positivo que hace que los 
+long
+ paguen a los 
+short
+, incentivando a tomar la posición contraria.
+Trading de Tasa (Carry Trade)
+Definición breve:
+ Estrategia que explota la diferencia de precios entre el mercado 
+Spot
+ y el precio de un futuro con 
+delivery
+.
+Ejemplos mencionados:
+ Comprar Solana Spot y vender Solana Futuro a 3 meses para asegurar una ganancia (diferencia de precio).
+VII. Data Analytics y Métricas (Defillama)
+Defillama.com
+Definición breve:
+ Plataforma de visualización (
+dashboard
+) de analíticas para el ecosistema cripto y DeFi.
+Utilidad:
+ Proporciona métricas como TVL, flujos (
+Inflows
+), volumen y capitalización, útiles para generar señales de trading.
+TVL (Total Value Locked)
+Definición breve:
+ El valor total (en dinero) bloqueado o custodiado por los contratos inteligentes de un protocolo DeFi.
+Explicación según clase:
+ Métrica esencial para evaluar el tamaño y crecimiento de los protocolos descentralizados. Se calcula como la suma de todos los 
+coins
+ en los 
+smart contracts
+ de todos los protocolos en todas las chains.
+VIII. Integración de APIs e Infraestructura Avanzada
+API de Binance (Rest API)
+Definición breve:
+ La interfaz de programación para interactuar con los servicios del exchange, requiriendo manejo de sistemas distribuidos y 
+Rate Limiting
+.
+Gestión de errores:
+ El código debe manejar el error 
+429
+ (Rate Limit excedido) mediante mecanismos de 
+retry
+ y 
+back off
+.
+Métodos Públicos y Privados (Binance)
+Públicos:
+ No requieren autenticación, se usan para obtener información pública como precios, el 
+Order Book
+, mercados disponibles, 
+Mining
+, 
+Staking
+ y 
+Funding Rates
+.
+Privados:
+ Requieren autenticación (firma con API Key/HMAC) e involucran balances, movimientos de fondos, 
+Trading
+ o manejo de subcuentas.
+Firma de Transacciones (Autenticación)
+Definición breve:
+ Proceso criptográfico (usando HMAC y la API Key) para autenticar las llamadas a métodos privados de la API de Binance.
+Implementación:
+ El resultado de la firma se incluye en los 
+headers
+ de la solicitud, típicamente en el campo 
+X-MBX-APIKEY
+.
+Librería CCXT
+Definición breve:
+ Librería de Python que estandariza la conexión y la interacción con múltiples exchanges centralizados.
+Utilidad:
+ Abstrae la lógica manual de autenticación y firma de transacciones, reduciendo drásticamente el tiempo de integración. Ofrece una versión 
+premium
+ con soporte para Websockets.
+Redundancia y Colocation
+Redundancia:
+ Estrategia de infraestructura que implica usar múltiples 
+containers
+ o conexiones (ej. 
+shardeando
+ 10-30 conexiones de Websockets) para asegurar la alta disponibilidad de la data, especialmente del 
+Order Book
+.
+Colocation:
+ Práctica de 
+Low Latency
+ que implica desplegar los servidores del 
+trader
+ lo más cerca posible del Data Center del exchange (ej. AWS Tokio, donde opera Binance) para minimizar la latencia de transporte a milisegundos.
+Order Book (Libro de Órdenes)
+Definición breve:
+ Registro en tiempo real de las intenciones de compra y venta a diferentes precios, información fundamental en CeXes.
+Data Incompleta:
+ La data pública del 
+Order Book
+ suele ser incompleta, ya que no incluye información sobre cancelaciones y reemplazos de órdenes (conocido en el protocolo FIX como 
+Drop copy
+ o 
+Execution reports
+).
+Backtesting Engine
+Definición breve:
+ Infraestructura de software necesaria para simular estrategias de trading con datos históricos.
+Requerimientos:
+ Debe ser capaz de procesar datos incrementales de 
+Trades
+ y 
+Order Books
+ (obtenibles de proveedores como Lobster Data) e incorporar 
+delays
+ reales (de ejecución y de inferencia) para evitar el 
+Overfitting
+.
+Time Series Databases (TSDB)
+Definición breve:
+ Bases de datos optimizadas para almacenar y consultar grandes volúmenes de datos ordenados cronológicamente.
+Ejemplo:
+ 
+Timescale
+ (una extensión de PostgreSQL) es recomendada por su optimización en la compresión y retención de datos históricos de alta frecuencia.
+Conceptos relacionados:
+ PostgreSQL, Política de retención y compresión.
+Overfitting y Generalización de Modelos
+Definición breve:
+ Falla estadística donde un modelo se ajusta demasiado bien a los datos históricos/entrenamiento, perdiendo su capacidad de predicción en la vida real.
+Explicación según clase:
+ Es un riesgo alto en quantitative finance debido a la dificultad de obtener datos históricos completos (ej. las cancelaciones de órdenes) y por los 
+delays
+ no simulados.
+clase 6
+¡Absolutamente! Como su extractor exhaustivo Quant, he diseccionado la arquitectura completa de la clase para presentar una lista de conceptos estructurada y detallada. La precisión es paramétrica y la formalidad matemática es nuestra base.
+Extracción Exhaustiva de Conceptos
+A. Conceptos Generales y de Curso
+Blockchain y Criptomonedas II:
+ Nombre del curso avanzado impartido dentro del contexto de finanzas cuantitativas.
+Explicación según clase:
+ Es la continuidad de la materia, enfocada en la aplicación QUANT en el ecosistema cripto.
+Ejemplos mencionados:
+ UCEMA - QUANT.
+Donde aparece:
+ Slide 1.
+Conceptos relacionados:
+ Finanzas Cuantitativas (Quant).
+B. Módulo X: Discusión de la Tarea y Monitoreo
+Algoritmo Algorítmico (Propio):
+ Desarrollo de una lógica automatizada de trading, siendo la tarea pendiente avanzar en su construcción.
+Librería Web3:
+ Herramienta utilizada para interactuar con la blockchain, la cual sufrió una actualización que requirió 
+portear
+ el código.
+Tokens (Específicos de la Tarea):
+ Activos digitales objeto de monitoreo.
+Ejemplos mencionados:
+ Wrapped Matic (wMATIC o Pragmatic), USDC (USD Coin).
+Mercados/Exchanges (de la Tarea):
+ Exchanges descentralizados (DEX) basados en el fork de Uniswap V2.
+Ejemplos mencionados:
+ SushiSwap, QuickSwap.
+Método 
+Getpair
+:
+ Función utilizada para obtener el 
+address
+ del par de tokens específico para operar en un DEX.
+Address:
+ Dirección única de un contrato (ej. del pool o del router) en la blockchain.
+Decimales (Token):
+ Número de posiciones decimales que posee un token, necesario para convertir valores 
+on-chain
+ a formato humano (ej. 18 para wMATIC, 6 para USDC).
+Websocket Provider:
+ Protocolo de conexión que permite recibir datos de la blockchain en modo 
+push
+ (en tiempo real) en lugar de usar HTTPS (modo 
+polling
+).
+Suscripción a 
+New Heads
+:
+ Mecanismo para recibir una notificación (push) cada vez que un bloque nuevo es minado/validado en la blockchain.
+Explicación según clase:
+ Reemplaza el 
+polling
+ y permite tomar decisiones 
+entre bloque y bloque
+ con el estado de la naturaleza inmutable.
+Filter Logs:
+ Tipo de suscripción más eficiente que solo notifica cuando ocurre un evento específico (ej. un 
+Swap
+).
+Latencia (Polygon):
+ El tiempo promedio de generación de bloques (aproximadamente 2 segundos en Polygon), lo cual define el intervalo de inmutabilidad del precio en AMMs.
+Precio Desfasado / Discrepancias:
+ Existencia de diferencias de precios entre múltiples exchanges (ej. SushiSwap vs. QuickSwap o Cexes) que crean oportunidades de arbitraje.
+Librería Csqt:
+ Librería utilizada para consultar precios de exchanges centralizados (
+off-chain
+) para comparar con los precios 
+on-chain
+.
+Ineficiencias:
+ Discrepancias de precios observadas al agregar la liquidez 
+on-chain
+ y 
+off-chain
+.
+C. Módulo XI: Flash Loans y Margin Trading
+Custodia de Tokens (Restricción Operativa):
+ Define quién controla los fondos.
+Cexes (Centralized Exchanges):
+ Mercados custodiales; controlan el 100% de los fondos (ej. Binance, FTX).
+Dexes (Decentralized Exchanges):
+ Mercados no custodiales; el usuario mantiene el control vía 
+private key
+.
+Arbitraje Cex-Dex:
+ Estrategia que requiere disponer de capital simultáneamente en ambos mundos, lo cual es operacionalmente complejo.
+Finality:
+ Estado de la transacción requerido por los Cexes para acreditar los fondos, introduciendo latencia operativa (ej. Binance).
+Margin Trading:
+ Permite operar apalancado mediante el uso de fondos prestados, generalmente colateralizando la posición.
+Short:
+ Vender un activo prestado con la intención de recomprarlo después a un precio menor.
+Colateralización:
+ Usar un activo (ej. 
+stablecoin
+) como garantía para la posición.
+Tasa de Interés:
+ Costo asociado al préstamo, que comprime los márgenes de arbitraje, dependiendo del tiempo de repago.
+Isolated Margin (Margen Aislado):
+ Colateralización confinada al par específico operado; permite mayor 
+leverage
+.
+Cross Margin (Margen Cruzado):
+ Colateralización que usa el portfolio completo como margen. El riesgo de liquidación es total; reduce el 
+leverage
+ permitido.
+Flash Loans (Préstamos Relámpago):
+ Préstamos de activos 
+sin colateral
+ que deben ser devueltos en la misma transacción.
+Atomicidad / Intra-transacción:
+ El préstamo y el repago deben ocurrir dentro del mismo 
+hash
+ de transacción.
+Reversión:
+ Si el repago falla, la transacción se anula por completo, garantizando que el prestamista no pierda capital (solo se pierde el costo de computación/gas).
+Eficiencia de Capital:
+ Maximización del capital al no necesitar 
+fondear
+ ningún token.
+Borrowing (Préstamos DeFi):
+ Préstamos que requieren ser 
+sobrecolateralizados
+.
+Ejemplos de Protocolos:
+ AAVE, Compound.
+Transacción (Concepto de Base de Datos):
+ La lógica de la blockchain se asemeja a las transacciones ACID, donde es "o haces todo o no haces nada".
+D. Módulo XII: Modelos de Arbitraje para AMMs de UNIV2
+AMMs (Automated Market Makers):
+ Sistemas que automatizan la provisión de liquidez.
+CSMM (Constant Sum Market Maker):
+ Modelo donde la suma de las reservas es constante.
+Ecuación:
+ 
+.
+Falla:
+ Permite el drenaje de reservas.
+CPMM (Constant Product Market Maker):
+ Modelo base de Uniswap V2.
+Ecuación (UNIV2):
+ 
+.
+Característica:
+ Provee liquidez infinita (de 0 a infinito).
+Impermanent Loss:
+ Pérdida potencial de valor al ser LP en comparación con simplemente mantener los tokens, causada por la divergencia de precios.
+Baja Eficiencia de Capital:
+ Se requiere mucho capital en CPMM para lograr un 
+price impact
+ similar a los 
+orderbooks
+ debido a la dispersión de la liquidez.
+Determinismo (UNIV2):
+ La naturaleza de las ecuaciones CPMM permite calcular analíticamente el resultado de un 
+swap
+ y el estado de las reservas subsiguiente.
+Ecuación de Swap (Cálculo de 
+):
+ Muestra cómo se calcula la cantidad de token 
+ a sacar al inyectar 
+ para mantener 
+. 
+Encadenamiento de Pools:
+ Proceso de realizar un swap en un pool y usar el output inmediatamente como input en otro pool para obtener una ganancia de arbitraje.
+Función de Ganancia de Arbitraje:
+ Función que busca optimizar la diferencia entre la salida y la entrada de tokens. 
+\text{donde} \quad F(x_1, y_1, x_2, y_2, dx_1) = dx_2 - dx_1
+Problema de Optimización:
+ El proceso de encontrar el 
+ óptimo que maximice la ganancia, resuelto analíticamente mediante la derivación.
+Fees de Trading (Impacto):
+ Los costos asociados a las comisiones del pool deben ser integrados en las ecuaciones de arbitraje, alterando el óptimo.
+Restricciones de Capital:
+ La limitación del capital disponible (
+wallet
+), que acota el dominio de las variables en el problema de optimización.
+Orderbook (Comparación):
+ Se plantea el desafío de modelar y derivar soluciones de arbitraje cuando se involucran 
+orderbooks
+ (Cex) cuyas ecuaciones pueden no ser derivables.
+E. Módulo XIII: Riesgos de Ejecución
+Mempool (Pila de Transacciones):
+ Lista de transacciones sin confirmar que esperan ser incluidas en un bloque.
+Ordenamiento:
+ Inicialmente ordenadas por 
+Gas Fee
+ (mayor a menor).
+Mineros / Validadores:
+ Tienen la potestad de elegir y ordenar las transacciones que incluyen en el bloque, lo cual no es necesariamente el orden por 
+Gas Fee
+.
+Ordenamiento de Transacciones (Riesgo):
+ La secuencia en la que el validador ejecuta las transacciones es crítica, ya que el orden puede determinar la rentabilidad o pérdida de una operación de arbitraje.
+Input Óptimo:
+ La cantidad calculada por el Quant que, dado el estado pendiente de la Mempool (ej. el swap de un usuario), maximizaría la ganancia al ejecutar la transacción en una posición estratégica.
+Double Swap (Solución Operativa):
+ Uso de un 
+smart contract
+ para realizar dos 
+swaps
+ (compra/venta) en la misma transacción atómica para garantizar la ejecución completa del arbitraje.
+Flashbots:
+ Nodo RPC especializado que ofrece privacidad al 
+no
+ 
+broadcastear
+ las transacciones pendientes a la 
+Mempool
+ pública.
+minAmountOut
+:
+ Parámetro crucial en los swaps de UNIV2 para proteger al usuario, estableciendo la cantidad mínima aceptable de tokens de salida. Si no se cumple, la transacción se revierte.
+Trade Desprotegido:
+ Ocurre si 
+.
+Ataques de Ejecución (MEV - Miner Extractable Value):
+Frontrunning:
+ Ejecutar una transacción 
+antes
+ que una pendiente vista en la Mempool (ej. para liquidaciones).
+Backrunning (Arbitraje):
+ Ejecutar una transacción 
+justo después
+ que una pendiente para arbitrar el movimiento de precio que esta generó. Es el ataque menos nocivo para el usuario original.
+Sandwich Trading:
+ Ejecutar una transacción 
+antes
+ y otra 
+después
+ de la transacción de la víctima, garantizando un 
+riskless profit
+ (ganancia sin riesgo) a expensas del 
+slippage
+ de la víctima.
+F. Módulo XIV: Otros Productos Financieros (DeFi)
+Staking:
+ Colocar un token en un depósito (
+plazo fijo
+) a cambio de un rendimiento (fijo o variable) en tokens.
+Función:
+ Incentivar la tenencia de tokens y reducir el circulante (desincentiva el trading excesivo).
+Ejemplo:
+ Pancakeswap.
+Liquidity Providing (LP):
+ Actividad de "hacer 
+market making
+" en pools, depositando tokens en una proporción definida para recibir 
+fees
+ prorrateados.
+Riesgo:
+ Impermanent Loss.
+Liquidez Distribuida (UNIV2):
+ Provisión de liquidez a lo largo de todo el espectro de precios.
+Liquidez Concentrada (UNIV3):
+ Provisión de liquidez dentro de un rango de precios específico, mejorando la eficiencia de capital.
+Yield Farming:
+ Estrategia que consiste en 
+stakear
+ un token de provisión de liquidez (
+LP token
+) para obtener un mayor 
+share
+ del pool (o más rendimiento).
+Riesgos:
+ Impermanent Loss y alta competitividad.
+Lending / Borrowing (DeFi):
+ Protocolos que permiten tomar préstamos 
+sobrecolateralizados
+ o prestar tokens para obtener rendimiento.
+Protocolos:
+ AAVE y Compound.
+Sobrecolateralización:
+ Requisito de que el valor del colateral sea mayor al del préstamo (ej. 1.20 a 1).
+Utilization Rate:
+ Métrica que influye en el rendimiento generado por lending.

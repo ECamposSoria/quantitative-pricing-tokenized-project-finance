@@ -1,0 +1,70 @@
+[
+  {
+    "timestamp_utc": "2025-11-22T18:25:42.719554+00:00",
+    "config_hash": 4317876769937409950,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -4.002090016605502,
+      "delta_liquidity_bps": -48.10561745713139,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.029166666666667,
+      "total_weighted_delta_bps": -69.07854080707023
+    }
+  },
+  {
+    "timestamp_utc": "2025-11-22T18:25:42.723127+00:00",
+    "config_hash": -1142740560539956488,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -5.702090016605502,
+      "delta_liquidity_bps": -48.10561745713139,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.029166666666667,
+      "total_weighted_delta_bps": -70.77854080707021
+    }
+  },
+  {
+    "timestamp_utc": "2025-11-22T18:25:42.726490+00:00",
+    "config_hash": -2361542505741652827,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -7.402090016605502,
+      "delta_liquidity_bps": -48.10561745713139,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.029166666666667,
+      "total_weighted_delta_bps": -72.47854080707022
+    }
+  },
+  {
+    "timestamp_utc": "2025-11-22T18:25:42.729577+00:00",
+    "config_hash": -2489744013549150564,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -10.0,
+      "delta_liquidity_bps": -48.10561745713139,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.029166666666667,
+      "total_weighted_delta_bps": -75.07645079046472
+    }
+  }
+]

@@ -55,6 +55,25 @@ class Tranche:
         schedule["periods_per_year"] = periods_per_year
         return schedule.reset_index(drop=True)
 
+    def to_dict(self) -> dict:
+        """Serialize the tranche to a dict compatible with CSV/from_dicts ingestion."""
+
+        base_rate = self.rate - self.spread_bps / 10_000.0
+        if base_rate < 0:
+            base_rate = 0.0
+        return {
+            "tranche_name": self.name,
+            "priority_level": self.seniority,
+            "initial_principal": self.principal,
+            "rate_base_type": self.rate_base_type,
+            "base_rate": base_rate,
+            "spread_bps": self.spread_bps,
+            "grace_period_years": self.grace_period_years,
+            "tenor_years": self.tenor_years,
+            "amortization_style": self.amortization_style,
+            "coupon_rate": self.rate,
+        }
+
 
 class DebtStructure:
     """Container for ordered tranches with helper analytics."""
@@ -66,6 +85,11 @@ class DebtStructure:
         seniorities = [t.seniority for t in self.tranches]
         if len(seniorities) != len(set(seniorities)):
             raise ValueError("Seniority levels must be unique per tranche.")
+
+    def to_dicts(self) -> List[dict]:
+        """Serialize the full debt structure to a list of dictionaries."""
+
+        return [tranche.to_dict() for tranche in self.tranches]
 
     @property
     def total_principal(self) -> float:
@@ -136,6 +160,41 @@ class DebtStructure:
             )
             for param in tranche_params
         ]
+        return cls(tranches)
+
+    @classmethod
+    def from_dicts(cls, rows: Iterable[dict]) -> "DebtStructure":
+        """Construct a DebtStructure from a sequence of tranche dictionaries."""
+
+        tranches = []
+        for row in rows:
+            try:
+                name = row["tranche_name"]
+                priority = int(row["priority_level"])
+                principal = float(row["initial_principal"])
+                rate_base_type = row.get("rate_base_type", "fixed")
+                base_rate = float(row.get("base_rate", 0.0))
+                spread_bps = int(row.get("spread_bps", 0))
+                grace_period_years = int(row.get("grace_period_years", 0))
+                tenor_years = int(row.get("tenor_years", 0))
+                amortization_style = row.get("amortization_style", "sculpted")
+            except KeyError as exc:  # pragma: no cover - defensive
+                raise ValueError(f"Missing column in tranche dict: {exc}") from exc
+
+            coupon_rate = base_rate + spread_bps / 10_000.0
+            tranches.append(
+                Tranche(
+                    name=name,
+                    principal=principal,
+                    rate=coupon_rate,
+                    seniority=priority,
+                    tenor_years=tenor_years,
+                    grace_period_years=grace_period_years,
+                    amortization_style=amortization_style,
+                    spread_bps=spread_bps,
+                    rate_base_type=rate_base_type,
+                )
+            )
         return cls(tranches)
 
 

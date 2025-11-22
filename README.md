@@ -189,7 +189,7 @@ docker compose -f quant-token-compose.yml -p qptf exec quant_token_app pytest te
 - **WACD / Tokenización**: `pftoken.pricing.wacd.WACDCalculator` compara escenarios tradicional vs. tokenizado. El delta tokenizado se deriva automáticamente de los componentes (liquidez, origination, servicing e infraestructura) y sólo recurre a overrides manuales si el `PricingContext` lo solicita.
 - **Tokenized Spread Decomposition**: `pftoken.pricing.spreads.TokenizedSpreadModel` reemplaza los deltas fijos del WACD con componentes trazables (crédito, liquidez, originación, servicing e infraestructura). El tracker escribe `data/derived/tokenized_infra_costs.csv` y la documentación vive en `docs/tokenized_spread_decomposition.md`.
 - **Sensibilidades Delta**: `TokenizedSpreadModel.simulate_delta_scenarios()` genera 7 escenarios estándar (Tinlake ±50 %, beta overrides, Infra ×2, stressed) y exporta CSVs auditables para alimentar `WACDCalculator`.
-- **Colateral**: `pftoken.pricing.collateral_adjust.CollateralAnalyzer` aplica haircuts + descuento temporal y devuelve LGD ajustadas por tramo.
+- **Colateral**: `pftoken.pricing.collateral_adjust.CollateralAnalyzer` aplica haircuts + descuento temporal y devuelve LGD ajustadas por tramo. Hoy se modela de forma agregada; falta inventario granular por activo (ver `docs/requirements.md` y `docs/architecture.md`).
 - **Curvas reales**: snapshots FRED (Par Yield DGS1–DGS30, swap rates DSWP* y curvas combinadas) viven en `data/derived/market_curves/` y se cargan con `pftoken.pricing.load_zero_curve_from_csv`.
 - **Documentación**: ver `docs/pricing.md` para ejemplos detallados.
 - **Tests**: `pytest tests/test_pricing tests/test_integration/test_pricing_pipeline.py`

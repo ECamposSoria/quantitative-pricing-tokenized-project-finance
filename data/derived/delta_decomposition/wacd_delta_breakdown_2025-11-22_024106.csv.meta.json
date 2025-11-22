@@ -1,0 +1,19 @@
+[
+  {
+    "timestamp_utc": "2025-11-22T02:41:06.784526+00:00",
+    "config_hash": 4650800902421070694,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -2.301794574886822,
+      "delta_liquidity_bps": -48.10796781330785,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.4875,
+      "total_weighted_delta_bps": -66.92226238819468
+    }
+  }
+]

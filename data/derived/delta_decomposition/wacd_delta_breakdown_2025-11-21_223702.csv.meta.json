@@ -1,0 +1,53 @@
+[
+  {
+    "timestamp_utc": "2025-11-21T22:37:02.612872+00:00",
+    "config_hash": -4971032365574869894,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -1.1783284742468418,
+      "delta_liquidity_bps": -64.73214285714286,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.271428571428572,
+      "total_weighted_delta_bps": -82.63904275996113
+    }
+  },
+  {
+    "timestamp_utc": "2025-11-21T22:37:02.614236+00:00",
+    "config_hash": -6211452303888137226,
+    "pricing_context": {
+      "use_computed_deltas": false,
+      "override_spread_delta_bps": -50,
+      "override_fee_delta_bps": -20
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -1.1783284742468418,
+      "delta_liquidity_bps": -63.29365079365079,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.271428571428572,
+      "total_weighted_delta_bps": -81.20055069646907
+    }
+  },
+  {
+    "timestamp_utc": "2025-11-21T22:37:02.655572+00:00",
+    "config_hash": -4971032365574869894,
+    "pricing_context": {
+      "use_computed_deltas": true,
+      "override_spread_delta_bps": -75,
+      "override_fee_delta_bps": -25
+    },
+    "weighted_totals": {
+      "delta_credit_bps": -2.5120041700722284,
+      "delta_liquidity_bps": -50.06250000000001,
+      "delta_origination_bps": -7.5,
+      "delta_servicing_bps": -17.5,
+      "delta_infrastructure_bps": 8.4875,
+      "total_weighted_delta_bps": -69.08700417007223
+    }
+  }
+]

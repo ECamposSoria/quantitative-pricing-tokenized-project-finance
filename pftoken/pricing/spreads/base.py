@@ -88,6 +88,8 @@ class TokenizedSpreadConfig:
     blockchain_network: str = "Ethereum"
     infrastructure_csv_path: str = "data/derived/tokenized_infra_costs.csv"
     infra_overrides: Optional[Mapping[str, float]] = None
+    infra_reference_principal: float | None = None
 
     # Credit transparency
     credit_transparency_delta_bps: float = -30.0
+    credit_spread_floor_bps: float = 5.0

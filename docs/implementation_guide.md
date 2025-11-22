@@ -1,6 +1,6 @@
 # GUÍA COMPLETA DE IMPLEMENTACIÓN - VERSIÓN ACTUALIZADA
 Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT  
-62 Tareas Totales — Roadmap Rev. 4-Nov-2025
+67 Tareas Totales — Roadmap Rev. 4-Nov-2025
 
 > Baseline consolidado con `README.md`, `memory.md` (11-nov-2025), `TP_Quant_Validation.xlsx`, `data/input/leo_iot/*.csv` y los módulos activos en `pftoken/`. La guía prioriza tareas ejecutables en la iteración actual y marca explícitamente los entregables ya cubiertos.
 
@@ -11,6 +11,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
   - Dataset calibrado (`data/input/leo_iot/`) alineado con `Proyecto LEO IOT.xlsx` vía `scripts/validate_input_data.py`.
   - Pipeline determinístico y dashboards (`pftoken/pipeline.py`, `pftoken/viz/dashboards.py`).
   - Placeholders identificables por `not_implemented()` en módulos de riesgo, stress y pricing estocástico.
+  - Material del curso “Blockchain y Criptomonedas” (`docs/crypto_material/`) con notas (`notas_crypto.txt`) y notebooks (`practico/Clase_*`) para alinear los módulos cripto/de liquidez.
 - **Secciones por tarea**: Objetivo, Dependencias, Entregables (con rutas), Notas teóricas (contexto cuantitativo) y Alcance (qué cubre/no cubre la iteración).
 
 ---
@@ -26,15 +27,15 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** En alcance scripts de bootstrap y pipelines CI; fuera de alcance despliegues productivos en nube.
 
 ### T-002 · Documentación de requerimientos
-**Estado actual:** En progreso (`README.md` y `docs/user_guide.md` cubren visión general pero falta especificación funcional/no funcional detallada y diagrama conceptual).
+**Estado actual:** Hecho (`docs/requirements.md` consolida requerimientos funcionales/no funcionales y métricas; README/user_guide están alineados a alto nivel).
 - **Objetivo:** Explicar objetivos académicos del caso LEO IoT, métricas (DSCR>1.25, LLCR>1.0, VaR95%), alcance cuantitativo y metodología.
 - **Dependencias:** T-001.
-- **Entregables:** README extendido, documento de requerimientos funcionales/no funcionales (nuevo `docs/requirements.md`) y diagrama conceptual en `docs/architecture.md`.
+- **Entregables:** README extendido, documento de requerimientos funcionales/no funcionales (`docs/requirements.md`) y diagrama conceptual en `docs/architecture.md`.
 - **Notas teóricas:** Referencias IFC/IPFA, Gatti (2018) y Yescombe (2013) para métricas de cobertura y performance (<5 min para 10k escenarios).
 - **Alcance:** Documentación textual y diagramas; fuera de alcance aprobación externa formal.
 
 ### T-012 · Arquitectura de módulos
-**Estado actual:** Pendiente (`docs/architecture.md` es placeholder; no hay UML ni contratos formales).
+**Estado actual:** En progreso (`docs/architecture.md` ahora describe flujo CFADS → Waterfall → Pricing, contratos clave y gaps de colateral; faltan diagramas UML/PlantUML y despliegue).
 - **Objetivo:** Diseñar arquitectura modular (CFADS → Waterfall → Pricing → Risk → AMM) con interfaces tipadas y responsabilidades únicas.
 - **Dependencias:** T-001, T-002.
 - **Entregables:** Diagramas UML/PlantUML, definición de inputs/outputs/excepciones para cada paquete (`pftoken.models`, `waterfall`, `pricing`, `simulation`, `risk`, `amm`), convenciones (PEP8, docstrings NumPy) y guía de logging.
@@ -82,7 +83,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Objetivo:** Implementar `MertonModel` que valore activos vía CFADS esperados y calcule PD/LGD/EL basado en distancia a default.
 - **Dependencias:** T-003B, T-014, T-047.
 - **Entregables:** PD/LGD/EL por tramo usando numpy, consumo de parámetros desde `calibration.py`, pruebas de monotonía y sumas EL, integración futura con Monte Carlo.
-- **Notas teóricas:** Merton (1974), modelo KMV, referencia drift/volatilidad de telecom satelital.
+- **Notas teóricas:** Merton (1973) para la base teórica de valoración de opciones, Merton (1974) para la aplicación a deuda corporativa (Distance to Default), modelo KMV, referencia drift/volatilidad de telecom satelital.
 - **Alcance:** Modelo estructural single-period; fuera de alcance calibración multi-factor avanzada.
 
 ### T-005B · Excel validation model
@@ -114,10 +115,10 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-03 · Waterfall de Pagos y Gobernanza (T-006, T-014, T-015, T-016, T-017, T-020)
 
 ### T-014 · Clase DebtStructure
-**Estado actual:** Hecho (`pftoken/waterfall/debt_structure.py`).
+**Estado actual:** Hecho (`pftoken/waterfall/debt_structure.py` con serialización `to_dicts/from_dicts`).
 - **Objetivo:** Modelar tramos con seniority, tasas y amortización para alimentar waterfall y pricing.
 - **Dependencias:** T-013.
-- **Entregables:** Clases `Tranche`, `DebtStructure`, métodos `from_csv`, `from_tranche_params`, cálculo WACD, validaciones de seniority. (Pendiente serialización `to_dict`).
+- **Entregables:** Clases `Tranche`, `DebtStructure`, métodos `from_csv`, `from_tranche_params`, cálculo WACD, validaciones de seniority, serialización `to_dicts/from_dicts`.
 - **Notas teóricas:** Esculpido y pesos (senior 60%, mezz 25%, sub 15%).
 - **Alcance:** Modelado off-chain; fuera de alcance contratos tokenizados (WP-14).
 
@@ -195,7 +196,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Dependencias:** T-005, T-047.
 - **Entregables:** `CollateralAnalyzer`, `CollateralResult`, waterfall de recoveries con haircuts/time-to-liquidation (`PricingContext`), hooks directos para `PricingEngine`.
 - **Notas teóricas:** Recoveries PF Moody’s, absolute priority rule aplicada a `DebtStructure`, descuento por tiempo a liquidar vía `ZeroCurve`.
-- **Alcance:** Análisis off-chain; tasaciones reales continúan fuera de alcance.
+- **Alcance:** Análisis off-chain; tasaciones reales continúan fuera de alcance y falta inventario granular por activo (gap WP-05/06).
 
 ---
 
@@ -500,6 +501,66 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Entregables:** `LiquidityStressTester` con escenarios 1–4, métricas (max price impact, recovery time, LP losses, arbitraje), dashboard comparativo y análisis de circuit breakers.
 - **Notas teóricas:** Stress de liquidez en DeFi, cascadas de retiro.
 - **Alcance:** Simulación; fuera de alcance backtesting on-chain real.
+
+---
+
+## WP-15 · Fundamentos Crypto y Liquidez (T-054, T-055, T-056, T-057, T-058, T-059, T-060)
+
+### T-054 · Benchmark finality y throughput multi-chain
+**Estado actual:** Pendiente (los notebooks `docs/crypto_material/crypto (6)/practico/Clase_1a_Blockchain_Finality.ipynb` y `Clase_1d_Architecture_Metrics.ipynb` no se han integrado al pipeline principal).
+- **Objetivo:** Cuantificar finality, TPS, fees y costo capitalizado de BTC/ETH/Solana para seleccionar la red soporte de los tokens de deuda.
+- **Dependencias:** T-002, T-007.
+- **Entregables:** Dataset `data/crypto/chain_metrics.csv`, notebook consolidado `notebooks/crypto/chain_finality.ipynb`, sección `docs/theory.md#crypto-finality` con cuadros comparativos y supuestos de diseño.
+- **Notas teóricas:** Diferencias UTXO vs Account/EVM, finalidad probabilística vs determinística, trade-off seguridad vs latencia según `notas_crypto.txt` (Módulos I–II).
+- **Alcance:** Benchmark analítico; fuera de alcance operar nodos/validadores propios.
+
+### T-055 · Token mapping y oráculos cross-chain
+**Estado actual:** Pendiente (el material `Clase_1b_Token_Mapping.ipynb`/`web3.ipynb` solo vive en `docs/crypto_material/`).
+- **Objetivo:** Definir el mapeo entre el token de deuda y proxies en CEX/DEX, así como las fuentes de precios (bridges/oráculos) requeridas para el AMM académico.
+- **Dependencias:** T-054, T-053.
+- **Entregables:** `data/crypto/token_mapping.csv`, módulo `pftoken/crypto/token_mapping.py` con loaders/oráculos (LayerZero, CCTP, Wormhole), documentación `docs/amm/token_oracles.md`.
+- **Notas teóricas:** Protocolos cross-chain, wrapped assets y riesgos de contraparte resaltados en `notas_crypto.txt` (Módulo IV) y diapositivas “Blockchain y Criptomonedas I/II”.
+- **Alcance:** Definición off-chain; fuera de alcance contratos puente reales.
+
+### T-056 · Liquidez CeFi vs DEX y spreads observables
+**Estado actual:** Pendiente (`Clase_1c_CEX_vs_DEX_Volume.ipynb` y `Clase_1d_Architecture_Metrics.ipynb` no se conectan a `pftoken/`).
+- **Objetivo:** Incorporar data histórica de volúmenes y profundidad CeFi (Binance, Coinbase) vs DEX (Uniswap, Curve, Raydium) para calibrar supuestos de salida/entrada y spreads del AMM.
+- **Dependencias:** T-007, T-020, T-055.
+- **Entregables:** Notebook `notebooks/crypto/cex_dex_liquidity.ipynb`, dataset `data/crypto/cex_dex_volume.parquet`, helper `pftoken/liquidity/cex_dex_bridge.py` que alimenta WP-04/WP-14.
+- **Notas teóricas:** Riesgos CEX (custodia) vs DEX (gas cost) y TVL/volúmenes explicados en `notas_crypto.txt` (Módulo V) y slides Clase II.
+- **Alcance:** Análisis cuantitativo; fuera de alcance conectores productivos a exchanges reales.
+
+### T-057 · Riesgo stablecoin e impermanent loss
+**Estado actual:** Pendiente (las notebooks `Clase_2a_Stablecoin_Risk_Analysis.ipynb` y `Clase_2b_Impermanent_Loss_DeFi_Yield.ipynb` existen solo como referencia).
+- **Objetivo:** Evaluar riesgo de contraparte/fracaso de stablecoins usadas como colateral (USDC/USDT/DAI) y cuantificar IL/carry requerido para LPs de los tramos tokenizados.
+- **Dependencias:** T-041, TAMM09.
+- **Entregables:** Módulo `pftoken/risk/stablecoin.py` con escenarios (depeg, freeze), notebook `notebooks/crypto/stablecoin_and_il.ipynb`, documentación `docs/amm/impermanent_loss.md` alineada con WP-06/WP-14.
+- **Notas teóricas:** Casos UST/USDC, over-collateralization (Aave/Compound) y fórmula IL = 2√r/(1+r)−1 discutidas en `notas_crypto.txt` (Módulos VI–VII).
+- **Alcance:** Modelos off-chain; fuera de alcance monitoreo on-chain en tiempo real.
+
+### T-058 · Funding rates y cobertura con derivados CeFi/DeFi
+**Estado actual:** Pendiente (material `Clase_2c_Funding_Rates_Hyperliquid.ipynb`, `Clase_3b_MA_Crossover_Backtest.ipynb` y `Clase_3c_Funding_Rate_Arbitrage.ipynb` no interactúa con WP-08/WP-11).
+- **Objetivo:** Integrar series de funding rate (Hyperliquid, Binance Perps) para modelar costos/beneficios de coberturas delta-neutral vs pricing determinístico/estocástico.
+- **Dependencias:** T-044, T-045, T-056.
+- **Entregables:** Script `scripts/fetch_funding_rates.py`, dataset `data/crypto/funding_rates.parquet`, notebook `notebooks/crypto/funding_rate_arbitrage.ipynb`, extensión `pftoken/derivatives/perp_hedge.py` para escenarios de cobertura.
+- **Notas teóricas:** Funding long-short, basis trade y MA crossover documentados en `notas_crypto.txt` (Módulos VIII–X) y Slides Blockchain II.
+- **Alcance:** Backtesting y simulación; fuera de alcance ejecución en exchanges reales.
+
+### T-059 · Riesgo de ejecución, mempool y MEV
+**Estado actual:** Pendiente (solo hay teoría en `notas_crypto.txt` Módulo XIII y ejercicios `web3.ipynb`).
+- **Objetivo:** Documentar y simular riesgos de ordenamiento (front/back/sandwich) sobre los swaps del AMM y definir mitigantes (Flashbots, parámetros `minAmountOut`, ejecución atómica).
+- **Dependencias:** T-053, T-055, T-056.
+- **Entregables:** Documento `docs/crypto/mev_playbook.md`, módulo `pftoken/execution/mev_guard.py` con heurísticas (gas bribes, prioridad), notebook `notebooks/crypto/mempool_latency.ipynb` conectado al orquestador WP-03/WP-14.
+- **Notas teóricas:** Definiciones de MEV, mempool, double swap y Flashbots descritas en `notas_crypto.txt` (Módulo XIII).
+- **Alcance:** Simulación off-chain; fuera de alcance bots productivos.
+
+### T-060 · Macro correlaciones y RWA on-chain
+**Estado actual:** Pendiente (`Clase_3a_Macro_Correlations.ipynb`, `Clase_3d_RWA_Analysis.ipynb` y `Clase_2d_Portfolio_Optimization.ipynb` no alimentan los supuestos del modelo).
+- **Objetivo:** Incorporar correlaciones macro (commodities, tasas, riesgo país) y benchmarks RWA/Real-World Assets para validar la tesis del token de deuda.
+- **Dependencias:** T-005, T-028, T-033.
+- **Entregables:** Notebook `notebooks/crypto/rwa_macro_link.ipynb`, dataset `data/crypto/macro_correlations.csv`, actualización `docs/governance.md` con políticas RWA y referencias a `notas_crypto.txt`.
+- **Notas teóricas:** Discusión RWA (Módulo XIV) y análisis macro multi-activo en las notebooks de la carpeta `practico`.
+- **Alcance:** Research cuantitativo; fuera de alcance emisión real de RWAs.
 
 ---
 

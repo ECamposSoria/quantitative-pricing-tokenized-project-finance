@@ -237,7 +237,7 @@
 * Crear estructura de datos MertonResult conteniendo PD estimada con intervalo de confianza, LGD por tramo, EL por tramo, distance to default, valor de activos simulado, sensibilidades del modelo a parámetros clave  
 * Implementar análisis de sensibilidad: cómo varía PD ante cambios en volatilidad de activos σ, cómo varía ante cambios en leverage D/V, generar gráficos de tornado mostrando sensibilidades  
 * Documentar supuestos del modelo: distribución lognormal de activos, volatilidad constante, deuda con valor facial fijo, ausencia de pagos intermedios en horizonte analizado  
-* Incluir referencias académicas: Merton (1974) original paper, KMV model extensions, aplicaciones a Project Finance según literatura
+* Incluir referencias académicas: Merton (1973) para la teoría de valoración de opciones, Merton (1974) para su aplicación a deuda corporativa, modelo KMV, y aplicaciones a Project Finance según literatura
 
 ---
 
@@ -1750,7 +1750,7 @@
 * **Resumen Ejecutivo (Abstract):** máximo 250 palabras, síntesis del problema, metodología, hallazgos principales, conclusión, keywords  
 * **Tabla de Contenidos:** numerada con páginas  
 * **Capítulo 1 \- Introducción:** contexto de Project Finance para infraestructura satelital, tendencia hacia tokenización en finanzas, gap que este trabajo busca llenar, objetivos específicos y alcance, organización del documento  
-* **Capítulo 2 \- Marco Teórico:** revisión de literatura sobre Project Finance (Gatti, Yescombe), tokenización de activos (OECD, BIS), market making y AMMs (Uniswap whitepapers), credit risk modeling (Merton), establecer fundamentos teóricos del análisis  
+* **Capítulo 2 \- Marco Teórico:** revisión de literatura sobre Project Finance (Gatti, Yescombe), tokenización de activos (OECD, BIS), market making y AMMs (Uniswap whitepapers), credit risk modeling (Merton 1973, 1974), establecer fundamentos teóricos del análisis  
 * **Capítulo 3 \- Metodología:** descripción formal del modelo cuantitativo, ecuaciones principales (CFADS, waterfall, pricing DCF, Merton PD), algoritmo de Monte Carlo, stress testing framework, AMM design, parámetros calibrados con fuentes, diagrama de arquitectura del sistema  
 * **Capítulo 4 \- Resultados:** presentación estructurada de hallazgos, subsecciones para cada tipo de análisis (base case, MC, risk metrics, stress, AMM), tablas y gráficos selectos más relevantes (no incluir todo, ser selectivo), interpretación de cada resultado clave  
 * **Capítulo 5 \- Discusión:** análisis crítico de implicaciones, comparación Traditional vs Tokenized con argumento balanceado, trade-offs identificados, contexto de resultados en literatura existente, limitaciones del modelo reconocidas explícitamente  

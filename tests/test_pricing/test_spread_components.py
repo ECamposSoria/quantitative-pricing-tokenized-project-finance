@@ -31,9 +31,14 @@ def test_credit_component_matches_formula():
     component = CreditSpreadComponent(config)
     inputs = _tranche_inputs()
     result = component.compute(inputs)
-    expected = ((inputs.pd * inputs.lgd / inputs.duration_years) / (1 - inputs.pd)) * config.market_price_of_risk
-    assert math.isclose(result.traditional_bps, expected * 10_000, rel_tol=1e-9)
-    assert math.isclose(result.tokenized_bps, max(result.traditional_bps + config.credit_transparency_delta_bps, 0.0), rel_tol=1e-9)
+    expected_raw = ((inputs.pd * inputs.lgd / inputs.duration_years) / (1 - inputs.pd)) * config.market_price_of_risk
+    expected_bps = max(expected_raw * 10_000, config.credit_spread_floor_bps)
+    assert math.isclose(result.traditional_bps, expected_bps, rel_tol=1e-9)
+    assert math.isclose(
+        result.tokenized_bps,
+        max(expected_bps + config.credit_transparency_delta_bps, 0.0),
+        rel_tol=1e-9,
+    )
 
 
 def test_liquidity_component_applies_alpha_and_microstructure():

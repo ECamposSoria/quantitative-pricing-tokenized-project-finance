@@ -3,16 +3,16 @@
 Este documento describe cómo se derivan los spreads tokenizados de cada componente
 (crédito, liquidez, originación, servicing e infraestructura) y cómo se alimenta
 el delta que utiliza `WACDCalculator`. Todos los datos provienen de módulos
-versionables (Tinlake, Etherscan/Chainlink, literatura PF) para evitar supuestos
+versionables (Tinlake, Etherscan/Chainlink, literatura PF verificada) para evitar supuestos
 arbitrarios.
 
 ## Arquitectura
 
 | Módulo | Archivo | Fuente principal |
 | --- | --- | --- |
-| `CreditSpreadComponent` | `pftoken/pricing/spreads/credit.py` | Merton PD/LGD + delta de transparencia (Allen et al. 2022, Zetzsche et al. 2020) |
+| `CreditSpreadComponent` | `pftoken/pricing/spreads/credit.py` | Merton PD/LGD + delta de transparencia (Merton 1973/1974; Zetzsche et al. 2020; Schär 2021; Makarov & Schoar 2022) |
 | `LiquiditySpreadComponent` | `pftoken/pricing/spreads/liquidity.py` | Datos Tinlake (TVL, volumen, ticket) vía DeFiLlama + supuestos OECD |
-| `OriginationServicingComponent` | `pftoken/pricing/spreads/costs.py` | Gatti (2018), World Bank (2024), MSLP/Florida/Leon HFAs |
+| `OriginationServicingComponent` | `pftoken/pricing/spreads/costs.py` | Gatti (2018), Yescombe (2013), World Bank (2024), Freddie Mac/Fannie Mae Servicing Guides |
 | `BlockchainInfrastructureTracker` | `pftoken/pricing/spreads/infrastructure.py` | Gas/oracle (Etherscan multi-chain, Chainlink), monitoreo interno |
 | `TokenizedSpreadModel` | `pftoken/pricing/spreads/tokenized.py` | Coordina todas las piezas y produce la descomposición delta |
 
@@ -28,8 +28,9 @@ credit_token = max(credit_trad + Δ_transparencia, 0)
 - `PD`, `LGD` del `MertonModel`.
 - Duración = `TranchePricingMetrics.macaulay_duration` (fallback tenor).
 - `λ` default 0.10 (`TokenizedSpreadConfig`).
-- `Δ_transparencia` proviene de estudios DeFi (Allen et al., Zetzsche et al.)
+- `Δ_transparencia` proviene de estudios DeFi (Zetzsche et al. 2020; Schär 2021; Makarov & Schoar 2022)
   y representa la reducción por menor asimetría informativa (por defecto −30 bps).
+- Piso de spread de crédito (5 bps) para evitar spreads nulos en tramos muy seguros; respaldo en costos mínimos de transacción en mercados de crédito (Bao, Pan & Wang 2011).
 
 ### Liquidez
 
@@ -65,7 +66,7 @@ factor_total = max(base_factor × turnover_factor, min_liquidity_factor)
 
 ### Servicing
 
-- Baseline = `paying_agent_bps + compliance_audit_bps` (≈25 bps confirmados por MSLP, Florida Housing, Leon County, World Bank).
+- Baseline = `paying_agent_bps + compliance_audit_bps` (≈25 bps según benchmarks de industria como Freddie Mac/Fannie Mae Servicing Guides).
 - Ahorro = `baseline × γ` (γ=1.0 por defecto) pero se mantiene un residual
   (`servicing_residual_bps`, default 5 bps) para cubrir governance/oracles.
 - Con los valores actuales (`15 + 7.5 = 22.5 bps`), el delta efectivo es
@@ -83,6 +84,7 @@ factor_total = max(base_factor × turnover_factor, min_liquidity_factor)
   `score_pesado = 0.4·security + 0.3·liquidity + 0.2·regulation + 0.1·ux`.
   Esta fórmula se documenta en el CSV exportado junto con las fuentes utilizadas
   (Chainlink para oráculos y los gas trackers públicos).
+- Se usa un principal de referencia (deuda total) para homogeneizar el costo por tramo; la variación por riesgo se refleja en otros componentes, no en infraestructura.
 
 ## Delta tokenizado derivado
 
@@ -169,13 +171,10 @@ config = TokenizedSpreadConfig(
 
 ## Fuentes
 
-- **Crédito**: Oxford Sustainable Finance (2024); IEA (2020) para primas PF;
-  Allen et al. (2022), Zetzsche et al. (2020) para transparencia DeFi.
-- **Liquidez**: OECD (2024), Allen et al. (2022) para reducción de fricción;
+- **Crédito**: Oxford Sustainable Finance (2024); IEA (2020) para primas PF; Zetzsche et al. (2020), Schär (2021), Makarov & Schoar (2022) para transparencia DeFi.
+- **Liquidez**: OECD (2024), Schär (2021) para reducción de fricción;
   datos Tinlake (DeFiLlama) para TVL/volumen/ticket.
-- **Origination/Servicing**: Gatti (2018), Esty & Sesia (2011), World Bank (2024),
-  MSLP (2022), Florida Housing (2022), Leon County HFA (2024).
+- **Origination/Servicing**: Gatti (2018), Esty & Sesia (2011), World Bank (2024), Freddie Mac/Fannie Mae Servicing Guides (benchmarks de industria).
 - **Infraestructura**: Etherscan V2 (gas oracle), Chainlink documentation, costos
   internos de monitoreo.
-- **Space finance / LGD**: Jakhu et al. (2017), Sarret (2021), Sorge (2004) —
-  usados en otros apartados del proyecto para contextualizar spreads y LGD.
+- **Space finance / LGD**: Jakhu & Pelton (2017), Basel Committee on Banking Supervision (2009) — usados en otros apartados del proyecto para contextualizar spreads y LGD.

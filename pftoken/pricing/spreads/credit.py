@@ -22,7 +22,7 @@ class CreditSpreadComponent:
 
         base_spread = (pd * lgd / duration_years) / max(1.0 - pd, 1e-6)
         adjusted_spread = base_spread * self.config.market_price_of_risk
-        bps = adjusted_spread * BPS_PER_UNIT
+        bps = max(adjusted_spread * BPS_PER_UNIT, self.config.credit_spread_floor_bps)
         tokenized_bps = max(bps + self.config.credit_transparency_delta_bps, 0.0)
         metadata = {
             "pd": pd,
@@ -30,6 +30,7 @@ class CreditSpreadComponent:
             "duration_years": duration_years,
             "lambda_market_price_of_risk": self.config.market_price_of_risk,
             "credit_transparency_delta_bps": self.config.credit_transparency_delta_bps,
+            "credit_spread_floor_bps": self.config.credit_spread_floor_bps,
         }
         return SpreadComponentResult("credit", bps, tokenized_bps, metadata)
 

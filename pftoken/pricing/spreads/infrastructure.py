@@ -194,10 +194,11 @@ class BlockchainInfrastructureTracker:
         return self._profiles
 
     def _calculate_bps(self, profile: NetworkCostProfile, principal: float) -> tuple[float, Dict[str, float]]:
+        reference_principal = self.config.infra_reference_principal or principal
         gas_cost_usd = (
             profile.annual_tx_count * profile.gas_per_tx * profile.gas_price_gwei * 1e-9 * profile.gas_token_price_usd
         )
-        gas_cost_bps = gas_cost_usd / max(principal, 1.0) * BPS_PER_UNIT
+        gas_cost_bps = gas_cost_usd / max(reference_principal, 1.0) * BPS_PER_UNIT
         risk_premium_bps = self._risk_premium(profile)
         total_bps = gas_cost_bps + profile.oracle_bps + profile.monitoring_bps + risk_premium_bps
         metadata = {
@@ -207,6 +208,7 @@ class BlockchainInfrastructureTracker:
             "monitoring_bps": profile.monitoring_bps,
             "risk_premium_bps": risk_premium_bps,
             "principal": principal,
+            "infra_reference_principal": reference_principal,
             **profile.metadata,
         }
         return total_bps, metadata

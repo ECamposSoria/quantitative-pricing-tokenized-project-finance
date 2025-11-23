@@ -1,0 +1,45 @@
+{
+  "timestamp_utc": "2025-11-23T032202Z",
+  "current_structure": {
+    "senior": 0.6,
+    "mezzanine": 0.25,
+    "subordinated": 0.15
+  },
+  "current_wacd_pct": 7.52,
+  "is_efficient": false,
+  "structure_comparison": {
+    "traditional": {
+      "can_rebalance": false,
+      "is_efficient": false,
+      "locked_inefficiency_bps": 112,
+      "structure_constraints": {
+        "min_senior_pct": 0.55,
+        "max_sub_pct": 0.2
+      },
+      "wacd_bps": 752
+    },
+    "tokenized": {
+      "can_rebalance": true,
+      "is_efficient": true,
+      "recoverable_value_bps": 112,
+      "spread_reduction_bps": 50,
+      "total_benefit_bps": 162,
+      "target_structure": {
+        "senior": 0.02037511546458292,
+        "mezzanine": 0.9227199869083267,
+        "subordinated": 0.056904897627090445
+      },
+      "constraint_check": {
+        "violates_constraints": true,
+        "violations": [
+          "senior 2.0% < min 55.0%"
+        ]
+      }
+    },
+    "delta": {
+      "rebalancing_value_bps": 112,
+      "liquidity_premium_bps": 50,
+      "total_tokenization_benefit_bps": 162
+    }
+  }
+}

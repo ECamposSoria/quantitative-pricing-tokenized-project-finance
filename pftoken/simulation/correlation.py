@@ -18,20 +18,20 @@ class CorrelationMetadata:
 
 
 class CorrelationMatrix:
-    """Validate and apply correlation structures."""
+    """Validate and apply correlation structures with mild SPD repair."""
 
     def __init__(self, config: CorrelationConfig, *, tolerance: float = 1e-9):
         self.variables = list(config.variables)
         self.matrix = np.array(config.matrix, dtype=float)
         self.tolerance = tolerance
-        self._validate()
+        self._validate_and_repair()
         self._cholesky = np.linalg.cholesky(self.matrix + tolerance * np.eye(self.matrix.shape[0]))
 
     def generate_correlated_normals(self, rng: np.random.Generator, size: int) -> np.ndarray:
         base = rng.standard_normal((size, len(self.variables)))
         return base @ self._cholesky.T
 
-    def _validate(self) -> None:
+    def _validate_and_repair(self) -> None:
         if self.matrix.shape[0] != self.matrix.shape[1]:
             raise ValueError("Correlation matrix must be square.")
         if len(self.variables) != self.matrix.shape[0]:
@@ -39,8 +39,15 @@ class CorrelationMatrix:
         if not np.allclose(self.matrix, self.matrix.T, atol=1e-8):
             raise ValueError("Correlation matrix must be symmetric.")
         eigvals = np.linalg.eigvals(self.matrix)
-        if np.any(eigvals < -self.tolerance):
+        min_eig = float(np.min(eigvals))
+        if min_eig < -self.tolerance:
             raise ValueError("Correlation matrix must be positive semi-definite.")
+        if min_eig < 0:
+            # Small numerical negative eigenvalues → project back to PSD.
+            values, vectors = np.linalg.eigh(self.matrix)
+            values = np.clip(values, 0.0, None)
+            self.matrix = vectors @ np.diag(values) @ vectors.T
+            np.fill_diagonal(self.matrix, 1.0)
 
     def metadata(self) -> CorrelationMetadata:
         return CorrelationMetadata(variables=self.variables, matrix=self.matrix)

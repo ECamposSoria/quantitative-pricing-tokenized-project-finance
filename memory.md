@@ -47,6 +47,13 @@ markdown# System Memory
 - `scripts/manage_tinlake_snapshot.py` gestiona `data/derived/liquidity/tinlake_metrics.json` (flags `--force-refresh`, `--offline`, `--status`) y emite registros JSON auditables.
 - `TokenizedSpreadConfig` ahora puede auto-calibrar los multiplicadores de liquidez consultando Tinlake (DeFiLlama API) y guarda un snapshot local en `data/derived/liquidity/tinlake_metrics.json`, con las métricas crudas (TVL ~1.45B, volumen diario ~2.4M, ticket promedio ~15.5M) y timestamp.
 - El delta tokenizado del WACD se deriva ahora de los componentes (liquidez, origination, servicing e infraestructura) y se exporta junto con el breakdown por tramo; los overrides (−75/−25 bps) siguen disponibles pero quedan documentados como tal.
+- WP-05 (riesgo crediticio): nuevos módulos `pftoken/risk/*` implementan EL/VaR/CVaR (`RiskMetricsCalculator`), agregación correlacionada (`AggregateRiskCalculator` con Gaussian copula y validación SPD), análisis de colas (`TailRiskAnalyzer` empírico + EVT opcional), frontera eficiente (`EfficientFrontierAnalysis`) y concentración HHI (`RiskConcentrationAnalysis`). `FinancialPipeline.run` puede devolver `risk_metrics` (opt-in) y hay suite de pruebas `tests/test_risk/*`.
+- Se agregó `scripts/demo_risk_metrics.py` para ejecutar WP-05 rápidamente con los inputs LEO IoT y guardar/emitir `outputs/wp05_risk_metrics.json`.
+- Nota pendiente: conectar EVT tail fits y Efficient Frontier al output WP-05 cuando existan escenarios Monte Carlo (WP-07); hoy solo se expone EL/VaR/CVaR paramétrico y concentración.
+- Hallazgo frontier (demo WP-05 actual, sin restricciones externas): con el mismo riesgo (CVaR ≈ 2.6M), la estructura eficiente es ~3% senior / 91% mezz / 6% sub vs la actual 60/25/15; retorno 8.61% vs 7.53% (+108 bps). Motivo: mezz (8.5% cupón, PD 3%, LGD 55%) ofrece mejor trade-off que senior (6.5% cupón, PD 1%, LGD 40%) y sub (12% cupón, PD 10%, LGD 100%). Caveat: en la realidad rating agencies/mandatos exigen 60% senior; esta es la “ineficiencia” cuantificada si se relaja esa restricción (tokenizado).
+- Comparación dual tradicional vs tokenizado: `FinancialPipeline` puede devolver `structure_comparison` (opt-in vía `compare_structures`), descomponiendo valor recuperable por rebalancing (gap a la frontera) y premio de liquidez (`tokenization_spread_reduction_bps`), con chequeo opcional de restricciones tradicionales (`traditional_constraints`).
+- Estructura tokenizada optimizada documentada: 55/34/12 (senior/mezz/sub) seleccionada vía Pareto 3D (riesgo, retorno, WACD) con tolerancia ±1%, 500 muestras, seed=42. Se integra en `generate_wp04_report.py` como fila “Tokenizado (óptimo)” sin alterar la estructura tradicional 60/25/15.
+- WACD optimizado: `WACDCalculator.compute_with_weights` permite recalcular WACD con pesos alternativos; `generate_wp04_report.py` ahora ejecuta frontier WP-05 dentro del reporte y añade sección de escenarios de estructura (tradicional, tokenizado actual y tokenizado óptimo) con WACD after-tax y violaciones de restricciones si aplica.
 - **WP-04 QF deliverables:**
   - **QF-1 (Delta Sensitivities):** `TokenizedSpreadModel.simulate_delta_scenarios()` +
     `WACDCalculator.compare_traditional_vs_tokenized()` generan 7 escenarios,
@@ -100,6 +107,7 @@ markdown# System Memory
 - Dockerfile no adopta aún el pipeline multi-stage/non-root descrito; se mantiene en backlog DevOps.
 - Automatización bidireccional Excel ↔ Python sigue fuera de alcance (solo export manual vía script).
 - Collateral pool aún se modela como monto agregado proporcional a la deuda; necesitamos un dataset granular (satélites, licencias, contratos, seguros) con valor liquidable, haircuts y tiempos de realización para futuras iteraciones (WP‑05/06, gobernanza on-chain).
+- WP-05: el modo empírico/EVT de VaR/CVaR necesita escenarios Monte Carlo reales (WP-07); hoy se usa simulación paramétrica independiente o con copula gaussiana.
 
 ### Next Steps
 - Implementar `MonteCarloEngine`/`merton_integration` (T-021/T-024) aprovechando las nuevas distribuciones y matriz de correlación para producir trayectorias de CFADS/PD.

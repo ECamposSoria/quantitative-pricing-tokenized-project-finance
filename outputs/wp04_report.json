@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-22T22:24:43.735441+00:00",
+  "timestamp": "2025-11-23T03:48:01.801106+00:00",
   "curve_file": "usd_combined_curve_2025-11-20.csv",
   "zero_curve": {
     "source_file": "usd_combined_curve_2025-11-20.csv",
@@ -80,7 +80,7 @@
         "present_value": "$49,297,729.83",
         "present_value_raw": 49297729.82961723,
         "ytm": "3.9219%",
-        "ytm_raw": 0.03921865524852547,
+        "ytm_raw": 0.03921865524852544,
         "duration": "6.7347",
         "duration_raw": 6.734696174360568,
         "lgd": "0.000",
@@ -93,9 +93,9 @@
         "present_value": "$23,890,925.70",
         "present_value_raw": 23890925.69908351,
         "ytm": "3.9474%",
-        "ytm_raw": 0.03947355339094467,
+        "ytm_raw": 0.03947355339094456,
         "duration": "6.7949",
-        "duration_raw": 6.794917150674501,
+        "duration_raw": 6.794917150674503,
         "lgd": "0.555",
         "lgd_raw": 0.5550042523219378
       },
@@ -106,7 +106,7 @@
         "present_value": "$16,823,382.64",
         "present_value_raw": 16823382.643461864,
         "ytm": "3.9963%",
-        "ytm_raw": 0.03996287691765485,
+        "ytm_raw": 0.039962876917654815,
         "duration": "7.1812",
         "duration_raw": 7.18124039652013,
         "lgd": "1.000",
@@ -128,28 +128,28 @@
         "tranche": "Senior",
         "traditional_bps": "117.50 bps",
         "traditional_bps_raw": 117.50000000000001,
-        "tokenized_bps": "30.68 bps",
-        "tokenized_bps_raw": 30.67992500738564,
-        "delta_bps": "-86.82 bps",
-        "delta_bps_raw": -86.82007499261437
+        "tokenized_bps": "30.67 bps",
+        "tokenized_bps_raw": 30.671146440823975,
+        "delta_bps": "-86.83 bps",
+        "delta_bps_raw": -86.82885355917604
       },
       {
         "tranche": "Mezzanine",
         "traditional_bps": "73.75 bps",
         "traditional_bps_raw": 73.75,
-        "tokenized_bps": "24.76 bps",
-        "tokenized_bps_raw": 24.758649308632904,
-        "delta_bps": "-48.99 bps",
-        "delta_bps_raw": -48.991350691367096
+        "tokenized_bps": "24.75 bps",
+        "tokenized_bps_raw": 24.754991572565544,
+        "delta_bps": "-49.00 bps",
+        "delta_bps_raw": -48.995008427434456
       },
       {
         "tranche": "Subordinated",
         "traditional_bps": "65.93 bps",
         "traditional_bps_raw": 65.93060011070335,
-        "tokenized_bps": "23.07 bps",
-        "tokenized_bps_raw": 23.06685625184641,
-        "delta_bps": "-42.86 bps",
-        "delta_bps_raw": -42.86374385885694
+        "tokenized_bps": "23.06 bps",
+        "tokenized_bps_raw": 23.064661610205995,
+        "delta_bps": "-42.87 bps",
+        "delta_bps_raw": -42.86593850049736
       }
     ],
     "sources": [
@@ -169,7 +169,7 @@
       {
         "name": "Liquidez",
         "delta_bps": "-48.10 bps",
-        "delta_bps_raw": -48.096520897300095,
+        "delta_bps_raw": -48.103031667500005,
         "source": "Tinlake TVL calibration (DeFiLlama)"
       },
       {
@@ -191,8 +191,8 @@
         "source": "Ethereum gas/oracle/monitoring"
       }
     ],
-    "total_delta_bps": "-70.77 bps",
-    "total_delta_bps_raw": -70.76944424723894,
+    "total_delta_bps": "-70.78 bps",
+    "total_delta_bps_raw": -70.77595501743883,
     "adjustments": [
       "Credit floor de 5.0 bps",
       "Infraestructura uniforme via infra_reference_principal",
@@ -202,32 +202,62 @@
   "wacd": {
     "traditional_after_tax": "6.2725%",
     "traditional_after_tax_raw": 0.06272453175124543,
-    "tokenized_after_tax": "5.7417%",
-    "tokenized_after_tax_raw": 0.057416823432702484,
+    "tokenized_after_tax": "5.7416%",
+    "tokenized_after_tax_raw": 0.05741633512493751,
     "delta_after_tax": "-0.5308%",
     "delta_after_tax_bps": "-53.08 bps",
-    "delta_after_tax_bps_raw": -53.07708318542943,
-    "delta_before_tax_bps": "-70.77 bps",
-    "delta_before_tax_bps_raw": -70.76944424723894,
+    "delta_after_tax_bps_raw": -53.08196626307917,
+    "delta_before_tax_bps": "-70.78 bps",
+    "delta_before_tax_bps_raw": -70.77595501743883,
     "tax_rate": "25%",
     "tax_rate_raw": 0.25,
-    "verification": "Delta after-tax = -70.77 \u00d7 (1 - 0.25) = -53.08 bps",
+    "verification": "Delta after-tax = -70.78 \u00d7 (1 - 0.25) = -53.08 bps",
     "sources": [
       "WACDCalculator \u2014 pftoken/pricing/wacd.py",
       "Tax Rate: 25% \u2014 constants.py"
     ]
   },
+  "structure_scenarios": {
+    "traditional": {
+      "structure": {
+        "senior": 0.6,
+        "mezzanine": 0.25,
+        "subordinated": 0.15
+      },
+      "wacd_after_tax": 0.06272453175124543,
+      "can_rebalance": false
+    },
+    "tokenized_current": {
+      "structure": {
+        "senior": 0.6,
+        "mezzanine": 0.25,
+        "subordinated": 0.15
+      },
+      "wacd_after_tax": 0.05741633512493751,
+      "benefit_vs_traditional_bps": -53.08196626307917
+    },
+    "tokenized_optimized": {
+      "structure": {
+        "senior": 0.02037511546458292,
+        "mezzanine": 0.9227199869083267,
+        "subordinated": 0.056904897627090445
+      },
+      "wacd_after_tax": 0.06629338435487069,
+      "benefit_vs_traditional_bps": 35.68852603625258,
+      "constraint_violation": null
+    }
+  },
   "tinlake": {
-    "tvl_usd": "$1,447,607,220.00",
-    "tvl_usd_raw": 1447607220.0,
-    "avg_daily_volume_usd": "$186,114.67",
-    "avg_daily_volume_usd_raw": 186114.66666666666,
-    "avg_pool_ticket_usd": "$15,673,931.80",
-    "avg_pool_ticket_usd_raw": 15673931.8,
+    "tvl_usd": "$1,447,527,623.00",
+    "tvl_usd_raw": 1447527623.0,
+    "avg_daily_volume_usd": "$187,311.33",
+    "avg_daily_volume_usd_raw": 187311.33333333334,
+    "avg_pool_ticket_usd": "$15,659,515.60",
+    "avg_pool_ticket_usd_raw": 15659515.6,
     "datapoints": 31,
     "source": "api",
     "api_endpoint": "https://api.llama.fi/protocol/centrifuge",
-    "timestamp_utc": "2025-11-22T22:24:44.831935+00:00",
+    "timestamp_utc": "2025-11-23T03:48:02.060363+00:00",
     "snapshot_path": "data/derived/liquidity/tinlake_metrics.json"
   },
   "infrastructure": {
@@ -406,8 +436,8 @@
   "raw": {
     "wacd_result": {
       "traditional": 0.06272453175124543,
-      "tokenized": 0.057416823432702484,
-      "delta": -0.005307708318542943
+      "tokenized": 0.05741633512493751,
+      "delta": -0.005308196626307916
     },
     "delta_sensitivity": {
       "scenarios": [
@@ -417,13 +447,13 @@
           "beta_override": null,
           "infra_tx_multiplier": 1.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -48.096520897300095,
+          "delta_liquidity_bps": -48.103031667500005,
           "delta_origination_bps": -7.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 8.029166666666667,
-          "total_delta_bps": -70.76944424723894,
-          "tokenized_wacd": 0.057416823432702505,
-          "wacd_delta_bps": -53.07708318542921
+          "total_delta_bps": -70.77595501743883,
+          "tokenized_wacd": 0.05741633512493752,
+          "wacd_delta_bps": -53.08196626307913
         },
         {
           "scenario": "Tinlake TVL -50%",
@@ -431,13 +461,13 @@
           "beta_override": null,
           "infra_tx_multiplier": 1.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -24.048260448650048,
+          "delta_liquidity_bps": -24.051515833750003,
           "delta_origination_bps": -7.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 8.029166666666667,
-          "total_delta_bps": -46.72118379858888,
-          "tokenized_wacd": 0.05922044296635126,
-          "wacd_delta_bps": -35.040887848941665
+          "total_delta_bps": -46.72443918368884,
+          "tokenized_wacd": 0.05922019881246876,
+          "wacd_delta_bps": -35.043329387766626
         },
         {
           "scenario": "Tinlake TVL +50%",
@@ -445,13 +475,13 @@
           "beta_override": null,
           "infra_tx_multiplier": 1.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -72.14478134595015,
+          "delta_liquidity_bps": -72.15454750125001,
           "delta_origination_bps": -7.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 8.029166666666667,
-          "total_delta_bps": -94.81770469588898,
-          "tokenized_wacd": 0.055613203899053755,
-          "wacd_delta_bps": -71.11327852191674
+          "total_delta_bps": -94.82747085118883,
+          "tokenized_wacd": 0.05561247143740626,
+          "wacd_delta_bps": -71.12060313839163
         },
         {
           "scenario": "Beta = 0.3",
@@ -459,13 +489,13 @@
           "beta_override": 0.3,
           "infra_tx_multiplier": 1.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -48.096520897300095,
+          "delta_liquidity_bps": -48.103031667500005,
           "delta_origination_bps": -4.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 8.029166666666667,
-          "total_delta_bps": -67.76944424723894,
-          "tokenized_wacd": 0.05764182343270251,
-          "wacd_delta_bps": -50.8270831854292
+          "total_delta_bps": -67.77595501743883,
+          "tokenized_wacd": 0.057641335124937514,
+          "wacd_delta_bps": -50.831966263079124
         },
         {
           "scenario": "Beta = 0.7",
@@ -473,13 +503,13 @@
           "beta_override": 0.7,
           "infra_tx_multiplier": 1.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -48.096520897300095,
+          "delta_liquidity_bps": -48.103031667500005,
           "delta_origination_bps": -10.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 8.029166666666667,
-          "total_delta_bps": -73.76944424723894,
-          "tokenized_wacd": 0.05719182343270251,
-          "wacd_delta_bps": -55.3270831854292
+          "total_delta_bps": -73.77595501743883,
+          "tokenized_wacd": 0.057191335124937515,
+          "wacd_delta_bps": -55.331966263079124
         },
         {
           "scenario": "Infra \u00d7 2",
@@ -487,13 +517,13 @@
           "beta_override": null,
           "infra_tx_multiplier": 2.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -48.096520897300095,
+          "delta_liquidity_bps": -48.103031667500005,
           "delta_origination_bps": -7.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 16.058333333333334,
-          "total_delta_bps": -62.74027758057227,
-          "tokenized_wacd": 0.05801901093270251,
-          "wacd_delta_bps": -47.0552081854292
+          "total_delta_bps": -62.746788350772164,
+          "tokenized_wacd": 0.058018522624937514,
+          "wacd_delta_bps": -47.06009126307912
         },
         {
           "scenario": "Stressed",
@@ -501,16 +531,16 @@
           "beta_override": 0.3,
           "infra_tx_multiplier": 2.0,
           "delta_credit_bps": -5.702090016605502,
-          "delta_liquidity_bps": -24.048260448650048,
+          "delta_liquidity_bps": -24.051515833750003,
           "delta_origination_bps": -4.5,
           "delta_servicing_bps": -17.5,
           "delta_infrastructure_bps": 16.058333333333334,
-          "total_delta_bps": -35.69201713192221,
-          "tokenized_wacd": 0.06004763046635126,
-          "wacd_delta_bps": -26.769012848941657
+          "total_delta_bps": -35.695272517022175,
+          "tokenized_wacd": 0.06004738631246877,
+          "wacd_delta_bps": -26.77145438776663
         }
       ],
-      "export_path": "data/derived/sensitivities/wacd_delta_sensitivity_2025-11-22_222444.csv"
+      "export_path": "data/derived/sensitivities/wacd_delta_sensitivity_2025-11-23_034802.csv"
     }
   }
 }

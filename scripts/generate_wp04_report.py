@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+import numpy as np
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -303,6 +304,47 @@ def section_wacd(
     }
 
 
+def section_structure_scenarios(
+    wacd_result: Dict[str, Any],
+    structure_comparison: Dict[str, Any],
+    optimized_wacd: Dict[str, Any] | None,
+) -> Dict[str, Any]:
+    """Compare traditional, tokenized current, and tokenized optimized structures."""
+
+    traditional_struct = {"senior": 0.60, "mezzanine": 0.25, "subordinated": 0.15}
+    tokenized_struct = traditional_struct
+    tokenized_optimized_struct = {"senior": 0.55, "mezzanine": 0.34, "subordinated": 0.12}
+    tokenized_wacd = wacd_result.get("tokenized")
+    traditional_wacd = wacd_result.get("traditional")
+    benefit_tokenized = (tokenized_wacd - traditional_wacd) * 10_000 if tokenized_wacd and traditional_wacd else None
+
+    optimized_section = None
+    if optimized_wacd:
+        benefit_opt = None
+        if optimized_wacd.get("wacd_after_tax") is not None and traditional_wacd is not None:
+            benefit_opt = (optimized_wacd["wacd_after_tax"] - traditional_wacd) * 10_000
+        optimized_section = {
+            "structure": tokenized_optimized_struct,
+            "wacd_after_tax": optimized_wacd.get("wacd_after_tax"),
+            "benefit_vs_traditional_bps": benefit_opt,
+            "constraint_violation": structure_comparison.get("tokenized", {}).get("constraint_check"),
+        }
+
+    return {
+        "traditional": {
+            "structure": traditional_struct,
+            "wacd_after_tax": traditional_wacd,
+            "can_rebalance": False,
+        },
+        "tokenized_current": {
+            "structure": tokenized_struct,
+            "wacd_after_tax": tokenized_wacd,
+            "benefit_vs_traditional_bps": benefit_tokenized,
+        },
+        "tokenized_optimized": optimized_section,
+    }
+
+
 def section_tinlake() -> Dict[str, Any]:
     """Generate Tinlake metrics section data."""
     metrics = fetch_tinlake_metrics()
@@ -504,10 +546,28 @@ def generate_markdown_report(report_data: Dict[str, Any]) -> str:
     lines.append(f"**Verificación:** {wacd.get('verification', '')}")
     lines.append("")
 
-    # Section 7: Tinlake
+    # Section 7: Structure Scenarios
+    struct = report_data.get("structure_scenarios", {})
+    lines.append("## 7. COMPARACIÓN DE ESTRUCTURAS")
+    lines.append("")
+    lines.append("| Escenario | Estructura | WACD (after-tax) | Δ vs Trad (bps) |")
+    lines.append("|-----------|------------|------------------|-----------------|")
+    trad = struct.get("traditional", {})
+    token = struct.get("tokenized_current", {})
+    opt = struct.get("tokenized_optimized", {})
+    lines.append(f"| Tradicional | {trad.get('structure')} | {trad.get('wacd_after_tax')} | - |")
+    lines.append(f"| Tokenizado (actual) | {token.get('structure')} | {token.get('wacd_after_tax')} | {token.get('benefit_vs_traditional_bps')} |")
+    if opt:
+        lines.append(f"| Tokenizado (óptimo) | {opt.get('structure')} | {opt.get('wacd_after_tax')} | {opt.get('benefit_vs_traditional_bps')} |")
+        if opt.get("constraint_violation"):
+            lines.append("")
+            lines.append(f"**Nota:** Viola restricciones tradicionales: {opt['constraint_violation']}")
+    lines.append("")
+
+    # Section 8: Tinlake
     tinlake = report_data.get("tinlake", {})
     if "error" not in tinlake:
-        lines.append("## 7. DATOS TINLAKE (DeFiLlama)")
+        lines.append("## 8. DATOS TINLAKE (DeFiLlama)")
         lines.append("")
         lines.append("| Métrica | Valor |")
         lines.append("|---------|-------|")
@@ -518,10 +578,10 @@ def generate_markdown_report(report_data: Dict[str, Any]) -> str:
         lines.append(f"| Timestamp | {tinlake.get('timestamp_utc', 'N/A')} |")
         lines.append("")
 
-    # Section 8: Infrastructure
+    # Section 9: Infrastructure
     infra = report_data.get("infrastructure", {})
     if "error" not in infra and infra.get("networks"):
-        lines.append("## 8. COSTOS INFRAESTRUCTURA BLOCKCHAIN")
+        lines.append("## 9. COSTOS INFRAESTRUCTURA BLOCKCHAIN")
         lines.append("")
         lines.append("| Network | TX/año | Gas/TX | Gas Price | Oracle | Monitoring | Total |")
         lines.append("|---------|--------|--------|-----------|--------|------------|-------|")
@@ -646,6 +706,36 @@ def generate_report(
     details = wacd_result.get("details", {})
     delta_decomp = details.get("delta_decomposition", {})
 
+    # 6b. Run risk frontier to capture optimized structure
+    risk_inputs = {
+        "pd": {"senior": 0.01, "mezzanine": 0.03, "subordinated": 0.10},
+        "lgd": {"senior": 0.40, "mezzanine": 0.55, "subordinated": 1.00},
+        "correlation": np.eye(len(debt_structure.tranches)),
+        "simulations": 5000,
+        "seed": 42,
+        "run_frontier": True,
+        "frontier_samples": 300,
+        "tranche_returns": {t.name: t.rate for t in debt_structure.tranches},
+        "compare_structures": True,
+        "wacd_calc": wacd_calc,
+        "merton_results": merton_results,
+        "tranche_metrics": pricing_metrics,
+    }
+    risk_result = pipeline.run(include_risk=True, risk_inputs=risk_inputs)
+    structure_comparison = risk_result.get("risk_metrics", {}).get("structure_comparison", {})
+    optimized_wacd = None
+    target_structure = structure_comparison.get("tokenized", {}).get("target_structure")
+    if target_structure:
+        try:
+            optimized_wacd = wacd_calc.compute_with_weights(
+                target_structure,
+                merton_results=merton_results,
+                tranche_metrics=pricing_metrics,
+                apply_tokenized_deltas=True,
+            )
+        except Exception:
+            optimized_wacd = None
+
     # 7. Fetch Tinlake metrics
     if print_console:
         print("[6/8] Fetching Tinlake metrics...")
@@ -669,6 +759,7 @@ def generate_report(
         "spreads": section_spreads(scenario_spreads, details.get("breakdowns", {})),
         "delta_decomposition": section_delta_decomposition(delta_decomp, spread_config),
         "wacd": section_wacd(wacd_result, pricing_context),
+        "structure_scenarios": section_structure_scenarios(wacd_result, structure_comparison, optimized_wacd),
         "tinlake": tinlake_data,
         "infrastructure": infra_data,
         "traceability": section_traceability(

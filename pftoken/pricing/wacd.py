@@ -177,6 +177,43 @@ class WACDCalculator:
             "scenario_breakdowns": self._scenario_spreads or {},
         }
 
+    def compute_with_weights(
+        self,
+        weights: Dict[str, float],
+        *,
+        merton_results: Mapping[str, MertonResult] | None = None,
+        tranche_metrics: Mapping[str, TranchePricingMetrics] | None = None,
+        apply_tokenized_deltas: bool = True,
+    ) -> Dict[str, float]:
+        """Compute after-tax WACD using alternative weights (same coupons)."""
+
+        self._ensure_breakdowns(merton_results, tranche_metrics)
+        if not self._scenario_spreads:
+            raise RuntimeError("Spread breakdowns were not generated.")
+
+        total_w = sum(weights.values())
+        if total_w <= 0:
+            raise ValueError("Weights must sum to a positive value.")
+        norm_weights = {k.lower(): v / total_w for k, v in weights.items()}
+
+        scenario_key = "tokenized" if apply_tokenized_deltas else "traditional"
+        spreads_map = self._scenario_spreads.get(scenario_key, {})
+
+        tax_rate = self.pricing_context.corporate_tax_rate
+        weighted_sum = 0.0
+        for tranche in self.debt_structure.tranches:
+            key = tranche.name.lower()
+            weight = norm_weights.get(key, 0.0)
+            extra_spread = spreads_map.get(tranche.name, 0.0) / 10_000.0
+            effective_rate = (tranche.rate + extra_spread) * (1.0 - tax_rate)
+            weighted_sum += weight * effective_rate
+
+        return {
+            "wacd_after_tax": weighted_sum,
+            "weights": norm_weights,
+            "is_tokenized": apply_tokenized_deltas,
+        }
+
     def spread_breakdowns(self) -> Optional[Dict[str, PerTrancheSpreadBreakdown]]:
         """Latest cached spread breakdowns."""
 

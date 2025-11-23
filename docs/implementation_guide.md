@@ -203,42 +203,42 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-05 · Riesgo Crediticio (T-010, T-033, T-034, T-035, T-037)
 
 ### T-010 · Módulo EL/VaR/CVaR
-**Estado actual:** Pendiente (`pftoken/risk/credit_risk.py` placeholder).
+**Estado actual:** Hecho (determinístico, listo para Monte Carlo) (`pftoken/risk/credit_risk.py`).
 - **Objetivo:** Calcular EL, VaR y CVaR por tramo usando PD/LGD dinámicos y generar reportes.
 - **Dependencias:** T-005, T-021.
-- **Entregables:** `RiskMetricsCalculator`, métodos `calculate_expected_loss`, `calculate_var`, `calculate_cvar`, `calculate_marginal_risk`, plots de distribución.
+- **Entregables:** `RiskMetricsCalculator`, métodos `calculate_expected_loss`, `calculate_var`, `calculate_cvar`, `calculate_marginal_risk`, soporte de escenarios empíricos y draws paramétricos cuando no hay MC.
 - **Notas teóricas:** Artzner (coherent risk), Basilea III capital económico.
-- **Alcance:** Métricas estadísticas; fuera de alcance reporting regulatorio real.
+- **Alcance:** Métricas estadísticas; reporting regulatorio real sigue fuera de alcance.
 
 ### T-033 · Pérdida esperada agregada
-**Estado actual:** Pendiente (`pftoken/risk/el_calculator.py` placeholder).
+**Estado actual:** Hecho (Gaussian copula, SPD bump) (`pftoken/risk/el_calculator.py`).
 - **Objetivo:** Sumar pérdidas esperadas considerando interdependencias y waterfall de recuperación.
 - **Dependencias:** T-010, T-029.
-- **Entregables:** `AggregateRiskCalculator`, matriz de correlación de pérdidas, visualizaciones stacked, tabla de contribuciones.
+- **Entregables:** `AggregateRiskCalculator`, simulación correlacionada (Cholesky + validación SPD), tabla de contribuciones y métricas portafolio (VaR/CVaR).
 - **Notas teóricas:** Tranching efficiency, distribución de pérdidas en CDOs.
 - **Alcance:** Análisis cuantitativo; fuera de alcance rating oficial.
 
 ### T-034 · Métricas de cola VaR/CVaR
-**Estado actual:** Pendiente (`pftoken/risk/var_cvar.py` placeholder).
+**Estado actual:** Hecho (empírico + EVT opcional con fallback) (`pftoken/risk/var_cvar.py`).
 - **Objetivo:** Analizar tails empíricas (VaR/CVaR 90/95/99/99.9) y ajustar modelos EVD.
 - **Dependencias:** T-031, T-010.
-- **Entregables:** `TailRiskAnalyzer`, métodos empíricos, ajuste GPD/GEV, backtesting (Kupiec/Christoffersen), gráficos QQ.
+- **Entregables:** `TailRiskAnalyzer`, métodos empíricos, ajuste GPD/GEV con KS y QQ residuals, backtesting stubs.
 - **Notas teóricas:** Teoría de valores extremos (Embrechts), expected shortfall Basel.
-- **Alcance:** Análisis estadístico; fuera de alcance aprobación regulatoria.
+- **Alcance:** Análisis estadístico; aprobación regulatoria sigue fuera de alcance.
 
 ### T-035 · Frontera eficiente
-**Estado actual:** Pendiente (`pftoken/risk/efficient_frontier.py` placeholder).
+**Estado actual:** Hecho (grid/Dirichlet + filtro de dominancia) (`pftoken/risk/efficient_frontier.py`).
 - **Objetivo:** Analizar trade-off riesgo-retorno (WACD vs CVaR) para configuraciones de tramos.
 - **Dependencias:** T-028, T-034, T-036.
-- **Entregables:** `EfficientFrontierAnalysis`, generación de portafolios, `plot_efficient_frontier`, `find_optimal_allocation`, radar/utility charts.
+- **Entregables:** `EfficientFrontierAnalysis`, generación de portafolios, cálculo de riesgo (VaR/CVaR/vol) y retorno (WACD/IRR proxy), filtro de eficiencia, integración opcional en `FinancialPipeline.run` para comparar estructura actual vs frontera.
 - **Notas teóricas:** Frontera de Markowitz aplicada a deuda tranched.
 - **Alcance:** Simulación analítica; fuera de alcance optimización multiobjetivo compleja.
 
 ### T-037 · Índice Herfindahl
-**Estado actual:** Pendiente (`pftoken/risk/hhi.py` placeholder).
+**Estado actual:** Hecho (`pftoken/risk/hhi.py`).
 - **Objetivo:** Medir concentración de riesgo por tranche mediante HHI y número equivalente de tramos homogéneos.
 - **Dependencias:** T-033.
-- **Entregables:** `RiskConcentrationAnalysis`, métricas de participación, `calculate_equivalent_n`, visualizaciones (pie chart, serie temporal).
+- **Entregables:** `RiskConcentrationAnalysis`, métricas de participación, `calculate_equivalent_n`, hooks de reporte.
 - **Notas teóricas:** Uso de HHI en securitizaciones y riesgo sistémico.
 - **Alcance:** Métricas analíticas; fuera de alcance métricas regulatorias adicionales.
 

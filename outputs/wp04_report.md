@@ -1,4 +1,4 @@
-# Análisis WP-04 Actualizado (2025-11-22)
+# Análisis WP-04 Actualizado (2025-11-23)
 
 ## 1. CURVA ZERO CUPÓN (Actualizada)
 **Fuente:** [usd_combined_curve_2025-11-20.csv](/app/data/derived/market_curves/usd_combined_curve_2025-11-20.csv) — FRED DGS
@@ -32,9 +32,9 @@
 
 | Tramo | Tradicional | Tokenizado | Delta |
 |-------|-------------|------------|-------|
-| **Senior** | 117.50 bps | 30.68 bps | -86.82 bps |
-| **Mezzanine** | 73.75 bps | 24.76 bps | -48.99 bps |
-| **Subordinated** | 65.93 bps | 23.07 bps | -42.86 bps |
+| **Senior** | 117.50 bps | 30.67 bps | -86.83 bps |
+| **Mezzanine** | 73.75 bps | 24.75 bps | -49.00 bps |
+| **Subordinated** | 65.93 bps | 23.06 bps | -42.87 bps |
 
 ## 5. DELTA DECOMPOSITION PONDERADA
 
@@ -45,7 +45,7 @@
 | **Originación** | -7.50 bps | β = 0.5 (50% automation) |
 | **Servicing** | -17.50 bps | γ = 1.0 + residual 5.0 bps |
 | **Infraestructura** | 8.03 bps | Ethereum gas/oracle/monitoring |
-| **TOTAL** | **-70.77 bps** | Before-tax weighted |
+| **TOTAL** | **-70.78 bps** | Before-tax weighted |
 
 ## 6. WACD FINAL
 **Tax Rate:** 25%
@@ -53,23 +53,31 @@
 | Métrica | Valor |
 |---------|-------|
 | **WACD Tradicional (after-tax)** | 6.2725% |
-| **WACD Tokenizado (after-tax)** | 5.7417% |
+| **WACD Tokenizado (after-tax)** | 5.7416% |
 | **Delta After-Tax** | -0.5308% (-53.08 bps) |
-| **Delta Before-Tax** | -70.77 bps |
+| **Delta Before-Tax** | -70.78 bps |
 
-**Verificación:** Delta after-tax = -70.77 × (1 - 0.25) = -53.08 bps
+**Verificación:** Delta after-tax = -70.78 × (1 - 0.25) = -53.08 bps
 
-## 7. DATOS TINLAKE (DeFiLlama)
+## 7. COMPARACIÓN DE ESTRUCTURAS
+
+| Escenario | Estructura | WACD (after-tax) | Δ vs Trad (bps) |
+|-----------|------------|------------------|-----------------|
+| Tradicional | {'senior': 0.6, 'mezzanine': 0.25, 'subordinated': 0.15} | 0.06272453175124543 | - |
+| Tokenizado (actual) | {'senior': 0.6, 'mezzanine': 0.25, 'subordinated': 0.15} | 0.05741633512493751 | -53.08196626307917 |
+| Tokenizado (óptimo) | {'senior': 0.02037511546458292, 'mezzanine': 0.9227199869083267, 'subordinated': 0.056904897627090445} | 0.06629338435487069 | 35.68852603625258 |
+
+## 8. DATOS TINLAKE (DeFiLlama)
 
 | Métrica | Valor |
 |---------|-------|
-| TVL | $1,447,607,220.00 |
-| Daily Volume | $186,114.67 |
-| Avg Pool Ticket | $15,673,931.80 |
+| TVL | $1,447,527,623.00 |
+| Daily Volume | $187,311.33 |
+| Avg Pool Ticket | $15,659,515.60 |
 | Source | api |
-| Timestamp | 2025-11-22T22:24:44.831935+00:00 |
+| Timestamp | 2025-11-23T03:48:02.060363+00:00 |
 
-## 8. COSTOS INFRAESTRUCTURA BLOCKCHAIN
+## 9. COSTOS INFRAESTRUCTURA BLOCKCHAIN
 
 | Network | TX/año | Gas/TX | Gas Price | Oracle | Monitoring | Total |
 |---------|--------|--------|-----------|--------|------------|-------|

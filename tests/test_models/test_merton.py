@@ -25,10 +25,13 @@ def test_merton_pd_lgd_el(cfads_calculator: CFADSCalculator, project_parameters:
     horizon = len(cfads_vector)
 
     ordered = ["senior", "mezzanine", "subordinated"]
+    cumulative_debt = 0.0
     for name in ordered:
         res = results[name]
         cal = calibration.params[name]
-        debt = next(tr.initial_principal for tr in project_parameters.tranches if tr.name == name) / 1_000_000.0
+        tranche_debt = next(tr.initial_principal for tr in project_parameters.tranches if tr.name == name) / 1_000_000.0
+        cumulative_debt += tranche_debt
+        debt = cumulative_debt
         dd = (
             math.log(asset_value / debt)
             + (project_parameters.project.base_rate_reference - 0.5 * cal.asset_volatility**2) * horizon
@@ -40,6 +43,9 @@ def test_merton_pd_lgd_el(cfads_calculator: CFADSCalculator, project_parameters:
         assert math.isclose(res.expected_loss, expected_pd * expected_lgd, rel_tol=1e-4)
         assert res.pd >= cal.pd_floor
         assert res.distance_to_default == res.distance_to_default  # finite
+
+    # PD ordering must respect seniority
+    assert results["senior"].pd < results["mezzanine"].pd < results["subordinated"].pd
 
 
 def _pv_cfads(cfads_vector, discount_rate):

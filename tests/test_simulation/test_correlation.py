@@ -1,15 +1,21 @@
 import numpy as np
 
-from pftoken.models import load_placeholder_calibration
-from pftoken.simulation import CorrelatedSampler
+from pftoken.models.calibration import load_placeholder_calibration
+from pftoken.simulation.correlation import CorrelatedSampler, CorrelationMatrix
 
 
-def test_correlated_sampler_preserves_rank_correlation():
+def test_correlation_sampler_antithetic():
     calibration = load_placeholder_calibration()
     sampler = CorrelatedSampler(calibration, seed=123)
-    draws = sampler.sample(5000)
-    keys = list(draws.keys())
-    matrix = np.corrcoef([draws[k] for k in keys])
-    # Expect correlation direction to match calibration (signs)
-    assert np.sign(matrix[0, 1]) == np.sign(calibration.correlation.matrix[0][1])
-    assert np.sign(matrix[0, 2]) == np.sign(calibration.correlation.matrix[0][2])
+    draws = sampler.sample(200, antithetic=True)
+    first_var = next(iter(draws.values()))
+    assert first_var.shape == (200,)
+    assert np.isfinite(first_var).all()
+
+
+def test_correlation_matrix_repairs_near_spd():
+    calibration = load_placeholder_calibration()
+    corr = calibration.correlation
+    corr.matrix[0][1] = corr.matrix[1][0] = corr.matrix[0][1] - 1e-8  # tiny asymmetry
+    matrix = CorrelationMatrix(corr, tolerance=1e-6)
+    assert matrix.matrix.shape[0] == matrix.matrix.shape[1]

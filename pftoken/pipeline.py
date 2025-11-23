@@ -28,6 +28,7 @@ from pftoken.waterfall import (
     WaterfallOrchestrator,
     WaterfallResult,
 )
+from pftoken.constants import TOKENIZED_OPTIMAL_STRUCTURE, TOKENIZED_OPTIMAL_WACD_BPS
 
 
 class FinancialPipeline:
@@ -406,6 +407,8 @@ class FinancialPipeline:
         wacd_calc = risk_inputs.get("wacd_calc")
         merton_results = risk_inputs.get("merton_results")
         tranche_metrics = risk_inputs.get("tranche_metrics")
+        recommended_wacd_bps = TOKENIZED_OPTIMAL_WACD_BPS
+        recommended_structure = TOKENIZED_OPTIMAL_STRUCTURE
         if nearest_efficient:
             target_structure = nearest_efficient.get("weights")
             if target_structure and constraints:
@@ -420,6 +423,19 @@ class FinancialPipeline:
                     )
                 except Exception:
                     optimized_wacd = None
+        # Recommended (bankable) tokenized structure WACD
+        if wacd_calc is not None:
+            try:
+                rec = wacd_calc.compute_with_weights(
+                    recommended_structure,
+                    merton_results=merton_results,
+                    tranche_metrics=tranche_metrics,
+                    apply_tokenized_deltas=True,
+                )
+                if rec and rec.get("wacd_after_tax") is not None:
+                    recommended_wacd_bps = round(rec["wacd_after_tax"] * 10000)
+            except Exception:
+                recommended_wacd_bps = TOKENIZED_OPTIMAL_WACD_BPS
 
         return {
             "structure_comparison": {
@@ -437,6 +453,9 @@ class FinancialPipeline:
                     "spread_reduction_bps": spread_reduction_bps,
                     "total_benefit_bps": inefficiency_bps + spread_reduction_bps,
                     "target_structure": target_structure,
+                    "recommended_structure": recommended_structure,
+                    "recommended_wacd_bps": recommended_wacd_bps,
+                    "theoretical_unconstrained": target_structure,
                     "constraint_check": constraint_check,
                     "optimized_wacd_after_tax": optimized_wacd.get("wacd_after_tax") if optimized_wacd else None,
                     "optimized_wacd_bps": round(optimized_wacd["wacd_after_tax"] * 10000) if optimized_wacd else None,
@@ -445,6 +464,9 @@ class FinancialPipeline:
                     "rebalancing_value_bps": inefficiency_bps,
                     "liquidity_premium_bps": spread_reduction_bps,
                     "total_tokenization_benefit_bps": inefficiency_bps + spread_reduction_bps,
+                    "wacd_savings_bps": round(current_return * 10000) - recommended_wacd_bps
+                    if recommended_wacd_bps is not None
+                    else None,
                 },
             }
         }

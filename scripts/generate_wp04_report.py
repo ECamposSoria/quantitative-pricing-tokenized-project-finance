@@ -33,6 +33,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from pftoken.models.merton import MertonModel, MertonResult
 from pftoken.models.params import ProjectParameters
 from pftoken.pipeline import FinancialPipeline
+from pftoken.constants import TOKENIZED_OPTIMAL_STRUCTURE
 from pftoken.pricing.base_pricing import PricingEngine, TranchePricingMetrics
 from pftoken.pricing.collateral_adjust import CollateralAnalyzer
 from pftoken.pricing.constants import DEFAULT_PRICING_CONTEXT, PricingContext
@@ -313,7 +314,7 @@ def section_structure_scenarios(
 
     traditional_struct = {"senior": 0.60, "mezzanine": 0.25, "subordinated": 0.15}
     tokenized_struct = traditional_struct
-    tokenized_optimized_struct = {"senior": 0.55, "mezzanine": 0.34, "subordinated": 0.12}
+    tokenized_optimized_struct = TOKENIZED_OPTIMAL_STRUCTURE
     tokenized_wacd = wacd_result.get("tokenized")
     traditional_wacd = wacd_result.get("traditional")
     benefit_tokenized = (tokenized_wacd - traditional_wacd) * 10_000 if tokenized_wacd and traditional_wacd else None

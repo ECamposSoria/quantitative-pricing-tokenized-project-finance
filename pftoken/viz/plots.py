@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Sequence
+from typing import Iterable, Mapping, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -207,6 +207,40 @@ def plot_structure_radar(metrics: Iterable[tuple[str, float]], baseline: float) 
     return fig
 
 
+def plot_fan_chart(
+    years: Sequence[int],
+    percentiles: Mapping[int, Sequence[float]],
+    *,
+    threshold: float | None = None,
+    title: str = "Fan chart",
+) -> plt.Figure:
+    """Plot percentile bands for simulated ratios (e.g., DSCR)."""
+
+    palette = get_palette()
+    order = sorted(percentiles.keys())
+    p5 = percentiles.get(5) or percentiles.get(10)
+    p25 = percentiles.get(25)
+    p50 = percentiles.get(50)
+    p75 = percentiles.get(75)
+    p95 = percentiles.get(95) or percentiles.get(90)
+
+    fig, ax = plt.subplots()
+    if p95 is not None and p5 is not None:
+        ax.fill_between(years, p5, p95, color=palette.primary, alpha=0.1, label="P5–P95")
+    if p75 is not None and p25 is not None:
+        ax.fill_between(years, p25, p75, color=palette.primary, alpha=0.2, label="P25–P75")
+    if p50 is not None:
+        ax.plot(years, p50, color=palette.primary, linewidth=2, label="P50")
+    if threshold is not None:
+        ax.axhline(threshold, color=palette.neutral, linestyle="--", label="Threshold")
+    ax.set_title(title)
+    ax.set_xlabel("Año")
+    ax.set_ylabel("Valor")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
 __all__ = [
     "plot_cfads_vs_debt_service",
     "plot_dscr_series",
@@ -216,4 +250,5 @@ __all__ = [
     "plot_reserve_levels",
     "plot_covenant_heatmap",
     "plot_structure_radar",
+    "plot_fan_chart",
 ]

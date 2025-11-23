@@ -7,6 +7,7 @@ from typing import Dict, Mapping, Sequence
 
 import numpy as np
 from scipy.stats import norm
+import warnings
 
 from pftoken.models.calibration import CalibrationSet
 
@@ -49,19 +50,36 @@ def compute_pathwise_pd_lgd(
         raise ValueError("asset_values must be a 1D array of simulated enterprise values.")
     results: Dict[str, TranchePathMetrics] = {}
 
-    for tranche, debt_outstanding in debt_by_tranche.items():
+    # Sort tranches by seniority and compute cumulative debt barriers
+    seniority_order = {"senior": 1, "mezzanine": 2, "subordinated": 3}
+    sorted_tranches = sorted(
+        debt_by_tranche.items(),
+        key=lambda x: seniority_order.get(x[0].lower(), 99)
+    )
+
+    cumulative_debt = 0.0
+    for tranche, tranche_debt in sorted_tranches:
+        cumulative_debt += tranche_debt
+        debt_barrier = cumulative_debt  # Use cumulative debt as barrier
+
         cal = calibration.params.get(tranche.lower())
         if cal is None:
             raise KeyError(f"Missing calibration for tranche '{tranche}'.")
 
         # Distance-to-default vectorized.
         drift = discount_rate - 0.5 * cal.asset_volatility**2
-        numerator = np.log(np.maximum(asset_values, 1e-9) / debt_outstanding) + (drift * horizon_years)
+        numerator = np.log(np.maximum(asset_values, 1e-9) / debt_barrier) + (drift * horizon_years)
         denominator = cal.asset_volatility * np.sqrt(horizon_years)
         dd = numerator / np.where(denominator == 0, 1e-9, denominator)
 
         pd_path = np.maximum(norm.cdf(-dd), cal.pd_floor)
         lgd_path = np.full_like(pd_path, 1.0 - cal.recovery_rate)
+
+        dd_min, dd_max = float(dd.min()), float(dd.max())
+        if dd_max < 0:
+            warnings.warn(f"All distance-to-default values < 0 for tranche '{tranche}'; assets below debt.")
+        elif dd_min < 0 and dd_max > 3:
+            warnings.warn(f"Wide DD dispersion for tranche '{tranche}' (min={dd_min:.2f}, max={dd_max:.2f}).")
 
         results[tranche] = TranchePathMetrics(
             tranche=tranche,

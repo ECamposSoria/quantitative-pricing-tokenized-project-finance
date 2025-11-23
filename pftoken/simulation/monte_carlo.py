@@ -80,7 +80,7 @@ class MonteCarloEngine:
         )
 
     def run_simulation(self, config: MonteCarloConfig) -> MonteCarloResult:
-        variables = list(config.variables) if config.variables else list(self._sampler.variables.names())
+        variables = list(config.variables) if config.variables else list(self._variable_names())
         chunk = config.chunk_size or config.simulations
         draws: Dict[str, np.ndarray] = {name: np.empty(config.simulations) for name in variables}
         derived: Dict[str, np.ndarray] = {}
@@ -90,7 +90,7 @@ class MonteCarloEngine:
         while start < config.simulations:
             end = min(start + chunk, config.simulations)
             size = end - start
-            batch = self._sample_batch(variables, size, sampler)
+            batch = self._sample_batch(variables, size, sampler, antithetic=config.antithetic)
             for name, values in batch.items():
                 draws[name][start:end] = values
 
@@ -115,16 +115,21 @@ class MonteCarloEngine:
             return CorrelatedSampler(self.calibration, seed=seed)
         return StochasticVariables(self.calibration, seed=seed)
 
-    def _sample_batch(self, variables: Sequence[str], size: int, sampler) -> Dict[str, np.ndarray]:
+    def _sample_batch(self, variables: Sequence[str], size: int, sampler, *, antithetic: bool) -> Dict[str, np.ndarray]:
         if isinstance(sampler, CorrelatedSampler):
-            results = sampler.sample(size)
+            results = sampler.sample(size, antithetic=antithetic)
             if missing := [v for v in variables if v not in results]:
                 for name in missing:
-                    results[name] = sampler.variables.sample(name, size)
+                    results[name] = sampler.variables.sample(name, size, antithetic=antithetic)
             return {name: results[name] for name in variables}
 
         # Independent sampling path.
-        return {name: sampler.sample(name, size) for name in variables}
+        return {name: sampler.sample(name, size, antithetic=antithetic) for name in variables}
+
+    def _variable_names(self) -> Sequence[str]:
+        if isinstance(self._sampler, CorrelatedSampler):
+            return self._sampler.variables.names()
+        return self._sampler.names()
 
 
 def _summarize_array(values: np.ndarray, percentiles: Sequence[float]) -> Dict[str, object]:

@@ -7,11 +7,14 @@ from typing import Dict, Iterable, Mapping
 
 import numpy as np
 from scipy.stats import beta as beta_dist
-from scipy.stats import norm
+from scipy.stats import norm, poisson
 
 from pftoken.models.calibration import CalibrationSet, RandomVariableConfig
 
 DistributionName = str
+def time_dependent_launch_risk(year: int, base_p: float = 0.07, decay_rate: float = 0.3, min_p: float = 0.01) -> float:
+    """Launch failure probability decays with operational maturity."""
+    return max(base_p * np.exp(-decay_rate * max(0, year - 1)), min_p)
 
 
 @dataclass(frozen=True)
@@ -26,7 +29,7 @@ class SampleSummary:
 class StochasticVariables:
     """Samples deterministic distributions defined in the calibration payload."""
 
-    SUPPORTED = {"lognormal", "normal", "beta", "bernoulli", "ou"}
+    SUPPORTED = {"lognormal", "normal", "beta", "bernoulli", "poisson", "ou"}
 
     def __init__(self, calibration: CalibrationSet, *, seed: int | None = None):
         if not calibration.random_variables:
@@ -86,6 +89,16 @@ class StochasticVariables:
             return (uniforms < probability).astype(int)
         raise ValueError(f"Variable '{name}' with distribution '{config.distribution}' does not support transform.")
 
+    def sample_time_dependent(self, name: str, year: int, size: int) -> np.ndarray:
+        """Sample variables with time-dependent parameters (e.g., launch risk decay)."""
+
+        if name == "launch_failure":
+            config = self._get_config(name)
+            base_p = config.params.get("probability", 0.07)
+            p = time_dependent_launch_risk(year, base_p=base_p)
+            return self._rng.choice([0, 1], size=size, p=[1 - p, p])
+        return self.sample(name, size)
+
     # --- Internal helpers -------------------------------------------------
     def _sample_lognormal(self, config: RandomVariableConfig, size: int, antithetic: bool) -> np.ndarray:
         z = self._standard_normals(size, antithetic)
@@ -110,6 +123,11 @@ class StochasticVariables:
         probability = config.params.get("probability", 0.5)
         trials = self._uniforms(size, antithetic)
         return (trials < probability).astype(int)
+
+    def _sample_poisson(self, config: RandomVariableConfig, size: int, antithetic: bool) -> np.ndarray:
+        lam = config.params.get("lambda", config.params.get("lam", 1.0))
+        # antithetic not meaningful for Poisson; use direct sampling
+        return self._rng.poisson(lam=lam, size=size)
 
     def _sample_ou(self, config: RandomVariableConfig, size: int, antithetic: bool) -> np.ndarray:
         theta = config.params.get("theta", 0.0)
@@ -163,4 +181,4 @@ class StochasticVariables:
         return mirrored
 
 
-__all__ = ["SampleSummary", "StochasticVariables"]
+__all__ = ["SampleSummary", "StochasticVariables", "time_dependent_launch_risk"]

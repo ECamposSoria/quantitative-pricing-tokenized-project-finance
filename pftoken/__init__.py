@@ -11,13 +11,13 @@ from . import (
     risk,
     stress,
     simulation,
-    optimization,
     derivatives,
     viz,
     utils,
     amm,
     pipeline,
     integration,
+    tokenization,
 )
 
 __all__ = [
@@ -30,11 +30,11 @@ __all__ = [
     "risk",
     "stress",
     "simulation",
-    "optimization",
     "derivatives",
     "viz",
     "utils",
     "amm",
     "pipeline",
     "integration",
+    "tokenization",
 ]

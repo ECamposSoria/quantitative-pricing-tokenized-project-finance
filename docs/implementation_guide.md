@@ -247,7 +247,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-06 · Stress Testing (T-038, T-038B, T-039, T-040, T-041, T-042, T-043)
 
 ### T-038 · Diseño escenarios estrés
-**Estado actual:** Pendiente (`pftoken/stress/scenarios.py` vacío).
+**Estado actual:** Hecho (librería S1–S6 + C1–C3 en `pftoken/stress/scenarios.py`).
 - **Objetivo:** Definir librería `StressScenarioLibrary` con S1–S5 (demanda, tasas, lanzamiento, degradación, regulatorio) incluyendo shocks, duración y racionales.
 - **Dependencias:** T-002, T-046.
 - **Entregables:** Escenarios parametrizados (JSON/CSV), documentación con probabilidades subjetivas y antecedentes históricos.
@@ -255,7 +255,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Diseño; fuera de alcance ejecución (T-040).
 
 ### T-038B · Escenario S6 CAPEX Failure
-**Estado actual:** Pendiente (no existe scenario S6 ni lógica de shortfall MRA).
+**Estado actual:** Hecho (S6 CAPEX overrun en librería, shortfall MRA parametrizado).
 - **Objetivo:** Modelar fallo CAPEX (RCAPEX inesperado 25 MUSD vs MRA 12 MUSD) con opciones (diferir, violar waterfall, bridge loan).
 - **Dependencias:** T-038, T-017.
 - **Entregables:** Escenario S6 en librería, análisis trade-offs/probabilidad insuficiencia MRA, visualización de saldos MRA vs RCAPEX.
@@ -263,7 +263,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulación determinística; fuera de alcance financiación puente real.
 
 ### T-039 · Escenarios combinados
-**Estado actual:** Pendiente (no hay `create_combined_scenario`).
+**Estado actual:** Hecho (C1–C3 combinados en librería).
 - **Objetivo:** Construir combos C1–C3 (Perfect Storm, Launch Failure+Rate Shock, Operational Cascade) con correlaciones temporales y factores de compounding.
 - **Dependencias:** T-038.
 - **Entregables:** Método `sample_correlated_shocks`, matriz de interacción, narrativas en `docs/stress_scenarios.md`, visualización timeline.
@@ -271,7 +271,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulación; fuera de alcance hedging real.
 
 ### T-040 · Motor de estrés
-**Estado actual:** Pendiente (`pftoken/stress/stress_engine.py` placeholder).
+**Estado actual:** Hecho (motor v1 + runner/deltas en `pftoken/stress/stress_engine.py`).
 - **Objetivo:** Implementar `StressTestEngine` que aplique shocks, re-ejecute CFADS/Waterfall/Pricing y compare con baseline.
 - **Dependencias:** T-006, T-007, T-038.
 - **Entregables:** Métodos `apply_stress_scenario`, `run_stressed_simulation`, `calculate_stress_metrics`, `generate_stress_dashboard`, batch runner.
@@ -279,7 +279,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Motor offline; fuera de alcance ejecución en tiempo real.
 
 ### T-041 · Resultados de estrés
-**Estado actual:** Pendiente (no hay `StressResultsAnalyzer`).
+**Estado actual:** Hecho (`StressResultsAnalyzer` para ranking/near-miss).
 - **Objetivo:** Agregar análisis agregados (ranking de escenarios, heatmaps, comparaciones Traditional vs Tokenized, near-misses).
 - **Dependencias:** T-040.
 - **Entregables:** `StressResultsAnalyzer`, tablas comparativas, radar de resiliencia, histogramas de time-to-default.
@@ -287,7 +287,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Reporting; fuera de alcance presentaciones externas.
 
 ### T-042 · Reverse stress testing
-**Estado actual:** Pendiente (`pftoken/stress/reverse_stress.py` placeholder).
+**Estado actual:** Hecho (búsqueda 1D + grid en `reverse_stress.py`).
 - **Objetivo:** Encontrar combinaciones mínimas de shocks que llevan a default inevitable (distance-to-failure).
 - **Dependencias:** T-041, T-040.
 - **Entregables:** `ReverseStressTester` con `find_breaking_point`, `identify_minimal_fatal_combo`, `map_failure_surface`, visualizaciones safe/unsafe.
@@ -295,7 +295,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Análisis; fuera de alcance pronósticos macro reales.
 
 ### T-043 · Stress híbridas
-**Estado actual:** Pendiente (`pftoken/stress/hybrid_stress.py` placeholder).
+**Estado actual:** Hecho (hibridación de draws MC en `hybrid_stress.py`).
 - **Objetivo:** Combinar shocks determinísticos con Monte Carlo condicional (stress-conditional MC, path-dependent stress).
 - **Dependencias:** T-031, T-040.
 - **Entregables:** `HybridStressTester` con `stress_conditional_mc`, `progressive_stress_mc`, `adaptive_stress_scenario`, `variance_decomposition`, fan charts bajo stress.
@@ -307,7 +307,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-07 · Simulación Monte Carlo (T-021, T-022, T-023, T-024, T-025, T-029, T-030, T-031)
 
 ### T-021 · Motor Monte Carlo
-**Estado actual:** Pendiente (`pftoken/simulation/monte_carlo.py` lanza `NotImplementedError`).
+**Estado actual:** Hecho (motor vectorizado v1 en `pftoken/simulation/monte_carlo.py`).
 - **Objetivo:** Implementar `MonteCarloEngine` vectorizado (10 k escenarios, <5 min) con seeds reproducibles y almacenamiento de resultados.
 - **Dependencias:** T-022, T-023, T-006.
 - **Entregables:** Métodos `run_simulation`, `aggregate_results`, `calculate_confidence_intervals`, paralelización y checkpointing, exportación CSV/HDF5.
@@ -315,7 +315,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Pipeline offline; fuera de alcance cluster distribuido.
 
 ### T-022 · Variables aleatorias
-**Estado actual:** Pendiente (`pftoken/simulation/stochastic_vars.py` placeholder).
+**Estado actual:** Hecho (generadores + antithetic en `stochastic_vars.py`).
 - **Objetivo:** Definir distribuciones marginales (lognormal ingresos, beta churn, OU tasas, Bernoulli eventos discretos) y sampling con validaciones.
 - **Dependencias:** T-047.
 - **Entregables:** Clase `StochasticVariables`, generadores con antithetic variates, visualizaciones (histogramas, QQ-plots).
@@ -323,7 +323,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Sampling; fuera de alcance calibración automática.
 
 ### T-023 · Matriz de correlación
-**Estado actual:** Pendiente (`pftoken/simulation/correlation.py` placeholder).
+**Estado actual:** Hecho (validación/Cholesky + antithetic en `correlation.py`).
 - **Objetivo:** Construir matriz ρ PD y generación de muestras correlacionadas (Cholesky/Gaussian copula).
 - **Dependencias:** T-022, T-047.
 - **Entregables:** Validación de matriz (simetría, eigenvalores positivos), `generate_correlated_samples`, `transform_to_target_distributions`, heatmaps.
@@ -331,7 +331,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Correlaciones estáticas; fuera de alcance correlaciones dinámicas.
 
 ### T-024 · Merton en Monte Carlo
-**Estado actual:** Pendiente (`pftoken/simulation/merton_integration.py` placeholder).
+**Estado actual:** Hecho (PD/LGD pathwise + pérdidas en `merton_integration.py`).
 - **Objetivo:** Integrar cálculo de PD/LGD endógeno en cada trayectoria MC (trajectorias V(t), D(t), distance-to-default).
 - **Dependencias:** T-021, T-005.
 - **Entregables:** Cálculo de PD_t, LGD_t, triggers V<D, visualizaciones V vs D, term structure promedio de PD.
@@ -339,7 +339,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Integración analítica; fuera de alcance calibraciones multi-factor complejas.
 
 ### T-025 · Flags de default
-**Estado actual:** Pendiente (`pftoken/simulation/default_flags.py` placeholder).
+**Estado actual:** Hecho (`DefaultDetector`/`DefaultFlags` en `default_flags.py`).
 - **Objetivo:** Detectar y clasificar eventos de default (técnico, pago, insolvencia, cross-default) durante MC.
 - **Dependencias:** T-024, T-015.
 - **Entregables:** `DefaultDetector`, probabilidades por tipo, timeline por escenario, heatmaps período × tipo.
@@ -347,7 +347,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Lógica y reporting; fuera de alcance gestión legal.
 
 ### T-029 · DSCR/LLCR por trayectoria
-**Estado actual:** Pendiente (`pftoken/simulation/ratio_simulation.py` placeholder).
+**Estado actual:** Hecho (resúmenes percentiles + headroom en `ratio_simulation.py`).
 - **Objetivo:** Calcular distribuciones de DSCR/LLCR por período y fan charts con percentiles, headroom y persistencia de breaches.
 - **Dependencias:** T-021, T-004.
 - **Entregables:** `RatioDistributions`, fan charts, análisis de headroom y persistencia, overlays stress vs base.
@@ -355,7 +355,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Análisis cuantitativo; fuera de alcance reporting regulatorio.
 
 ### T-030 · Probabilidades de breach
-**Estado actual:** Pendiente (`pftoken/simulation/breach_probability.py` placeholder).
+**Estado actual:** Hecho (`BreachProbabilityAnalyzer` en `breach_probability.py`).
 - **Objetivo:** Estimar P(breach) por período/covenant, survival/hazard y segmentación por características.
 - **Dependencias:** T-029.
 - **Entregables:** `BreachProbabilityAnalyzer`, probabilidades condicionales, survival (Kaplan-Meier), hazard h(t), heatmaps y bootstrap CIs.
@@ -363,7 +363,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Métricas; fuera de alcance capital regulatorio.
 
 ### T-031 · Pipeline end-to-end MC
-**Estado actual:** Pendiente (`pftoken/simulation/pipeline.py` placeholder).
+**Estado actual:** Hecho (pipeline MC→PD/LGD→pérdidas/ratios en `pipeline.py`).
 - **Objetivo:** Orquestar pasos (init, escenarios, trayectorias, pricing, riesgo, exportación, resumen) con logging/caching.
 - **Dependencias:** T-021–T-030.
 - **Entregables:** `MonteCarloPipeline.run_complete_analysis`, validaciones de outputs, `generate_executive_summary`, comparador de estructuras, analizador de sensibilidad.

@@ -1,45 +1,479 @@
 {
-  "timestamp_utc": "2025-11-23T032202Z",
+  "timestamp_utc": "2025-11-23T194836Z",
+  "monte_carlo": {
+    "config": {
+      "simulations": 10000,
+      "seed": 42,
+      "antithetic": true
+    },
+    "dscr_fan_chart": {
+      "years": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "p5": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.6580481887662848,
+        0.6141783270710117,
+        0.6133843186295254,
+        0.6129951460803967,
+        0.6138315690765169,
+        0.613312554775655,
+        0.7460969925177944,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "p25": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        0.9576818787246364,
+        0.8938364456926176,
+        0.892680895827202,
+        0.8921145186159884,
+        0.8933317959522192,
+        0.8925764552352026,
+        1.0858225608748169,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "p50": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        1.1893475173531414,
+        1.1100577145930735,
+        1.1086226343288001,
+        1.1079192490554575,
+        1.1094309888199232,
+        1.1084929292967172,
+        1.3484857505942407,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "p75": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        1.4615286457242913,
+        1.3640934416675612,
+        1.3623299445529276,
+        1.3614655901813317,
+        1.363323290255036,
+        1.362170556638867,
+        1.6570855230190211,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "p95": [
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        1.898409585685347,
+        1.7718489972865903,
+        1.7695583546525626,
+        1.7684356270007529,
+        1.770848631793759,
+        1.769351322416294,
+        2.152422431406225,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ]
+    },
+    "breach_probability": {
+      "years": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "cumulative": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.7398,
+        0.8128,
+        0.8141,
+        0.8144,
+        0.8144,
+        0.8144,
+        0.8144,
+        0.8144,
+        0.8144,
+        0.8144,
+        0.8144
+      ],
+      "survival": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.2602,
+        0.1872,
+        0.1859,
+        0.1856,
+        0.1856,
+        0.1856,
+        0.1856,
+        0.1856,
+        0.1856,
+        0.1856,
+        0.1856
+      ],
+      "hazard": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.8431975403535743,
+        0.38995726495726496,
+        0.006993006993006993,
+        0.0016163793103448276,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "asset_value_distribution": {
+      "mean": 106.71434139381427,
+      "std": 35.06101393735332,
+      "p5": 56.18163863078777,
+      "p50": 102.9964580831726,
+      "p95": 168.43930816990425
+    }
+  },
+  "risk_metrics": {
+    "portfolio": {
+      "expected_loss": 8.394516000000001,
+      "var_95": 27.54,
+      "var_99": 38.339999999999996,
+      "cvar_95": 31.10160409556314,
+      "cvar_99": 38.339999999999996
+    },
+    "tranches": {
+      "senior": {
+        "pd_mean": 0.08879502309203265,
+        "lgd": 0.45000000000000007,
+        "expected_loss": 1.7379360000000001,
+        "capital_95": 19.439999999999998,
+        "capital_99": 19.439999999999998
+      },
+      "mezzanine": {
+        "pd_mean": 0.2790306554710739,
+        "lgd": 0.5999999999999999,
+        "expected_loss": 3.01644,
+        "capital_95": 10.799999999999999,
+        "capital_99": 10.799999999999999
+      },
+      "subordinated": {
+        "pd_mean": 0.45114372981117956,
+        "lgd": 0.75,
+        "expected_loss": 3.64014,
+        "capital_95": 8.100000000000001,
+        "capital_99": 8.100000000000001
+      }
+    }
+  },
+  "stress_results": {
+    "scenarios_run": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6",
+      "C1",
+      "C2",
+      "C3",
+      "T1",
+      "T2",
+      "T3",
+      "CT1",
+      "U1",
+      "U2",
+      "U3"
+    ],
+    "ranking_by_dscr_impact": [
+      {
+        "code": "C1",
+        "name": "Perfect Storm",
+        "dscr_min_stressed": 0.878,
+        "delta": -0.23
+      },
+      {
+        "code": "S3",
+        "name": "Fallo de lanzamiento",
+        "dscr_min_stressed": 0.888,
+        "delta": -0.22
+      },
+      {
+        "code": "C2",
+        "name": "Launch + Rates",
+        "dscr_min_stressed": 0.918,
+        "delta": -0.19
+      },
+      {
+        "code": "S1",
+        "name": "Demanda d\u00e9bil",
+        "dscr_min_stressed": 1.068,
+        "delta": -0.04
+      },
+      {
+        "code": "C3",
+        "name": "Operational Cascade",
+        "dscr_min_stressed": 1.068,
+        "delta": -0.04
+      },
+      {
+        "code": "CT1",
+        "name": "Perfect Token Storm",
+        "dscr_min_stressed": 1.068,
+        "delta": -0.04
+      },
+      {
+        "code": "S5",
+        "name": "Regulatorio adverso",
+        "dscr_min_stressed": 1.088,
+        "delta": -0.02
+      },
+      {
+        "code": "S4",
+        "name": "Degradaci\u00f3n operativa",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "S6",
+        "name": "CAPEX overrun",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "T1",
+        "name": "DeFi Liquidity Crisis",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "T2",
+        "name": "Smart Contract Exploit",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "T3",
+        "name": "Security Token Regulatory Ban",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "U3",
+        "name": "Technology Breakthrough",
+        "dscr_min_stressed": 1.108,
+        "delta": 0.0
+      },
+      {
+        "code": "S2",
+        "name": "Shock de tasas",
+        "dscr_min_stressed": 1.138,
+        "delta": 0.03
+      },
+      {
+        "code": "U2",
+        "name": "Spectrum Award",
+        "dscr_min_stressed": 1.308,
+        "delta": 0.2
+      },
+      {
+        "code": "U1",
+        "name": "Competitor Exit",
+        "dscr_min_stressed": 1.408,
+        "delta": 0.3
+      }
+    ],
+    "near_misses": [
+      {
+        "code": "S1",
+        "metric": 1.068,
+        "threshold": 1.0,
+        "margin": 0.068
+      },
+      {
+        "code": "S5",
+        "metric": 1.088,
+        "threshold": 1.0,
+        "margin": 0.088
+      },
+      {
+        "code": "C3",
+        "metric": 1.068,
+        "threshold": 1.0,
+        "margin": 0.068
+      },
+      {
+        "code": "CT1",
+        "metric": 1.068,
+        "threshold": 1.0,
+        "margin": 0.068
+      }
+    ]
+  },
+  "tokenization_analysis": {
+    "mechanisms": {
+      "liquidity_premium": {
+        "traditional_bps": 75.0,
+        "tokenized_bps": 25.0,
+        "reduction_bps": 50.0,
+        "driver": "secondary_market_depth"
+      },
+      "operational_efficiency": {
+        "traditional_admin_cost_pct": 0.5,
+        "tokenized_admin_cost_pct": 0.15,
+        "savings_pct": 0.35,
+        "driver": "smart_contract_automation"
+      },
+      "capital_efficiency": {
+        "traditional_min_ticket": 1000000.0,
+        "tokenized_min_ticket": 100.0,
+        "investor_base_expansion": 100.0,
+        "driver": "fractional_ownership"
+      },
+      "transparency_premium": {
+        "traditional_info_asymmetry_bps": 25.0,
+        "tokenized_info_asymmetry_bps": 5.0,
+        "reduction_bps": 20.0,
+        "driver": "on_chain_reporting"
+      }
+    },
+    "wacd_impact": {
+      "traditional_wacd_bps": 738,
+      "tokenized_wacd_bps": 660.2884761563671,
+      "total_reduction_bps": 77.71152384363286,
+      "breakdown": {
+        "liquidity_reduction_bps": 54.21152384363286,
+        "operational_reduction_bps": 3.5,
+        "transparency_reduction_bps": 20.0
+      },
+      "assumptions": {
+        "secondary_market_depth": 0.6664812556520635,
+        "smart_contract_operational": true,
+        "on_chain_reporting": true
+      }
+    },
+    "benefit_distribution": {
+      "p5": 53.981650376189336,
+      "p50": 78.84009181623195,
+      "p95": 93.96447252690936,
+      "mean": 76.48102967166002
+    },
+    "market_depth_sensitivity": {
+      "depth_0.3": 52.125841822136316,
+      "depth_0.5": 66.57618831238881,
+      "depth_0.7": 79.88189849875342,
+      "depth_0.9": 92.43745891300912
+    }
+  },
   "current_structure": {
     "senior": 0.6,
     "mezzanine": 0.25,
     "subordinated": 0.15
   },
-  "current_wacd_pct": 7.52,
+  "current_wacd_pct": 7.38,
   "is_efficient": false,
   "structure_comparison": {
     "traditional": {
       "can_rebalance": false,
       "is_efficient": false,
-      "locked_inefficiency_bps": 112,
+      "locked_inefficiency_bps": 338,
       "structure_constraints": {
         "min_senior_pct": 0.55,
         "max_sub_pct": 0.2
       },
-      "wacd_bps": 752
+      "wacd_bps": 738
     },
     "tokenized": {
       "can_rebalance": true,
       "is_efficient": true,
-      "recoverable_value_bps": 112,
+      "recoverable_value_bps": 338,
       "spread_reduction_bps": 50,
-      "total_benefit_bps": 162,
+      "total_benefit_bps": 388,
       "target_structure": {
-        "senior": 0.02037511546458292,
-        "mezzanine": 0.9227199869083267,
-        "subordinated": 0.056904897627090445
+        "senior": 0.021147986031379414,
+        "mezzanine": 0.05413127081065727,
+        "subordinated": 0.9247207431579634
+      },
+      "recommended_structure": {
+        "senior": 0.55,
+        "mezzanine": 0.34,
+        "subordinated": 0.12
+      },
+      "recommended_wacd_bps": 557,
+      "theoretical_unconstrained": {
+        "senior": 0.021147986031379414,
+        "mezzanine": 0.05413127081065727,
+        "subordinated": 0.9247207431579634
       },
       "constraint_check": {
         "violates_constraints": true,
         "violations": [
-          "senior 2.0% < min 55.0%"
+          "senior 2.1% < min 55.0%",
+          "subordinated 92.5% > max 20.0%"
         ]
-      }
+      },
+      "optimized_wacd_after_tax": null,
+      "optimized_wacd_bps": null
     },
     "delta": {
-      "rebalancing_value_bps": 112,
+      "rebalancing_value_bps": 338,
       "liquidity_premium_bps": 50,
-      "total_tokenization_benefit_bps": 162
+      "total_tokenization_benefit_bps": 388,
+      "wacd_savings_bps": 181
     }
   }
 }

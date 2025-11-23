@@ -24,8 +24,8 @@ random_variables:
     sigma: 0.18
   churn_rate:
     distribution: beta
-    alpha: 2.1
-    beta: 8.4
+    alpha: 2.0
+    beta: 18.0
   rate_shock:
     distribution: normal
     mean: 0.0
@@ -37,11 +37,50 @@ random_variables:
     distribution: lognormal
     mu: 0.03
     sigma: 0.07
+  regulatory_delay:
+    distribution: bernoulli
+    probability: 0.03
+  satellite_degradation:
+    distribution: beta
+    alpha: 2.0
+    beta: 20.0
+  competitive_pressure:
+    distribution: lognormal
+    mu: -0.02
+    sigma: 0.10
+  ground_segment_cost:
+    distribution: lognormal
+    mu: 0.02
+    sigma: 0.06
+  secondary_market_depth:
+    distribution: beta
+    alpha: 4.0
+    beta: 2.0
+  smart_contract_risk:
+    distribution: bernoulli
+    probability: 0.005
 correlation:
-  variables: [revenue_growth, churn_rate, rate_shock, launch_failure, opex_inflation]
+  variables:
+    - revenue_growth
+    - churn_rate
+    - rate_shock
+    - launch_failure
+    - opex_inflation
+    - regulatory_delay
+    - satellite_degradation
+    - competitive_pressure
+    - ground_segment_cost
+    - secondary_market_depth
+    - smart_contract_risk
   matrix:
-    - [1.0, -0.35, 0.25, 0.10, 0.30]
-    - [-0.35, 1.0, -0.15, -0.05, -0.25]
-    - [0.25, -0.15, 1.0, 0.05, 0.20]
-    - [0.10, -0.05, 0.05, 1.0, 0.05]
-    - [0.30, -0.25, 0.20, 0.05, 1.0]
+    - [1.0,  -0.35, 0.25, 0.10, 0.30, 0.05, -0.10, -0.35, 0.20, 0.05, -0.10]
+    - [-0.35, 1.0, -0.15, -0.05, -0.25, 0.10, 0.40, 0.25, -0.10, -0.10, 0.05]
+    - [0.25, -0.15, 1.0, 0.05, 0.20, 0.05, -0.05, 0.10, 0.15, 0.00, 0.00]
+    - [0.10, -0.05, 0.05, 1.0, 0.05, 0.00, 0.05, 0.00, 0.00, 0.00, 0.05]
+    - [0.30, -0.25, 0.20, 0.05, 1.0, 0.10, -0.05, 0.10, 0.25, 0.05, 0.00]
+    - [0.05, 0.10, 0.05, 0.00, 0.10, 1.0, 0.10, 0.00, 0.05, -0.05, 0.10]
+    - [-0.10, 0.40, -0.05, 0.05, -0.05, 0.10, 1.0, 0.10, -0.05, -0.05, 0.05]
+    - [-0.35, 0.25, 0.10, 0.00, 0.10, 0.00, 0.10, 1.0, 0.05, -0.05, 0.00]
+    - [0.20, -0.10, 0.15, 0.00, 0.25, 0.05, -0.05, 0.05, 1.0, 0.00, 0.00]
+    - [0.05, -0.10, 0.00, 0.00, 0.05, -0.05, -0.05, -0.05, 0.00, 1.0, -0.25]
+    - [-0.10, 0.05, 0.00, 0.05, 0.00, 0.10, 0.05, 0.00, 0.00, -0.25, 1.0]

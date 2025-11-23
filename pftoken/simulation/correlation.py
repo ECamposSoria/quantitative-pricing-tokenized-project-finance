@@ -68,12 +68,20 @@ class CorrelatedSampler:
         self.correlation = CorrelationMatrix(calibration.correlation)
         self._ensure_variables_present()
 
-    def sample(self, size: int) -> Dict[str, np.ndarray]:
-        normals = self.correlation.generate_correlated_normals(self.variables.rng, size)
+    def sample(self, size: int, *, antithetic: bool = False) -> Dict[str, np.ndarray]:
+        normals = self._draw_normals(size, antithetic=antithetic)
         results: Dict[str, np.ndarray] = {}
         for idx, name in enumerate(self.correlation.variables):
             results[name] = self.variables.transform_from_normal(name, normals[:, idx])
         return results
+
+    def _draw_normals(self, size: int, *, antithetic: bool) -> np.ndarray:
+        if not antithetic:
+            return self.correlation.generate_correlated_normals(self.variables.rng, size)
+        half = (size + 1) // 2
+        base = self.correlation.generate_correlated_normals(self.variables.rng, half)
+        mirrored = np.concatenate([base, -base], axis=0)
+        return mirrored[:size]
 
     def _ensure_variables_present(self) -> None:
         available = set(self.variables.names())

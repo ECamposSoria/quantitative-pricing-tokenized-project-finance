@@ -1,0 +1,184 @@
+{
+  "traditional_wacd_bps": 752.0,
+  "depth_sensitivity": [
+    {
+      "market_depth": 0.0,
+      "tokenized_wacd_bps": 728.5,
+      "total_reduction_bps": 23.5,
+      "liquidity_reduction": 0.0,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.05,
+      "tokenized_wacd_bps": 721.6728842386522,
+      "total_reduction_bps": 30.327115761347798,
+      "liquidity_reduction": 6.827115761347798,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.1,
+      "tokenized_wacd_bps": 716.6133010565417,
+      "total_reduction_bps": 35.38669894345835,
+      "liquidity_reduction": 11.886698943458349,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.15000000000000002,
+      "tokenized_wacd_bps": 712.0587712942533,
+      "total_reduction_bps": 39.94122870574666,
+      "liquidity_reduction": 16.44122870574666,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.2,
+      "tokenized_wacd_bps": 707.8040550780818,
+      "total_reduction_bps": 44.19594492191822,
+      "liquidity_reduction": 20.69594492191822,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.25,
+      "tokenized_wacd_bps": 703.7592266730082,
+      "total_reduction_bps": 48.240773326991764,
+      "liquidity_reduction": 24.740773326991764,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.30000000000000004,
+      "tokenized_wacd_bps": 699.8741581778637,
+      "total_reduction_bps": 52.12584182213633,
+      "liquidity_reduction": 28.62584182213633,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.35000000000000003,
+      "tokenized_wacd_bps": 696.1171029714361,
+      "total_reduction_bps": 55.882897028563924,
+      "liquidity_reduction": 32.382897028563924,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.4,
+      "tokenized_wacd_bps": 692.4662669805571,
+      "total_reduction_bps": 59.53373301944294,
+      "liquidity_reduction": 36.03373301944294,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.45,
+      "tokenized_wacd_bps": 688.9058271744753,
+      "total_reduction_bps": 63.09417282552463,
+      "liquidity_reduction": 39.59417282552463,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.5,
+      "tokenized_wacd_bps": 685.4238116876112,
+      "total_reduction_bps": 66.57618831238881,
+      "liquidity_reduction": 43.07618831238881,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.55,
+      "tokenized_wacd_bps": 682.0108704134606,
+      "total_reduction_bps": 69.98912958653943,
+      "liquidity_reduction": 46.48912958653943,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.6000000000000001,
+      "tokenized_wacd_bps": 678.659514553827,
+      "total_reduction_bps": 73.34048544617305,
+      "liquidity_reduction": 49.84048544617305,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.65,
+      "tokenized_wacd_bps": 675.3636218813931,
+      "total_reduction_bps": 76.63637811860684,
+      "liquidity_reduction": 53.136378118606835,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.7000000000000001,
+      "tokenized_wacd_bps": 672.1181015012465,
+      "total_reduction_bps": 79.88189849875342,
+      "liquidity_reduction": 56.381898498753415,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.75,
+      "tokenized_wacd_bps": 668.9186589410043,
+      "total_reduction_bps": 83.08134105899569,
+      "liquidity_reduction": 59.58134105899568,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.8,
+      "tokenized_wacd_bps": 665.7616268445236,
+      "total_reduction_bps": 86.2383731554764,
+      "liquidity_reduction": 62.738373155476395,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.8500000000000001,
+      "tokenized_wacd_bps": 662.6438399877368,
+      "total_reduction_bps": 89.35616001226319,
+      "liquidity_reduction": 65.85616001226319,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.9,
+      "tokenized_wacd_bps": 659.5625410869909,
+      "total_reduction_bps": 92.43745891300912,
+      "liquidity_reduction": 68.93745891300912,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 0.9500000000000001,
+      "tokenized_wacd_bps": 656.515308523597,
+      "total_reduction_bps": 95.48469147640296,
+      "liquidity_reduction": 71.98469147640296,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    },
+    {
+      "market_depth": 1.0,
+      "tokenized_wacd_bps": 653.5,
+      "total_reduction_bps": 98.5,
+      "liquidity_reduction": 75.0,
+      "operational_reduction": 3.5,
+      "transparency_reduction": 20.0
+    }
+  ],
+  "break_even_analysis": {
+    "break_even_depth": 0.0,
+    "break_even_reduction_bps": 23.5,
+    "net_benefit_at_0.7_depth": 69.88189849875342
+  },
+  "key_findings": {
+    "benefit_at_0.5_depth": 66.57618831238881,
+    "benefit_at_0.7_depth": 79.88189849875342,
+    "benefit_at_0.9_depth": 92.43745891300912,
+    "max_benefit_bps": 98.5
+  }
+}

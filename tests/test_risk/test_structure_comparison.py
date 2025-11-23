@@ -65,3 +65,33 @@ def test_structure_comparison_zero_gap_for_efficient():
     )["structure_comparison"]
     assert comparison["traditional"]["locked_inefficiency_bps"] == 0
     assert comparison["tokenized"]["recoverable_value_bps"] == 0
+
+
+def test_structure_comparison_contains_recommended_structure():
+    pipe = _make_pipeline_stub()
+    frontier = {
+        "current_structure_evaluation": {
+            "expected_return": 0.0753,
+            "risk": 2.60,
+            "is_efficient": False,
+        },
+        "efficient": [
+            {
+                "expected_return": 0.0861,
+                "risk": 2.61,
+                "weights": {"senior": 0.03, "mezzanine": 0.91, "subordinated": 0.06},
+            }
+        ],
+    }
+    risk_inputs = {
+        "compare_structures": True,
+        "tokenization_spread_reduction_bps": 50,
+        "traditional_constraints": {"min_senior_pct": 0.55, "max_sub_pct": 0.20},
+    }
+    comparison = pipe._structure_comparison(
+        tranche_names=["senior", "mezzanine", "subordinated"],
+        risk_inputs=risk_inputs,
+        frontier_result=frontier,
+    )["structure_comparison"]
+    recommended = comparison["tokenized"]["recommended_structure"]
+    assert recommended == {"senior": 0.55, "mezzanine": 0.34, "subordinated": 0.12}

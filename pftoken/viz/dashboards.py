@@ -18,6 +18,7 @@ USD_PER_MILLION = 1_000_000
 
 def build_financial_dashboard(
     params: ProjectParameters,
+    mc_ratio_summary: dict | None = None,
 ) -> Dict[str, Figure]:
     """Generate the extended dashboard using the financial pipeline outputs."""
 
@@ -94,6 +95,18 @@ def build_financial_dashboard(
     figures["structure_radar"] = plots.plot_structure_radar(
         radar_metrics, baseline=comparison.concentration_traditional
     )
+
+    if mc_ratio_summary:
+        percentiles = mc_ratio_summary.get("percentiles", {})
+        p50 = percentiles.get(50)
+        if p50 is not None:
+            fan_years = years[: len(p50)]
+            figures["dscr_fan_chart"] = plots.plot_fan_chart(
+                fan_years,
+                percentiles=percentiles,
+                threshold=params.project.min_dscr_covenant,
+                title="DSCR Fan Chart (MC)",
+            )
 
     return figures
 

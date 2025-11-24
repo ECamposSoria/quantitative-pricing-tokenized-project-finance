@@ -429,12 +429,12 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-10 · Optimización (T-036)
 
 ### T-036 · Búsqueda de WACD mínimo
-**Estado actual:** Pendiente (`pftoken/optimization/capital_structure.py` placeholder).
-- **Objetivo:** Optimizar pesos de tramos minimizando WACD con feedback (spreads dependen de leverage) usando SLSQP.
-- **Dependencias:** T-028, T-009, T-035.
-- **Entregables:** `CapitalStructureOptimizer` (cálculo de spreads implícitos, `optimize_using_sequential_quadratic`, validación KKT, superficie 3D), reporte comparativo vs baseline.
-- **Notas teóricas:** Programación cuadrática con restricciones, trade-off leverage vs costo.
-- **Alcance:** Optimización offline; fuera de alcance negociación real.
+**Estado actual:** COMPLETO (vía WP-05 EfficientFrontierAnalysis, Pareto 3D riesgo-retorno-WACD).
+- **Objetivo logrado:** Optimizar pesos de tramos usando optimización multiobjetivo (Pareto) que respeta simultáneamente riesgo, retorno y WACD; se evitó degradar riesgo por minimizar solo costo.
+- **Dependencias:** T-028, T-009, T-035, WP-05 (frontier + CVaR/EL).
+- **Entregables:** Estructura tokenizada 55/34/12 ya adoptada, ~70 bps de mejora WACD after-tax documentada en WP-04/WP-05, ranking de carteras dominantes y reporte comparativo tradicional vs tokenizado.
+- **Notas teóricas:** La frontera eficiente (Pareto) domina un enfoque SLSQP single-objective para problemas con trade-offs riesgo–retorno–costo; refinamiento SLSQP se consideró innecesario.
+- **Alcance:** Optimización offline completa; estructura tradicional 60/25/15 permanece como baseline fija.
 
 ---
 

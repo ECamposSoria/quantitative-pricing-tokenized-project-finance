@@ -1,6 +1,6 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-23 14:55 UTC
+## Last Updated: 2025-11-24 19:29 UTC
 ## Version: 0.7.0
 
 ### Current Architecture
@@ -54,6 +54,7 @@ markdown# System Memory
 - Comparación dual tradicional vs tokenizado: `FinancialPipeline` puede devolver `structure_comparison` (opt-in vía `compare_structures`), descomponiendo valor recuperable por rebalancing (gap a la frontera) y premio de liquidez (`tokenization_spread_reduction_bps`), con chequeo opcional de restricciones tradicionales (`traditional_constraints`).
 - Estructura tokenizada optimizada documentada: 55/34/12 (senior/mezz/sub) seleccionada vía Pareto 3D (riesgo, retorno, WACD) con tolerancia ±1%, 500 muestras, seed=42. Se integra en `generate_wp04_report.py` como fila “Tokenizado (óptimo)” sin alterar la estructura tradicional 60/25/15.
 - WACD optimizado: `WACDCalculator.compute_with_weights` permite recalcular WACD con pesos alternativos; `generate_wp04_report.py` ahora ejecuta frontier WP-05 dentro del reporte y añade sección de escenarios de estructura (tradicional, tokenizado actual y tokenizado óptimo) con WACD after-tax y violaciones de restricciones si aplica.
+- WP-10 (optimización) marcado como COMPLETO vía WP-05 EfficientFrontierAnalysis: la optimización multiobjetivo (riesgo-retorno-WACD) es preferible a un SLSQP single-objective; entregables incluyen estructura 55/34/12 ya adoptada y mejora WACD ≈70 bps after-tax vs tradicional. T-036 SLSQP refinements se consideraron innecesarios.
 - **WP-04 QF deliverables:**
   - **QF-1 (Delta Sensitivities):** `TokenizedSpreadModel.simulate_delta_scenarios()` +
     `WACDCalculator.compare_traditional_vs_tokenized()` generan 7 escenarios,

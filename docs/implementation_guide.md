@@ -375,7 +375,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-08 · Pricing Estocástico (T-026, T-027, T-028, T-044)
 
 ### T-026 · Valuación estocástica
-**Estado actual:** Pendiente (`pftoken/pricing_mc/stochastic_pricing.py` placeholder).
+**Estado actual:** Entregado (`pftoken/pricing_mc/stochastic_pricing.py`).
 - **Objetivo:** Calcular distribución de precios por tramo usando cashflows MC y spreads condicionales.
 - **Dependencias:** T-031, T-007.
 - **Entregables:** `StochasticPricing` (precio esperado, volatilidad, percentiles, P(Precio<Par)), descomposición de incertidumbre y comparación determinístico vs estocástico.
@@ -383,7 +383,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Análisis; fuera de alcance integración mercado real.
 
 ### T-027 · Duration y convexidad
-**Estado actual:** Pendiente (`pftoken/pricing_mc/duration_convexity.py` placeholder).
+**Estado actual:** Entregado (`pftoken/pricing_mc/duration_convexity.py`).
 - **Objetivo:** Calcular duration efectiva, Macaulay, convexidad y key-rate durations por tramo.
 - **Dependencias:** T-007, T-008.
 - **Entregables:** Métodos `calculate_effective_duration`, `calculate_effective_convexity`, `calculate_key_rate_durations`, gráficos precio-yield con tangente/curvatura.
@@ -391,7 +391,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Análisis; fuera de alcance trading de hedges.
 
 ### T-028 · Calibración de spreads
-**Estado actual:** Pendiente (`pftoken/pricing_mc/spread_calibration.py` placeholder).
+**Estado actual:** Entregado (`pftoken/pricing_mc/spread_calibration.py`).
 - **Objetivo:** Relacionar spreads con PD/LGD/ilicuidez mediante regresión/modelos reducidos.
 - **Dependencias:** T-005, T-010.
 - **Entregables:** `SpreadCalibrator`, calibraciones por rating/tenor, visualización de composición de spread, análisis de sensibilidad.
@@ -399,7 +399,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Calibración; fuera de alcance data live.
 
 ### T-044 · Sensibilidad a tasas
-**Estado actual:** Pendiente (`pftoken/pricing_mc/sensitivity.py` placeholder).
+**Estado actual:** Entregado (`pftoken/pricing_mc/sensitivity.py`).
 - **Objetivo:** Evaluar impacto de movimientos de curva en precios, DSCR y WACD (shifts paralelos, twist, escenarios Fed).
 - **Dependencias:** T-027, T-007.
 - **Entregables:** `InterestRateSensitivity` (shifts, non-parallel, Fed scenarios), tornado chart, matriz break-even rate vs DSCR.
@@ -409,6 +409,8 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 **Integración de pipeline (opción B – cashflows determinísticos):** `MonteCarloPipeline.run_complete_analysis` acepta `zero_curve`, `debt_structure`, `tranche_cashflows` y opcionalmente `spread_calibrator` para poblar `pricing_mc` (precios MC, duration/convexidad, sensibilidad de tasas) reutilizando los cashflows determinísticos y spreads/PD/LGD simulados.
 
 **Cashflows estocásticos (opción C simplificada):** `build_financial_path_callback(..., debt_structure=..., include_tranche_cashflows=True)` emite `tranche_cashflows` vectorizados por trayectoria usando un waterfall simplificado (senior-first, sin DSRA/MRA). `MonteCarloPipeline.run_complete_analysis` expone estos cashflows en `pricing_mc` cuando están presentes.
+
+**Nota de capital structure:** La estructura actual permanece en ~70% deuda (72M). Se prevé revisar un deleveraging a ~50% LTV (55/34/11 ≈ 27.5/17/5.5 MUSD) según decisión del equipo; pendiente de aprobación antes de implementar.
 
 ---
 

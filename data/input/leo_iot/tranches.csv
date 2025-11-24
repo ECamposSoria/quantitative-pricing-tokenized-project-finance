@@ -1,4 +1,4 @@
 tranche_name,priority_level,initial_principal,rate_base_type,base_rate,spread_bps,grace_period_years,tenor_years,amortization_style
-senior,1,43200000,floating,0.05,100,4,15,sculpted
-mezzanine,2,18000000,floating,0.05,350,4,15,amortizing
-subordinated,3,10800000,floating,0.05,600,4,15,bullet
+senior,1,43200000,floating,0.045,550,4,15,sculpted
+mezzanine,2,18000000,floating,0.045,900,4,15,amortizing
+subordinated,3,10800000,floating,0.045,1200,4,15,bullet

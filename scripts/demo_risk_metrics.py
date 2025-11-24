@@ -27,6 +27,9 @@ from pftoken.simulation import (  # noqa: E402
     PipelineInputs,
     build_financial_path_callback,
 )
+from pftoken.pricing.base_pricing import TrancheCashFlow  # noqa: E402
+from pftoken.pricing.zero_curve import CurvePoint, ZeroCurve  # noqa: E402
+from pftoken.waterfall.debt_structure import DebtStructure  # noqa: E402
 from pftoken.stress import StressScenarioLibrary  # noqa: E402
 from pftoken.tokenization import TokenizationBenefits, compute_tokenization_wacd_impact  # noqa: E402
 
@@ -76,6 +79,31 @@ def extract_asset_distribution(mc_outputs) -> dict | None:
         "p50": float(np.percentile(asset_values, 50)),
         "p95": float(np.percentile(asset_values, 95)),
     }
+
+
+def extract_tranche_cashflows_from_waterfall(waterfall_results) -> dict[str, list[TrancheCashFlow]]:
+    """Build deterministic tranche cashflows from WaterfallResult mapping."""
+
+    cashflows: dict[str, list[TrancheCashFlow]] = {}
+    for period in waterfall_results.values():
+        for tranche, interest in period.interest_payments.items():
+            principal = period.principal_payments.get(tranche, 0.0)
+            if interest == 0 and principal == 0:
+                continue
+            cashflows.setdefault(tranche, []).append(
+                TrancheCashFlow(year=period.year, interest=float(interest), principal=float(principal))
+            )
+    return cashflows
+
+
+def build_zero_curve_from_base_rate(base_rate: float, tenor_years: int) -> ZeroCurve:
+    """Create a simple flat zero curve from a base rate."""
+
+    points = [
+        CurvePoint(maturity_years=1.0, zero_rate=base_rate),
+        CurvePoint(maturity_years=float(tenor_years), zero_rate=base_rate),
+    ]
+    return ZeroCurve(points=points, currency="USD")
 
 
 def extract_tranche_metrics(mc_outputs, alpha_levels=(0.95, 0.99)) -> dict | None:
@@ -225,6 +253,12 @@ def main() -> None:
     pipeline = FinancialPipeline(data_dir=data_dir)
     cfads = pipeline.cfads_calculator.calculate_cfads_vector()
     years = [y for y in sorted(cfads.keys()) if y <= pipeline.params.project.tenor_years]
+    det_run = pipeline.run(include_risk=False)
+    tranche_cashflows = extract_tranche_cashflows_from_waterfall(det_run["waterfall"])
+    zero_curve = build_zero_curve_from_base_rate(
+        base_rate=pipeline.params.project.base_rate_reference,
+        tenor_years=pipeline.params.project.tenor_years,
+    )
 
     # Monte Carlo configuration (moderate size to keep runtime reasonable).
     mc_config = MonteCarloConfig(simulations=args.sims, seed=42, antithetic=True)
@@ -237,6 +271,9 @@ def main() -> None:
         years=years,
         base_discount_rate=pipeline.params.project.base_rate_reference,
         grace_period_years=pipeline.params.project.grace_period_years,
+        debt_structure=pipeline.debt_structure,
+        include_tranche_cashflows=True,
+        usd_per_million=1_000_000.0,
     )
 
     mc_inputs = PipelineInputs(
@@ -248,7 +285,13 @@ def main() -> None:
         llcr_threshold=pipeline.params.project.min_llcr_covenant,
     )
     mc_pipeline = MonteCarloPipeline(mc_config, mc_inputs, path_callback=path_callback)
-    mc_outputs = mc_pipeline.run_complete_analysis(analyze_ratios=True)
+    mc_outputs = mc_pipeline.run_complete_analysis(
+        analyze_ratios=True,
+        zero_curve=zero_curve,
+        debt_structure=pipeline.debt_structure,
+        tranche_cashflows=tranche_cashflows,
+        include_tranche_cashflows=True,
+    )
 
     pd_means = {
         name: float(np.mean(metrics["pd"])) for name, metrics in (mc_outputs.pd_lgd_paths or {}).items()
@@ -317,6 +360,7 @@ def main() -> None:
         "current_wacd_pct": round(current_eval.get("expected_return", 0) * 100, 2),
         "is_efficient": current_eval.get("is_efficient", False),
         "structure_comparison": structure_comparison,
+        "pricing_mc": mc_outputs.pricing_mc,
     }
 
     output_path = output_dir / "wp05_risk_metrics.json"

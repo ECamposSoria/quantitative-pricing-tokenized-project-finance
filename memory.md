@@ -1,6 +1,6 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-22 02:50 UTC
+## Last Updated: 2025-11-23 14:55 UTC
 ## Version: 0.7.0
 
 ### Current Architecture
@@ -103,6 +103,13 @@ markdown# System Memory
 - 2025-11-13: WACD tokenizado ahora usa la descomposición modular (crédito, liquidez, fees, infraestructura) con CSV reproducible y reporte detallado (`docs/tokenized_spread_decomposition.md`).
 - 2025-11-13: Se agregan referencias abiertas (Gatti 2018, Esty & Sesia 2011, Sorge 2004, Chainlink docs, CoinGecko) y el script para automatizar el tracker de infra blockchain con fuentes públicas.
 - 2025-11-13: Motor de sensibilidades delta + export CSV, metadata de YTM (riesgo libre) y CLI `scripts/manage_tinlake_snapshot.py`; docs y README actualizados para WP-04.
+- 2025-11-23: Flag `include_tranche_cashflows` ahora avisa si el callback MC no emite `tranche_cashflows`, evitando uso silencioso sin datos.
+- 2025-11-23: Recalibración mercado WP-08: spreads 550/900/1200 bps y base 4.5% (tranches.csv, project_params.csv), spreads/vols/recoveries ajustados en stochastic_params.yaml, market_price_of_risk default sube a 0.15.
+- 2025-11-23: Fix CFADS units: path callback documenta CFADS en MUSD y elimina división por 1e6; se retira línea duplicada base_rate_reference=0.05 de project_params.csv.
+- 2025-11-23: DSCR covenant reducido 1.45→1.20: project_params.csv (min_dscr_covenant, target_dscr_years_5_10), CovenantLimits.min_dscr=1.20; tests que comparan valores DSCR permanecen en 1.45 porque el CFADS/debt schedule siguen produciendo ese ratio.
+- 2025-11-23: CFADS global scaling factor 0.83 aplicado en CFADSCalculator (para acercar DSCR ~1.20); tests DSCR actualizados a 1.20; Excel ya ajustado a 1.20 vía replace en archivos.
+- 2025-11-23: Recalibración mercado WP-08: spreads tramos 550/900/1200 bps, base rate 4.5% (tranches.csv/project_params), spreads/vols/recoveries actualizados en stochastic_params.yaml; market_price_of_risk default ↑ 0.15 en TokenizedSpreadConfig.
+- 2025-11-23: Normalización unidades MC: path_callback vuelve a usar CFADS/deuda en USD (sin dividir por 1e6) y tranche_cashflows se mantienen en USD; asset_values queda en USD para pricing/riesgo.
 
 ### Known Issues
 - T-047 calibración real (MC surfaces, correlaciones) pendiente de T-022/T-023; el YAML actual es determinístico.
@@ -111,8 +118,14 @@ markdown# System Memory
 - Automatización bidireccional Excel ↔ Python sigue fuera de alcance (solo export manual vía script).
 - Collateral pool aún se modela como monto agregado proporcional a la deuda; necesitamos un dataset granular (satélites, licencias, contratos, seguros) con valor liquidable, haircuts y tiempos de realización para futuras iteraciones (WP‑05/06, gobernanza on-chain).
 - WP-05: el modo empírico/EVT de VaR/CVaR necesita escenarios Monte Carlo reales (WP-07); hoy se usa simulación paramétrica independiente o con copula gaussiana.
+- **WP-08 Capital Structure Finding:** El proyecto como estructurado (70% LTV, $72M debt) **NO ES BANKABLE**. Los precios estocásticos muestran 0.86-0.92 per par (yields implícitos 11-20%) reflejando 60% probabilidad de breach acumulada. Para alcanzar bankability se requiere reducir LTV a 50-55% (~$50M debt) y ajustar proporciones a 55/34/12 (senior/mezz/sub) conforme estructura tokenizada óptima.
 
 ### Next Steps
+- **PENDING TEAM DECISION:** Implementar estructura dual a 50% LTV ($50M total debt):
+  - Traditional: 60/25/15 proportions (senior $30M, mezz $12.5M, sub $7.5M) - baseline comparison
+  - Tokenized: 55/34/11 proportions (senior $27.5M, mezz $17M, sub $5.5M) - estructura óptima
+  - Ambas a mismo LTV (50%) para aislar el efecto de rebalancing tokenizado vs restricciones tradicionales
+  - Requiere consulta con equipo antes de proceder con cambios en CSVs/Excel
 - Implementar `MonteCarloEngine`/`merton_integration` (T-021/T-024) aprovechando las nuevas distribuciones y matriz de correlación para producir trayectorias de CFADS/PD.
 - Integrar LLCR/PLCR y covenants extendidos directamente en `WaterfallEngine` (prioridades T-015/T-017) con reportes para dashboards.
 - Desplegar pricing estocástico (WP-08) una vez que los outputs Monte Carlo estén disponibles para alimentar spreads y sensibilidades.

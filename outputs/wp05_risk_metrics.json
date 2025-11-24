@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-23T194836Z",
+  "timestamp_utc": "2025-11-24T172536Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -133,44 +133,44 @@
         0.0,
         0.0,
         0.0,
-        0.7398,
-        0.8128,
-        0.8141,
-        0.8144,
-        0.8144,
-        0.8144,
-        0.8144,
-        0.8144,
-        0.8144,
-        0.8144,
-        0.8144
+        0.5112,
+        0.5966,
+        0.5983,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999,
+        0.5992999999999999
       ],
       "survival": [
         1.0,
         1.0,
         1.0,
         1.0,
-        0.2602,
-        0.1872,
-        0.1859,
-        0.1856,
-        0.1856,
-        0.1856,
-        0.1856,
-        0.1856,
-        0.1856,
-        0.1856,
-        0.1856
+        0.4888,
+        0.4034,
+        0.4017,
+        0.4007,
+        0.4007,
+        0.4007,
+        0.4007,
+        0.4007,
+        0.4007,
+        0.4007,
+        0.4007
       ],
       "hazard": [
         0.0,
         0.0,
         0.0,
         0.0,
-        2.8431975403535743,
-        0.38995726495726496,
-        0.006993006993006993,
-        0.0016163793103448276,
+        1.0458265139116203,
+        0.21170054536440258,
+        0.004232013940751805,
+        0.0024956326428749688,
         0.0,
         0.0,
         0.0,
@@ -181,40 +181,40 @@
       ]
     },
     "asset_value_distribution": {
-      "mean": 106.71434139381427,
-      "std": 35.06101393735332,
-      "p5": 56.18163863078777,
-      "p50": 102.9964580831726,
-      "p95": 168.43930816990425
+      "mean": 111508075.02179284,
+      "std": 36678834.80343588,
+      "p5": 58713687.891506694,
+      "p50": 107579903.29531193,
+      "p95": 176257770.46196017
     }
   },
   "risk_metrics": {
     "portfolio": {
-      "expected_loss": 8.394516000000001,
-      "var_95": 27.54,
-      "var_99": 38.339999999999996,
-      "cvar_95": 31.10160409556314,
-      "cvar_99": 38.339999999999996
+      "expected_loss": 1.0935540000000001,
+      "var_95": 8.100000000000001,
+      "var_99": 15.12,
+      "cvar_95": 9.851837837837838,
+      "cvar_99": 16.42969325153374
     },
     "tranches": {
       "senior": {
-        "pd_mean": 0.08879502309203265,
-        "lgd": 0.45000000000000007,
-        "expected_loss": 1.7379360000000001,
-        "capital_95": 19.439999999999998,
-        "capital_99": 19.439999999999998
+        "pd_mean": 0.015000000000000006,
+        "lgd": 0.3499999999999999,
+        "expected_loss": 0.222264,
+        "capital_95": 0.0,
+        "capital_99": 15.12
       },
       "mezzanine": {
-        "pd_mean": 0.2790306554710739,
-        "lgd": 0.5999999999999999,
-        "expected_loss": 3.01644,
-        "capital_95": 10.799999999999999,
-        "capital_99": 10.799999999999999
+        "pd_mean": 0.03500000000000002,
+        "lgd": 0.5499999999999999,
+        "expected_loss": 0.34155,
+        "capital_95": 0.0,
+        "capital_99": 9.9
       },
       "subordinated": {
-        "pd_mean": 0.45114372981117956,
+        "pd_mean": 0.06499999999999997,
         "lgd": 0.75,
-        "expected_loss": 3.64014,
+        "expected_loss": 0.5297400000000001,
         "capital_95": 8.100000000000001,
         "capital_99": 8.100000000000001
       }
@@ -392,8 +392,8 @@
       }
     },
     "wacd_impact": {
-      "traditional_wacd_bps": 738,
-      "tokenized_wacd_bps": 660.2884761563671,
+      "traditional_wacd_bps": 1185,
+      "tokenized_wacd_bps": 1107.288476156367,
       "total_reduction_bps": 77.71152384363286,
       "breakdown": {
         "liquidity_reduction_bps": 54.21152384363286,
@@ -424,29 +424,29 @@
     "mezzanine": 0.25,
     "subordinated": 0.15
   },
-  "current_wacd_pct": 7.38,
+  "current_wacd_pct": 11.85,
   "is_efficient": false,
   "structure_comparison": {
     "traditional": {
       "can_rebalance": false,
       "is_efficient": false,
-      "locked_inefficiency_bps": 338,
+      "locked_inefficiency_bps": 66,
       "structure_constraints": {
         "min_senior_pct": 0.55,
         "max_sub_pct": 0.2
       },
-      "wacd_bps": 738
+      "wacd_bps": 1185
     },
     "tokenized": {
       "can_rebalance": true,
       "is_efficient": true,
-      "recoverable_value_bps": 338,
+      "recoverable_value_bps": 66,
       "spread_reduction_bps": 50,
-      "total_benefit_bps": 388,
+      "total_benefit_bps": 116,
       "target_structure": {
-        "senior": 0.021147986031379414,
-        "mezzanine": 0.05413127081065727,
-        "subordinated": 0.9247207431579634
+        "senior": 0.2944395321790308,
+        "mezzanine": 0.6918773871307492,
+        "subordinated": 0.013683080690219951
       },
       "recommended_structure": {
         "senior": 0.55,
@@ -455,25 +455,328 @@
       },
       "recommended_wacd_bps": 557,
       "theoretical_unconstrained": {
-        "senior": 0.021147986031379414,
-        "mezzanine": 0.05413127081065727,
-        "subordinated": 0.9247207431579634
+        "senior": 0.2944395321790308,
+        "mezzanine": 0.6918773871307492,
+        "subordinated": 0.013683080690219951
       },
       "constraint_check": {
         "violates_constraints": true,
         "violations": [
-          "senior 2.1% < min 55.0%",
-          "subordinated 92.5% > max 20.0%"
+          "senior 29.4% < min 55.0%"
         ]
       },
       "optimized_wacd_after_tax": null,
       "optimized_wacd_bps": null
     },
     "delta": {
-      "rebalancing_value_bps": 338,
+      "rebalancing_value_bps": 66,
       "liquidity_premium_bps": 50,
-      "total_tokenization_benefit_bps": 388,
-      "wacd_savings_bps": 181
+      "total_tokenization_benefit_bps": 116,
+      "wacd_savings_bps": 628
+    }
+  },
+  "pricing_mc": {
+    "prices": {
+      "tranche_prices": {
+        "senior": {
+          "mean": 0.9175299793944505,
+          "std": 0.12030237149029166,
+          "p5": 0.8538358307256603,
+          "p50": 0.9394443455852206,
+          "p95": 0.9424217074003867,
+          "p99": 0.9439960774339643,
+          "prob_below_par": 1.0,
+          "deterministic_price": 0.9418121549415602,
+          "jensen_adjustment": 0.024282175547109763
+        },
+        "mezzanine": {
+          "mean": 0.8858230282146238,
+          "std": 0.30869021470435626,
+          "p5": 0.1217602545851239,
+          "p50": 1.0431052527585376,
+          "p95": 1.0467984949606268,
+          "p99": 1.0467984949606268,
+          "prob_below_par": 0.2676,
+          "deterministic_price": 1.0467984949606268,
+          "jensen_adjustment": 0.16097546674600305
+        },
+        "subordinated": {
+          "mean": 0.8571173402633838,
+          "std": 0.41126488550900236,
+          "p5": 0.0,
+          "p50": 1.11016968344588,
+          "p95": 1.2024114312411334,
+          "p99": 1.2024114312411334,
+          "prob_below_par": 0.3889,
+          "deterministic_price": 1.2024114312411334,
+          "jensen_adjustment": 0.34529409097774955
+        }
+      },
+      "scenario_metadata": {
+        "simulations": 10000
+      },
+      "notes": []
+    },
+    "duration_convexity": {
+      "senior": {
+        "price": 47494669.25432573,
+        "macaulay_duration": 6.697922279094431,
+        "modified_duration": 6.409495003918133,
+        "convexity": 53.314478458137756,
+        "effective_duration": 6.409495866736303,
+        "effective_convexity": 53.31448314643972
+      },
+      "mezzanine": {
+        "price": 23048288.371424373,
+        "macaulay_duration": 6.748534097255287,
+        "modified_duration": 6.457927365794596,
+        "convexity": 55.92028111659437,
+        "effective_duration": 6.457928316756664,
+        "effective_convexity": 55.9202865502061
+      },
+      "subordinated": {
+        "price": 16251813.11035464,
+        "macaulay_duration": 7.125907708814771,
+        "modified_duration": 6.819050439058455,
+        "convexity": 63.54349365430102,
+        "effective_duration": 6.81905159899817,
+        "effective_convexity": 63.5435007812606
+      }
+    },
+    "rate_sensitivity": {
+      "base": {
+        "senior": 0.9175299793944505,
+        "mezzanine": 0.8858230282146238,
+        "subordinated": 0.8571173402633838
+      },
+      "scenarios": {
+        "Base": {
+          "senior": 0.9175299793944505,
+          "mezzanine": 0.8858230282146238,
+          "subordinated": 0.8571173402633838
+        },
+        "+50bps": {
+          "senior": 0.8852680900336172,
+          "mezzanine": 0.8531258249409642,
+          "subordinated": 0.8217683332769433
+        },
+        "-50bps": {
+          "senior": 0.9512001312816013,
+          "mezzanine": 0.9200315213990876,
+          "subordinated": 0.8942768534628507
+        },
+        "Bear Steepener": {
+          "senior": 0.877725254897134,
+          "mezzanine": 0.8437898026213086,
+          "subordinated": 0.8081050025542673
+        },
+        "Bull Flattener": {
+          "senior": 0.9343478127873441,
+          "mezzanine": 0.9016439610961179,
+          "subordinated": 0.8716496182824136
+        },
+        "Fed Hike Path": {
+          "senior": 0.8694525032003028,
+          "mezzanine": 0.8382618337907374,
+          "subordinated": 0.8081546792517557
+        }
+      },
+      "price_deltas": [
+        {
+          "scenario": "Base",
+          "tranche": "senior",
+          "delta_mean_price": 0.0
+        },
+        {
+          "scenario": "Base",
+          "tranche": "mezzanine",
+          "delta_mean_price": 0.0
+        },
+        {
+          "scenario": "Base",
+          "tranche": "subordinated",
+          "delta_mean_price": 0.0
+        },
+        {
+          "scenario": "+50bps",
+          "tranche": "senior",
+          "delta_mean_price": -0.032261889360833296
+        },
+        {
+          "scenario": "+50bps",
+          "tranche": "mezzanine",
+          "delta_mean_price": -0.03269720327365955
+        },
+        {
+          "scenario": "+50bps",
+          "tranche": "subordinated",
+          "delta_mean_price": -0.0353490069864405
+        },
+        {
+          "scenario": "-50bps",
+          "tranche": "senior",
+          "delta_mean_price": 0.033670151887150834
+        },
+        {
+          "scenario": "-50bps",
+          "tranche": "mezzanine",
+          "delta_mean_price": 0.03420849318446384
+        },
+        {
+          "scenario": "-50bps",
+          "tranche": "subordinated",
+          "delta_mean_price": 0.037159513199466865
+        },
+        {
+          "scenario": "Bear Steepener",
+          "tranche": "senior",
+          "delta_mean_price": -0.039804724497316424
+        },
+        {
+          "scenario": "Bear Steepener",
+          "tranche": "mezzanine",
+          "delta_mean_price": -0.04203322559331513
+        },
+        {
+          "scenario": "Bear Steepener",
+          "tranche": "subordinated",
+          "delta_mean_price": -0.049012337709116505
+        },
+        {
+          "scenario": "Bull Flattener",
+          "tranche": "senior",
+          "delta_mean_price": 0.016817833392893666
+        },
+        {
+          "scenario": "Bull Flattener",
+          "tranche": "mezzanine",
+          "delta_mean_price": 0.01582093288149411
+        },
+        {
+          "scenario": "Bull Flattener",
+          "tranche": "subordinated",
+          "delta_mean_price": 0.014532278019029787
+        },
+        {
+          "scenario": "Fed Hike Path",
+          "tranche": "senior",
+          "delta_mean_price": -0.048077476194147706
+        },
+        {
+          "scenario": "Fed Hike Path",
+          "tranche": "mezzanine",
+          "delta_mean_price": -0.0475611944238864
+        },
+        {
+          "scenario": "Fed Hike Path",
+          "tranche": "subordinated",
+          "delta_mean_price": -0.04896266101162816
+        }
+      ],
+      "tornado": {
+        "senior": [
+          {
+            "scenario": "Fed Hike Path",
+            "delta_mean_price": -0.048077476194147706
+          },
+          {
+            "scenario": "Bear Steepener",
+            "delta_mean_price": -0.039804724497316424
+          },
+          {
+            "scenario": "-50bps",
+            "delta_mean_price": 0.033670151887150834
+          },
+          {
+            "scenario": "+50bps",
+            "delta_mean_price": -0.032261889360833296
+          },
+          {
+            "scenario": "Bull Flattener",
+            "delta_mean_price": 0.016817833392893666
+          },
+          {
+            "scenario": "Base",
+            "delta_mean_price": 0.0
+          }
+        ],
+        "mezzanine": [
+          {
+            "scenario": "Fed Hike Path",
+            "delta_mean_price": -0.0475611944238864
+          },
+          {
+            "scenario": "Bear Steepener",
+            "delta_mean_price": -0.04203322559331513
+          },
+          {
+            "scenario": "-50bps",
+            "delta_mean_price": 0.03420849318446384
+          },
+          {
+            "scenario": "+50bps",
+            "delta_mean_price": -0.03269720327365955
+          },
+          {
+            "scenario": "Bull Flattener",
+            "delta_mean_price": 0.01582093288149411
+          },
+          {
+            "scenario": "Base",
+            "delta_mean_price": 0.0
+          }
+        ],
+        "subordinated": [
+          {
+            "scenario": "Bear Steepener",
+            "delta_mean_price": -0.049012337709116505
+          },
+          {
+            "scenario": "Fed Hike Path",
+            "delta_mean_price": -0.04896266101162816
+          },
+          {
+            "scenario": "-50bps",
+            "delta_mean_price": 0.037159513199466865
+          },
+          {
+            "scenario": "+50bps",
+            "delta_mean_price": -0.0353490069864405
+          },
+          {
+            "scenario": "Bull Flattener",
+            "delta_mean_price": 0.014532278019029787
+          },
+          {
+            "scenario": "Base",
+            "delta_mean_price": 0.0
+          }
+        ]
+      },
+      "dscr_break_even": {
+        "breach_rate": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.5112,
+          0.5966,
+          0.5983,
+          0.5993,
+          0.5975,
+          0.5984,
+          0.356,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "note": "DSCR paths assumed invariant to rate shocks; rate scenarios only affect pricing."
+      }
+    },
+    "metadata": {
+      "simulations": 10000,
+      "curve_currency": "USD"
     }
   }
 }

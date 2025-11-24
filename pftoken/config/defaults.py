@@ -39,7 +39,7 @@ class DSCRThresholds:
 class CovenantLimits:
     """Covenant floors sourced from locked requirements."""
 
-    min_dscr: float = 1.45
+    min_dscr: float = 1.20
     min_llcr: float = 1.20
     min_ltv: float = 0.65  # placeholder until formal LTV calc is wired
     dscr_default_trigger: float = 1.00

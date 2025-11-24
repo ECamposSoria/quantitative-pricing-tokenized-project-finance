@@ -406,6 +406,10 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Notas teóricas:** Duration gap, elasticidad precio-tasa.
 - **Alcance:** Simulación; fuera de alcance ejecución de hedges (T-045).
 
+**Integración de pipeline (opción B – cashflows determinísticos):** `MonteCarloPipeline.run_complete_analysis` acepta `zero_curve`, `debt_structure`, `tranche_cashflows` y opcionalmente `spread_calibrator` para poblar `pricing_mc` (precios MC, duration/convexidad, sensibilidad de tasas) reutilizando los cashflows determinísticos y spreads/PD/LGD simulados.
+
+**Cashflows estocásticos (opción C simplificada):** `build_financial_path_callback(..., debt_structure=..., include_tranche_cashflows=True)` emite `tranche_cashflows` vectorizados por trayectoria usando un waterfall simplificado (senior-first, sin DSRA/MRA). `MonteCarloPipeline.run_complete_analysis` expone estos cashflows en `pricing_mc` cuando están presentes.
+
 ---
 
 ## WP-09 · Visualizaciones (T-032)

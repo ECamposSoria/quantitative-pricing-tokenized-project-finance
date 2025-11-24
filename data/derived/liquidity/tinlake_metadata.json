@@ -1,12 +1,12 @@
 {
-  "timestamp_utc": "2025-11-23T19:44:43.939015+00:00",
+  "timestamp_utc": "2025-11-24T17:18:40.379358+00:00",
   "snapshot_path": "data/derived/liquidity/tinlake_metrics.json",
   "metadata_path": "data/derived/liquidity/tinlake_metadata.json",
   "source": "api",
   "api_endpoint": "https://api.llama.fi/protocol/centrifuge",
-  "tvl_usd": 1447535585.0,
-  "avg_daily_volume_usd": 186217.46666666667,
-  "avg_pool_ticket_usd": 15670135.2,
+  "tvl_usd": 1448361521.0,
+  "avg_daily_volume_usd": 208445.3,
+  "avg_pool_ticket_usd": 15673916.2,
   "datapoints": 31,
-  "metrics_timestamp": 1763927083
+  "metrics_timestamp": 1764004720
 }

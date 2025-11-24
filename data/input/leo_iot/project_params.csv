@@ -10,16 +10,16 @@ ramping_period_months,24.0,months,Ramping period duration with sculpted amortiza
 tenor_years,15.0,years,Total tenor
 analysis_horizon_years,15.0,years,Projection horizon
 periods_per_year,1.0,count,Projection periodicity (annual for T-047)
-min_dscr_covenant,1.45,ratio,Minimum DSCR for sculpted amortization
+min_dscr_covenant,1.20,ratio,Minimum DSCR for sculpted amortization
 dscr_grace_threshold,1.0,ratio,Minimum DSCR during grace period
 dscr_default_trigger,1.0,ratio,DSCR trigger for technical default
 min_llcr_covenant,1.2,ratio,Minimum LLCR acceptable
 tax_rate_corporate,0.25,ratio,Corporate tax rate 25%
-base_rate_reference,0.05,ratio,SOFR base rate 5.0%
-spread_senior,0.01,ratio,Senior spread 100 bps
-spread_mezz,0.035,ratio,Mezzanine spread 350 bps
-spread_sub,0.06,ratio,Subordinated spread 600 bps
-target_dscr_years_5_10,1.45,ratio,DSCR target years 5-10
+base_rate_reference,0.045,ratio,SOFR base rate 4.5%
+spread_senior,0.055,ratio,Senior spread 550 bps
+spread_mezz,0.09,ratio,Mezzanine spread 900 bps
+spread_sub,0.12,ratio,Subordinated spread 1200 bps
+target_dscr_years_5_10,1.20,ratio,DSCR target years 5-10
 dsra_months_cover,6.0,months,DSRA covers 6 months of service
 mra_target_pct_next_rcapex,0.35,ratio,MRA equals 35% of next RCAPEX
 dsra_initial,18.0,usd,DSRA initial equity funding

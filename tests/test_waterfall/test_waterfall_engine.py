@@ -45,7 +45,7 @@ def test_waterfall_amortization_year_five(waterfall_setup):
         debt_structure=debt_structure,
         debt_schedule=debt_schedule,
         reserves=reserves,
-        dscr_value=1.45,
+        dscr_value=1.20,
         rcapex_schedule=rcapex,
     )
     assert sum(result.principal_payments.values()) > 0

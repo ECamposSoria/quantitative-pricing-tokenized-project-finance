@@ -3,18 +3,18 @@ as_of: 2025-11-11
 description: Placeholder deterministic calibration for WP-02/WP-03 testing (full T-047 pending T-022/T-023).
 params:
   senior:
-    asset_volatility: 0.22
-    spread_bps: 150
-    recovery_rate: 0.55
+    asset_volatility: 0.28
+    spread_bps: 550
+    recovery_rate: 0.65
     pd_floor: 0.015
   mezzanine:
-    asset_volatility: 0.28
-    spread_bps: 325
-    recovery_rate: 0.40
+    asset_volatility: 0.35
+    spread_bps: 900
+    recovery_rate: 0.45
     pd_floor: 0.035
   subordinated:
-    asset_volatility: 0.35
-    spread_bps: 575
+    asset_volatility: 0.42
+    spread_bps: 1200
     recovery_rate: 0.25
     pd_floor: 0.065
 random_variables:

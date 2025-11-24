@@ -4,13 +4,26 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Mapping, Sequence
+from typing import Callable, Dict, Mapping, Sequence, Optional
 
 import numpy as np
 
 from pftoken.models.calibration import CalibrationSet, load_placeholder_calibration
 from pftoken.risk.credit_risk import RiskInputs, RiskMetricsCalculator
 from pftoken.risk.var_cvar import TailRiskAnalyzer
+from pftoken.pricing.base_pricing import TrancheCashFlow
+from pftoken.pricing.zero_curve import ZeroCurve
+from pftoken.waterfall.debt_structure import DebtStructure
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pftoken.pricing_mc import (
+        StochasticPricing,
+        StochasticPricingInputs,
+        DurationConvexityAnalyzer,
+        InterestRateSensitivity,
+        SpreadCalibrator,
+    )
 from .breach_probability import BreachProbabilityAnalyzer
 from .default_flags import DefaultDetector
 from .merton_integration import compute_pathwise_pd_lgd, loss_paths_from_pd_lgd
@@ -33,6 +46,8 @@ class PipelineInputs:
 
 @dataclass
 class PipelineOutputs:
+    """Outputs from MonteCarloPipeline including optional stochastic pricing results."""
+
     monte_carlo: MonteCarloResult
     pd_lgd_paths: Dict[str, Dict[str, np.ndarray]] | None = None
     loss_paths: np.ndarray | None = None
@@ -40,6 +55,7 @@ class PipelineOutputs:
     risk_metrics: Dict[str, object] | None = None
     ratio_summary: Dict[str, object] | None = None
     breach_curves: Dict[str, object] | None = None
+    pricing_mc: Dict[str, object] | None = None
 
 
 class MonteCarloPipeline:
@@ -63,8 +79,18 @@ class MonteCarloPipeline:
         *,
         alpha_levels: Sequence[float] = (0.95, 0.99),
         analyze_ratios: bool = True,
+        zero_curve: ZeroCurve | None = None,
+        debt_structure: DebtStructure | None = None,
+        tranche_cashflows: Mapping[str, Sequence[TrancheCashFlow]] | None = None,
+        spread_calibrator: SpreadCalibrator | None = None,
+        include_tranche_cashflows: bool = False,
     ) -> PipelineOutputs:
         mc_result = self.engine.run_simulation(self.config)
+        if include_tranche_cashflows and "tranche_cashflows" not in (mc_result.derived or {}):
+            warnings.warn(
+                "include_tranche_cashflows=True but path_callback did not emit tranche_cashflows; "
+                "build the financial path callback with include_tranche_cashflows=True."
+            )
 
         pd_lgd_paths = None
         loss_paths = None
@@ -72,6 +98,7 @@ class MonteCarloPipeline:
         risk_metrics: Dict[str, object] | None = None
         ratio_summary: Dict[str, object] | None = None
         breach_curves: Dict[str, object] | None = None
+        pricing_mc: Dict[str, object] | None = None
 
         # PD/LGD and loss generation if asset values are present.
         asset_values = mc_result.derived.get("asset_values")
@@ -134,6 +161,55 @@ class MonteCarloPipeline:
             curves = breach_analyzer.compute(dscr_paths < self.inputs.dscr_threshold)
             breach_curves = {"curves": curves, "flags": flags}
 
+        # Stochastic pricing (WP-08) using deterministic cashflow fallback.
+        if zero_curve is not None and debt_structure is not None:
+            partial_outputs = PipelineOutputs(
+                monte_carlo=mc_result,
+                pd_lgd_paths=pd_lgd_paths,
+                loss_paths=loss_paths,
+                tranche_names=tranche_names,
+                risk_metrics=risk_metrics,
+                ratio_summary=ratio_summary,
+                breach_curves=breach_curves,
+                pricing_mc=None,
+            )
+            from pftoken.pricing_mc import (
+                StochasticPricing,
+                StochasticPricingInputs,
+                DurationConvexityAnalyzer,
+                InterestRateSensitivity,
+            )
+            pricing_inputs = StochasticPricingInputs(
+                mc_outputs=partial_outputs,
+                base_curve=zero_curve,
+                debt_structure=debt_structure,
+                tranche_cashflows=tranche_cashflows,
+            )
+            pricing_engine = StochasticPricing(pricing_inputs, spread_calibrator=spread_calibrator)
+            price_result = pricing_engine.price()
+
+            duration_results: Dict[str, object] = {}
+            if tranche_cashflows:
+                duration_analyzer = DurationConvexityAnalyzer(zero_curve)
+                for tranche in debt_structure.tranches:
+                    if tranche_cashflows.get(tranche.name):
+                        duration_results[tranche.name] = duration_analyzer.analyze(
+                            tranche=tranche,
+                            cashflows=tranche_cashflows[tranche.name],
+                        )
+            sensitivity = InterestRateSensitivity(pricing_inputs, spread_calibrator=spread_calibrator)
+            sensitivity_results = sensitivity.run()
+
+            pricing_mc = {
+                "prices": price_result.to_dict(),
+                "duration_convexity": {k: v.to_dict() for k, v in duration_results.items()},
+                "rate_sensitivity": sensitivity_results,
+                "metadata": {
+                    "simulations": mc_result.metadata.get("simulations"),
+                    "curve_currency": getattr(zero_curve, "currency", None),
+                },
+            }
+
         return PipelineOutputs(
             monte_carlo=mc_result,
             pd_lgd_paths=pd_lgd_paths,
@@ -142,6 +218,7 @@ class MonteCarloPipeline:
             risk_metrics=risk_metrics,
             ratio_summary=ratio_summary,
             breach_curves=breach_curves,
+            pricing_mc=pricing_mc,
         )
 
 

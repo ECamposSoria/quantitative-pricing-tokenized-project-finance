@@ -59,7 +59,7 @@ class TokenizedSpreadConfig:
 
     # Credit component
     merton_model: Optional[MertonModel] = None
-    market_price_of_risk: float = 0.1
+    market_price_of_risk: float = 0.15
     duration_fallback_use_tenor: bool = True
 
     # Liquidity component

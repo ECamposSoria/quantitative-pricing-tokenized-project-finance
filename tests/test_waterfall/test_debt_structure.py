@@ -14,4 +14,4 @@ def test_debt_structure_from_tranches(project_parameters: ProjectParameters):
 def test_debt_structure_wacd(project_parameters: ProjectParameters):
     debt_structure = DebtStructure.from_tranche_params(project_parameters.tranches)
     wacd = debt_structure.calculate_wacd()
-    assert pytest.approx(wacd, rel=1e-4) == 0.07375
+    assert pytest.approx(wacd, rel=1e-4) == 0.1185

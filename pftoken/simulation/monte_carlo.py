@@ -97,9 +97,18 @@ class MonteCarloEngine:
             if self.path_callback:
                 derived_batch = self.path_callback(batch)
                 for key, values in derived_batch.items():
-                    if key not in derived:
-                        derived[key] = np.empty((config.simulations, *values.shape[1:]))
-                    derived[key][start:end] = values
+                    # Support dict outputs (e.g., per-tranche cashflows) and array outputs
+                    if isinstance(values, dict):
+                        target = derived.setdefault(key, {})
+                        for subkey, subval in values.items():
+                            subval_arr = np.asarray(subval)
+                            if subkey not in target:
+                                target[subkey] = np.empty((config.simulations, *subval_arr.shape[1:]))
+                            target[subkey][start:end] = subval_arr
+                    else:
+                        if key not in derived:
+                            derived[key] = np.empty((config.simulations, *values.shape[1:]))
+                        derived[key][start:end] = values
             start = end
 
         metadata = {

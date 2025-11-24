@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Callable, Mapping, Sequence
+from typing import Callable, Mapping, Sequence, Dict
 
 import numpy as np
 import pandas as pd
 import warnings
 
 from .monte_carlo import SimulationCallback
+from pftoken.waterfall.debt_structure import DebtStructure
 
 
 def build_financial_path_callback(
@@ -17,6 +18,8 @@ def build_financial_path_callback(
     years: Sequence[int],
     *,
     base_discount_rate: float,
+    debt_structure: DebtStructure | None = None,
+    include_tranche_cashflows: bool = False,
     launch_failure_impact: float = 0.4,
     usd_per_million: float = 1_000_000.0,
     grace_period_years: int = 0,
@@ -25,6 +28,8 @@ def build_financial_path_callback(
     Create a callback that maps stochastic draws to CFADS/DSCR paths + asset values.
 
     Notes:
+    - baseline_cfads is expected in millions of USD (MUSD) as produced by
+      `CFADSCalculator.calculate_cfads_vector()`.
     - Discount rate uses the project's base_rate_reference (approx. risk-free). This can
       be swapped for WACC if PD sensitivity to leverage is desired.
     - Shapes: returns `dscr_paths` with (n_sims, n_periods) and `asset_values` (n_sims,).
@@ -33,6 +38,7 @@ def build_financial_path_callback(
     years_sorted = list(sorted(years))
     n_periods = len(years_sorted)
     cfads_base = np.array([baseline_cfads[year] for year in years_sorted], dtype=float)
+    cfads_base_musd = cfads_base  # already in MUSD
     debt_service = _debt_service_by_year(debt_schedule, years_sorted, usd_per_million=usd_per_million)
     discount_periods = np.arange(1, n_periods + 1, dtype=float)
     grace_mask = np.array(years_sorted) <= grace_period_years
@@ -64,7 +70,7 @@ def build_financial_path_callback(
         )
         growth_factor = np.clip(effective_growth, 0.1, None)  # avoid collapsing CFADS
 
-        shocked_cfads = cfads_base[None, :] * growth_factor[:, None]
+        shocked_cfads = cfads_base_musd[None, :] * growth_factor[:, None]
         shocked_cfads *= 1.0 - launch_failure_impact * launch_failure[:, None]
         shocked_cfads = np.maximum(shocked_cfads, 0.0)
 
@@ -79,19 +85,30 @@ def build_financial_path_callback(
 
         discount_rate = np.maximum(base_discount_rate + rate_shock, 1e-6)
         disc_factors = 1.0 / np.power(1.0 + discount_rate[:, None], discount_periods[None, :])
-        asset_values = np.sum(shocked_cfads * disc_factors, axis=1)
+        asset_values = np.sum(shocked_cfads * disc_factors, axis=1) * usd_per_million
         if asset_values.mean() < 0.1:
             warnings.warn(
                 f"Asset values are very small vs expected scale (mean={asset_values.mean():.4f}); "
                 "check units alignment between CFADS and debt."
             )
 
-        return {
+        output = {
             "dscr_paths": dscr_paths,
             "asset_values": asset_values,
             "secondary_market_depth": secondary_market_depth,
             "smart_contract_risk": smart_contract_risk,
         }
+
+        if include_tranche_cashflows and debt_structure is not None:
+            output["tranche_cashflows"] = _vectorized_tranche_cashflows(
+                shocked_cfads,
+                debt_schedule,
+                debt_structure,
+                years_sorted,
+                usd_per_million=usd_per_million,
+            )
+
+        return output
 
     return path_callback
 
@@ -108,6 +125,51 @@ def _debt_service_by_year(debt_schedule: pd.DataFrame, years: Sequence[int], *, 
         .to_numpy()
     )
     return np.asarray(ds, dtype=float) / usd_per_million
+
+
+def _vectorized_tranche_cashflows(
+    shocked_cfads: np.ndarray,
+    debt_schedule: pd.DataFrame,
+    debt_structure: DebtStructure,
+    years: Sequence[int],
+    *,
+    usd_per_million: float,
+) -> Dict[str, np.ndarray]:
+    """
+    Simplified waterfall: allocate shocked CFADS by seniority-first against scheduled payments.
+
+    Notes:
+        - Ignores DSRA/MRA path dependence; provides a fast approximation for MC pricing.
+        - Assumes debt_schedule contains tranche_name, year, interest_due, principal_due.
+    """
+
+    n_sims, n_periods = shocked_cfads.shape
+    if n_periods != len(years):
+        raise ValueError("Mismatch between shocked CFADS periods and provided years.")
+
+    schedule: Dict[str, np.ndarray] = {}
+    for tranche in debt_structure.tranches:
+        mask = debt_schedule["tranche_name"].str.lower() == tranche.name.lower()
+        sched = (
+            debt_schedule.loc[mask, ["year", "interest_due", "principal_due"]]
+            .groupby("year")[["interest_due", "principal_due"]]
+            .sum()
+            .reindex(years, fill_value=0.0)
+            .sum(axis=1)
+            .to_numpy()
+            / usd_per_million
+        )
+        schedule[tranche.name] = sched
+
+    remaining = shocked_cfads.copy()
+    cashflows: Dict[str, np.ndarray] = {}
+    for tranche in debt_structure.tranches:
+        sched = schedule.get(tranche.name)
+        sched_matrix = np.broadcast_to(sched, (n_sims, n_periods))
+        pay = np.minimum(remaining, sched_matrix)
+        cashflows[tranche.name] = pay * usd_per_million
+        remaining = np.maximum(remaining - pay, 0.0)
+    return cashflows
 
 
 __all__ = ["build_financial_path_callback"]

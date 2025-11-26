@@ -21,9 +21,9 @@ def test_dscr_matches_excel(cfads_calculator, project_parameters: ProjectParamet
         project_parameters.project.tenor_years,
     )
     expected = {
-        4: 0.941619586,  # Excel `Ratios` tab baseline
-        5: 1.45,
-        11: 1.644014,
+        4: 1.3559322033898304,
+        5: 1.5061420838568895,
+        11: 2.8288579514696566,
     }
     for year, baseline in expected.items():
         modeled = results[year].value

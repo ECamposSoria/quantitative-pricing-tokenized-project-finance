@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Sequence
+from typing import Dict, Iterable, List, Sequence, TYPE_CHECKING
 
+from pftoken.derivatives import InterestRateCap
 from pftoken.pricing.zero_curve import ZeroCurve
 from pftoken.pricing_mc.contracts import RateScenarioDefinition, StochasticPricingInputs
 from pftoken.pricing_mc.spread_calibration import SpreadCalibrator
 from pftoken.pricing_mc.stochastic_pricing import StochasticPricing
+
+if TYPE_CHECKING:  # pragma: no cover
+    HedgeInstrument = InterestRateCap
+else:
+    HedgeInstrument = InterestRateCap
 
 
 @dataclass(frozen=True)
@@ -16,6 +22,17 @@ class ScenarioPriceDelta:
     scenario: str
     tranche: str
     delta_mean_price: float
+
+
+@dataclass(frozen=True)
+class HedgeComparisonResult:
+    """Portfolio-level comparison between naked and hedged outcomes."""
+
+    scenario: str
+    base_total_price: float
+    hedged_total_price: float
+    hedge_value: float
+    delta_vs_base: float
 
 
 class InterestRateSensitivity:
@@ -90,6 +107,48 @@ class InterestRateSensitivity:
             "dscr_break_even": dscr_break_even,
         }
 
+    def analyze_with_hedge(
+        self,
+        hedge_instrument: HedgeInstrument,
+        *,
+        upfront_premium: float | None = None,
+        volatility_override: float | None = None,
+        scenarios: Sequence[RateScenarioDefinition] | None = None,
+    ) -> Dict[str, object]:
+        """Compare naked vs hedged exposure across rate scenarios."""
+
+        scenarios = list(scenarios) if scenarios is not None else self.scenario_library()
+        baseline = self.run(scenarios=scenarios)
+        base_curve = self.inputs.base_curve
+        base_priced = hedge_instrument.price(base_curve, volatility=volatility_override)
+        premium = upfront_premium if upfront_premium is not None else self._premium(base_priced)
+        base_total = float(sum(baseline["base"].values()))
+
+        results: List[HedgeComparisonResult] = []
+        for scenario in scenarios:
+            shocked_curve = self._apply_scenario(base_curve, scenario)
+            priced = hedge_instrument.price(shocked_curve, volatility=volatility_override)
+            hedge_price = self._premium(priced)
+            hedge_value = hedge_price - premium
+            tranche_prices = baseline["scenarios"].get(scenario.name, {})
+            scenario_total = float(sum(tranche_prices.values()))
+            hedged_total = scenario_total + hedge_value
+            results.append(
+                HedgeComparisonResult(
+                    scenario=scenario.name,
+                    base_total_price=base_total,
+                    hedged_total_price=hedged_total,
+                    hedge_value=hedge_value,
+                    delta_vs_base=hedged_total - base_total,
+                )
+            )
+
+        return {
+            "upfront_premium": premium,
+            "hedge_results": [r.__dict__ for r in results],
+            "baseline": baseline,
+        }
+
     # --------------------------------------------------------------- Internals
     @staticmethod
     def _apply_scenario(curve: ZeroCurve, scenario: RateScenarioDefinition) -> ZeroCurve:
@@ -122,5 +181,14 @@ class InterestRateSensitivity:
             "note": "DSCR paths assumed invariant to rate shocks; rate scenarios only affect pricing.",
         }
 
+    @staticmethod
+    def _premium(priced: object) -> float:
+        """Extract premium from cap/floor/collar results."""
 
-__all__ = ["InterestRateSensitivity", "ScenarioPriceDelta"]
+        for attr in ("total_value", "net_premium"):
+            if hasattr(priced, attr):
+                return float(getattr(priced, attr))
+        raise ValueError("Hedge instrument price result missing total_value/net_premium.")
+
+
+__all__ = ["HedgeComparisonResult", "InterestRateSensitivity", "ScenarioPriceDelta"]

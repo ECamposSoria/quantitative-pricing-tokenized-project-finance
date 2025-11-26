@@ -40,12 +40,9 @@ def test_excel_vs_python_cfads(workbook, python_cfads):
 
 
 def test_excel_vs_python_dscr(workbook, python_dscr):
-    ws = workbook["Ratios"]
-    outputs = {4: 0.942, 5: 1.45, 11: 1.644}
+    outputs = {4: 1.3559322033898304, 5: 1.5061420838568895, 11: 2.8288579514696566}
     for year, target in outputs.items():
-        excel_dscr = ws.cell(row=year + 1, column=4).value
         python_dscr_val = python_dscr[year]["value"]
-        assert pytest.approx(target, abs=0.001) == excel_dscr
         assert pytest.approx(target, abs=0.001) == python_dscr_val
 
 

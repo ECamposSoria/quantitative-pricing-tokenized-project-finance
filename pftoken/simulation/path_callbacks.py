@@ -97,6 +97,12 @@ def build_financial_path_callback(
             "asset_values": asset_values,
             "secondary_market_depth": secondary_market_depth,
             "smart_contract_risk": smart_contract_risk,
+            # Store CFADS paths for dual-structure analysis (WP-12)
+            # Units: MUSD (millions USD), shape (n_sims, n_periods)
+            "cfads_paths": shocked_cfads,
+            # Store rate shocks for hedging comparison (WP-13)
+            # Units: decimal (e.g., 0.01 = 100 bps), shape (n_sims,)
+            "rate_shock": rate_shock,
         }
 
         if include_tranche_cashflows and debt_structure is not None:

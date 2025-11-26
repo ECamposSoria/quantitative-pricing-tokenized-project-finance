@@ -7,6 +7,16 @@ from .comparator import ComparisonResult, StructureComparator
 from .full_waterfall import FullWaterfallResult, WaterfallOrchestrator
 from .governance import GovernanceController, LoggingAction, StaticOracle, ThresholdPolicy
 from .governance_interfaces import GovernancePolicy, IOracle, IGovernanceAction
+from .contingent_amortization import (
+    AmortizationType,
+    ContingentAmortizationConfig,
+    ContingentAmortizationEngine,
+    DualStructureComparator,
+    PathSimulationResult,
+    PeriodPaymentResult,
+    StructureComparisonResult,
+    TraditionalAmortizationEngine,
+)
 
 __all__ = [
     "DebtStructure",
@@ -30,4 +40,13 @@ __all__ = [
     "LoggingAction",
     "ComparisonResult",
     "StructureComparator",
+    # Contingent amortization (WP-12)
+    "AmortizationType",
+    "ContingentAmortizationConfig",
+    "ContingentAmortizationEngine",
+    "DualStructureComparator",
+    "PathSimulationResult",
+    "PeriodPaymentResult",
+    "StructureComparisonResult",
+    "TraditionalAmortizationEngine",
 ]

@@ -2,7 +2,7 @@
 """
 Quick runner for WP-05 risk metrics on the LEO IoT dataset.
 
-Outputs a JSON snapshot under outputs/wp05_risk_metrics.json and prints
+Outputs a JSON snapshot under outputs/leo_iot_results.json and prints
 the same content to stdout.
 """
 
@@ -15,6 +15,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+from pftoken.derivatives import (
+    CapletPeriod,
+    InterestRateCap,
+    InterestRateCollar,
+    InterestRateFloor,
+    find_zero_cost_floor_strike,
+)
+from pftoken.pricing.constants import PricingContext
+from pftoken.pricing.curve_loader import load_zero_curve_from_csv
 
 # Add project root to import path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -32,6 +41,11 @@ from pftoken.pricing.zero_curve import CurvePoint, ZeroCurve  # noqa: E402
 from pftoken.waterfall.debt_structure import DebtStructure  # noqa: E402
 from pftoken.stress import StressScenarioLibrary  # noqa: E402
 from pftoken.tokenization import TokenizationBenefits, compute_tokenization_wacd_impact  # noqa: E402
+from pftoken.waterfall.contingent_amortization import (  # noqa: E402
+    ContingentAmortizationConfig,
+    DualStructureComparator,
+)
+from pftoken.hedging import HedgeConfig, run_hedging_comparison  # noqa: E402
 
 
 def extract_dscr_fan_chart(mc_outputs, years: list[int]) -> dict | None:
@@ -241,9 +255,284 @@ def build_tokenization_analysis(traditional_wacd_bps: float, mc_outputs) -> dict
     }
 
 
+def build_cap_hedging_section(
+    *,
+    curve,
+    notional: float,
+    strike: float = 0.04,
+    schedule_years: int = 5,
+    volatility: float | None = None,
+) -> dict:
+    """Price a simple cap (annual resets) and return a hedging payload."""
+
+    vol = float(volatility if volatility is not None else PricingContext().cap_flat_volatility)
+    max_year = max(1, min(schedule_years, 30))
+    schedule = [CapletPeriod(start=i - 1 if i > 0 else 0.0, end=float(i)) for i in range(1, max_year + 1)]
+    cap = InterestRateCap(notional=notional, strike=strike, reset_schedule=schedule)
+
+    base = cap.price(curve, volatility=vol)
+    par_swap = cap.par_swap_rate(curve)
+    breakeven_rate = cap.breakeven_floating_rate(curve, volatility=vol)
+    carry_pct = cap.carry_cost_pct(curve, volatility=vol)
+    scenarios = [
+        ("Base", curve, 0),
+        ("+50bps", curve.apply_shock(parallel_bps=50), 50),
+        ("-50bps", curve.apply_shock(parallel_bps=-50), -50),
+    ]
+    rows = []
+    for name, shocked, pbps in scenarios:
+        price = cap.price(shocked, volatility=vol)
+        rows.append(
+            {
+                "scenario": name,
+                "parallel_bps": pbps,
+                "cap_price": price.total_value,
+                "hedge_value": price.total_value - base.total_value,
+            }
+        )
+
+    return {
+        "interest_rate_cap": {
+            "notional": notional,
+            "strike": strike,
+            "volatility": vol,
+            "schedule_years": [p.end for p in schedule],
+            "premium": base.total_value,
+            "break_even_spread_bps": base.break_even_spread_bps,
+            "breakeven_floating_rate": breakeven_rate,
+            "carry_cost_pct": carry_pct,
+            "par_swap_rate": par_swap,
+            "scenarios": rows,
+            "notes": "WP-11 InterestRateCap priced with flat vol; annual resets; premiums in USD.",
+        }
+    }
+
+
+def build_collar_hedging_section(
+    *,
+    curve,
+    notional: float,
+    cap_strike: float = 0.04,
+    floor_strike: float = 0.03,
+    schedule_years: int = 5,
+    volatility: float | None = None,
+) -> dict:
+    """Price a standard collar (long cap / short floor)."""
+
+    vol = float(volatility if volatility is not None else PricingContext().cap_flat_volatility)
+    schedule = [CapletPeriod(start=i - 1 if i > 0 else 0.0, end=float(i)) for i in range(1, schedule_years + 1)]
+    cap = InterestRateCap(notional=notional, strike=cap_strike, reset_schedule=schedule)
+    floor = InterestRateFloor(notional=notional, strike=floor_strike, reset_schedule=schedule)
+    collar = InterestRateCollar(
+        notional=notional,
+        cap_strike=cap_strike,
+        floor_strike=floor_strike,
+        reset_schedule=schedule,
+    )
+
+    cap_price = cap.price(curve, volatility=vol)
+    floor_price = floor.price(curve, volatility=vol)
+    collar_price = collar.price(curve, volatility=vol)
+    zero_cost = find_zero_cost_floor_strike(notional, cap_strike, schedule, curve, volatility=vol)
+
+    return {
+        "interest_rate_collar": {
+            "notional": notional,
+            "cap_strike": cap_strike,
+            "floor_strike": floor_strike,
+            "volatility": vol,
+            "cap_premium": cap_price.total_value,
+            "floor_premium": floor_price.total_value,
+            "net_premium": collar_price.net_premium,
+            "carry_cost_bps": collar_price.carry_cost_bps,
+            "effective_rate_band": collar_price.effective_rate_band,
+            "zero_cost_floor_strike": zero_cost,
+            "notes": "Collar = long cap, short floor; premiums in USD.",
+        }
+    }
+
+
+def build_hedging_comparison_section(
+    mc_outputs,
+    debt_structure: DebtStructure,
+    grace_years: int,
+    tenor_years: int,
+    covenant: float = 1.20,
+    cap_premium: float = 595_433.0,
+    collar_net_premium: float = 326_139.0,
+    cap_strike: float = 0.04,
+    floor_strike: float = 0.03,
+) -> dict | None:
+    """
+    Build hedging comparison section (WP-13).
+
+    Runs Monte Carlo comparison across 3 hedging scenarios:
+    - Unhedged (none)
+    - Cap hedged
+    - Collar hedged
+
+    Uses stochastic rate shocks from MC simulation to calculate hedge payouts.
+    """
+    cfads_paths = mc_outputs.monte_carlo.derived.get("cfads_paths")
+    rate_shocks = mc_outputs.monte_carlo.derived.get("rate_shock")
+
+    if cfads_paths is None or rate_shocks is None:
+        return None
+
+    # Convert CFADS from MUSD to USD
+    cfads_usd = cfads_paths * 1_000_000.0
+
+    # Configure hedge parameters
+    hedge_config = HedgeConfig(
+        notional=debt_structure.total_principal,
+        cap_strike=cap_strike,
+        floor_strike=floor_strike,
+        base_rate=debt_structure.calculate_wacd(),
+        cap_premium=cap_premium,
+        collar_net_premium=collar_net_premium,
+    )
+
+    # Configure contingent amortization (same as dual structure)
+    config = ContingentAmortizationConfig(
+        dscr_floor=1.25,
+        dscr_target=1.50,
+        dscr_accelerate=2.00,
+        deferral_rate=0.12,
+        max_deferral_pct=0.30,
+        catch_up_enabled=True,
+        balloon_cap_pct=0.50,
+    )
+
+    comparator = DualStructureComparator(
+        principal=debt_structure.total_principal,
+        interest_rate=debt_structure.calculate_wacd(),
+        tenor=tenor_years,
+        grace_years=grace_years,
+        contingent_config=config,
+    )
+
+    # Run hedging comparison
+    results = run_hedging_comparison(
+        cfads_paths=cfads_usd,
+        rate_shocks=rate_shocks,
+        dual_comparator=comparator,
+        covenant=covenant,
+        config=hedge_config,
+    )
+
+    # Add rate shock statistics
+    results["rate_shock_stats"] = {
+        "mean_bps": float(np.mean(rate_shocks) * 10000),
+        "std_bps": float(np.std(rate_shocks, ddof=1) * 10000),
+        "p5_bps": float(np.percentile(rate_shocks, 5) * 10000),
+        "p95_bps": float(np.percentile(rate_shocks, 95) * 10000),
+        "simulations": len(rate_shocks),
+    }
+
+    return results
+
+
+def build_dual_structure_analysis(
+    mc_outputs,
+    debt_structure: DebtStructure,
+    grace_years: int,
+    tenor_years: int,
+    covenant: float = 1.20,
+) -> dict | None:
+    """
+    Build dual structure comparison (Traditional vs Tokenized) for WP-12.
+
+    Uses CFADS paths from Monte Carlo to compare breach probabilities
+    under fixed vs DSCR-contingent amortization.
+
+    Note: Filters out scenarios with negative CFADS in year 1 (construction
+    losses), as these represent pre-operational cash flows where both
+    structures would behave identically.
+    """
+    cfads_paths = mc_outputs.monte_carlo.derived.get("cfads_paths")
+    if cfads_paths is None:
+        return None
+
+    # Convert from MUSD to USD for the comparator
+    cfads_scenarios = cfads_paths * 1_000_000.0
+
+    # Accept all scenarios including construction-phase negative CFADS
+    # For LEO IoT satellite constellation: Years 1-4 are construction with equity-funded interest
+    # Negative CFADS during grace period is expected and planned (not a breach)
+    # The contingent amortization engine correctly handles construction financing
+    total_count = len(cfads_scenarios)
+    valid_count = total_count
+    cfads_filtered = cfads_scenarios
+
+    # Use weighted average rate from debt structure
+    wacd = debt_structure.calculate_wacd()
+
+    # Configure contingent amortization
+    config = ContingentAmortizationConfig(
+        dscr_floor=1.25,
+        dscr_target=1.50,
+        dscr_accelerate=2.00,
+        deferral_rate=0.12,
+        max_deferral_pct=0.30,
+        catch_up_enabled=True,
+        balloon_cap_pct=0.50,
+    )
+
+    comparator = DualStructureComparator(
+        principal=debt_structure.total_principal,
+        interest_rate=wacd,
+        tenor=tenor_years,
+        grace_years=grace_years,
+        contingent_config=config,
+    )
+
+    results = comparator.run_monte_carlo_comparison(cfads_filtered, covenant)
+
+    # Add configuration and filtering info to results
+    results["config"] = {
+        "principal": debt_structure.total_principal,
+        "interest_rate": wacd,
+        "tenor_years": tenor_years,
+        "grace_years": grace_years,
+        "covenant": covenant,
+        "contingent_amortization": {
+            "dscr_floor": config.dscr_floor,
+            "dscr_target": config.dscr_target,
+            "dscr_accelerate": config.dscr_accelerate,
+            "max_deferral_pct": config.max_deferral_pct,
+            "deferral_rate": config.deferral_rate,
+            "balloon_cap_pct": config.balloon_cap_pct,
+            "extension_years": config.extension_years,
+            "extension_rate_spread": config.extension_rate_spread,
+        },
+    }
+    results["filtering"] = {
+        "total_scenarios": int(total_count),
+        "valid_scenarios": int(valid_count),
+        "filtered_pct": float((total_count - valid_count) / total_count * 100),
+        "filter_reason": "No filtering applied - construction-phase negative CFADS accepted",
+    }
+
+    return results
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run MC risk metrics demo.")
     parser.add_argument("--sims", type=int, default=2000, help="Number of MC simulations (e.g., 10000 for prod)")
+    parser.add_argument(
+        "--hedge-curve-csv",
+        type=Path,
+        default=PROJECT_ROOT / "data" / "derived" / "market_curves" / "usd_combined_curve_2025-11-20.csv",
+        help="Curve CSV to use for cap hedging section (defaults to combined market curve).",
+    )
+    parser.add_argument("--cap-strike", type=float, default=0.04, help="Cap strike for hedging section.")
+    parser.add_argument("--cap-years", type=int, default=5, help="Number of annual caplets for hedging section.")
+    parser.add_argument("--floor-strike", type=float, default=0.03, help="Floor strike for collar hedging.")
+    parser.add_argument(
+        "--include-collar",
+        action="store_true",
+        help="Include collar pricing (long cap / short floor) in hedging outputs.",
+    )
     args = parser.parse_args()
 
     data_dir = PROJECT_ROOT / "data" / "input" / "leo_iot"
@@ -363,7 +652,62 @@ def main() -> None:
         "pricing_mc": mc_outputs.pricing_mc,
     }
 
-    output_path = output_dir / "wp05_risk_metrics.json"
+    # Hedging (WP-11): append cap pricing using market curve if available, else fallback to flat curve.
+    hedge_curve = zero_curve
+    if args.hedge_curve_csv and args.hedge_curve_csv.exists():
+        try:
+            hedge_curve = load_zero_curve_from_csv(args.hedge_curve_csv)
+        except Exception:
+            hedge_curve = zero_curve
+    payload["hedging"] = build_cap_hedging_section(
+        curve=hedge_curve,
+        notional=pipeline.debt_structure.total_principal,
+        strike=args.cap_strike,
+        schedule_years=args.cap_years,
+    )
+    if args.include_collar:
+        payload["hedging"].update(
+            build_collar_hedging_section(
+                curve=hedge_curve,
+                notional=pipeline.debt_structure.total_principal,
+                cap_strike=args.cap_strike,
+                floor_strike=args.floor_strike,
+                schedule_years=args.cap_years,
+            )
+        )
+
+    # Dual structure analysis (WP-12): Traditional vs Tokenized amortization comparison
+    dual_structure = build_dual_structure_analysis(
+        mc_outputs=mc_outputs,
+        debt_structure=pipeline.debt_structure,
+        grace_years=pipeline.params.project.grace_period_years,
+        tenor_years=pipeline.params.project.tenor_years,
+        covenant=pipeline.params.project.min_dscr_covenant,
+    )
+    if dual_structure is not None:
+        payload["dual_structure_comparison"] = dual_structure
+
+    # Hedging comparison (WP-13): Cap vs Collar under stochastic rate shocks
+    # Get cap/collar premiums from the hedging section if available
+    cap_premium = payload.get("hedging", {}).get("interest_rate_cap", {}).get("premium", 595_433.0)
+    collar_section = payload.get("hedging", {}).get("interest_rate_collar", {})
+    collar_net_premium = collar_section.get("net_premium", 326_139.0)
+
+    hedging_comparison = build_hedging_comparison_section(
+        mc_outputs=mc_outputs,
+        debt_structure=pipeline.debt_structure,
+        grace_years=pipeline.params.project.grace_period_years,
+        tenor_years=pipeline.params.project.tenor_years,
+        covenant=pipeline.params.project.min_dscr_covenant,
+        cap_premium=cap_premium,
+        collar_net_premium=collar_net_premium,
+        cap_strike=args.cap_strike,
+        floor_strike=args.floor_strike,
+    )
+    if hedging_comparison is not None:
+        payload["hedging_comparison"] = hedging_comparison
+
+    output_path = output_dir / "leo_iot_results.json"
     output_path.write_text(json.dumps(payload, indent=2))
     print(json.dumps(payload, indent=2))
     print(f"\nSaved to: {output_path}")

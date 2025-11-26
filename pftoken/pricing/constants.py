@@ -38,6 +38,9 @@ class PricingContext:
     fx_forward_buffer_bps: float = DEFAULT_FX_FORWARD_BUFFER_BPS
     pricing_rel_tolerance: float = PRICING_REL_TOLERANCE
     use_computed_deltas: bool = True
+    # WP-11: Interest rate cap defaults (flat vol surface, annual basis)
+    cap_flat_volatility: float = 0.20
+    cap_day_count: str = "ACT/365"
 
 
 DEFAULT_PRICING_CONTEXT = PricingContext()

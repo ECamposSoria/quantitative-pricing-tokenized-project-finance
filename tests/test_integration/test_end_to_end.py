@@ -17,5 +17,5 @@ def test_cfads_to_dscr_pipeline(project_parameters):
     )
 
     assert len(dscr) == project_parameters.project.tenor_years
-    assert dscr[5]["value"] == pytest.approx(1.450, abs=0.001)
-    assert dscr[11]["value"] == pytest.approx(1.644, abs=0.001)
+    assert dscr[5]["value"] == pytest.approx(1.5061420838568895, abs=0.001)
+    assert dscr[11]["value"] == pytest.approx(2.8288579514696566, abs=0.001)

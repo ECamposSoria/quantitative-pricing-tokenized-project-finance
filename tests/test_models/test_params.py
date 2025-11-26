@@ -10,7 +10,7 @@ def test_project_parameters_basic_loading(project_parameters: ProjectParameters)
     tranches = project_parameters.tranches
     assert len(tranches) == 3
     assert tranches[0].name == "senior"
-    assert tranches[0].initial_principal == 43_200_000
+    assert tranches[0].initial_principal == 30_000_000
 
     cfads_df = project_parameters.cfads_dataframe()
     assert cfads_df.shape[0] == project.analysis_horizon_years

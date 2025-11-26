@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-25T204538Z",
+  "timestamp_utc": "2025-11-26T185147Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -891,6 +891,51 @@
       "valid_scenarios": 10000,
       "filtered_pct": 0.0,
       "filter_reason": "No filtering applied - construction-phase negative CFADS accepted"
+    }
+  },
+  "hedging_comparison": {
+    "hedge_config": {
+      "notional": 50000000.0,
+      "cap_strike": 0.04,
+      "floor_strike": 0.03,
+      "base_rate": 0.045,
+      "cap_premium": 595432.7724620807,
+      "collar_net_premium": 326138.8946668333
+    },
+    "scenarios": {
+      "none": {
+        "breach_probability": 0.0271,
+        "breach_count": 271,
+        "min_dscr_p5": 1.25,
+        "min_dscr_p25": 1.25,
+        "min_dscr_p50": 1.4967317976749794,
+        "cost": 0.0
+      },
+      "cap": {
+        "breach_probability": 0.0209,
+        "breach_count": 209,
+        "min_dscr_p5": 1.25,
+        "min_dscr_p25": 1.2592583853617347,
+        "min_dscr_p50": 1.5665288335264325,
+        "cost": 595432.7724620807
+      },
+      "collar": {
+        "breach_probability": 0.0238,
+        "breach_count": 238,
+        "min_dscr_p5": 1.25,
+        "min_dscr_p25": 1.25,
+        "min_dscr_p50": 1.5565338191509843,
+        "cost": 326138.8946668333
+      }
+    },
+    "recommendation": "cap",
+    "rationale": "Cap provides materially better breach probability reduction",
+    "rate_shock_stats": {
+      "mean_bps": -2.7755575615628914e-16,
+      "std_bps": 149.85401069556525,
+      "p5_bps": -245.09885825719914,
+      "p95_bps": 245.0988582571991,
+      "simulations": 10000
     }
   }
 }

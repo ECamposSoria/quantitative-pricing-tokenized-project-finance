@@ -1,0 +1,64 @@
+{
+  "simulations": 10000,
+  "covenant": 1.2,
+  "traditional": {
+    "breach_probability": 0.6974,
+    "breach_count": 6974,
+    "min_dscr_mean": 1.0521860428236869,
+    "min_dscr_std": 0.3340312615472034,
+    "min_dscr_p5": 0.5601735751590305,
+    "min_dscr_p25": 0.8080259371576919,
+    "min_dscr_p50": 1.0256204498402306,
+    "min_dscr_p75": 1.257825011435878,
+    "min_dscr_p95": 1.642326576252676,
+    "avg_breach_year": 3.603527387439059
+  },
+  "tokenized": {
+    "breach_probability": 0.088,
+    "breach_count": 880,
+    "min_dscr_mean": 1.255428574479774,
+    "min_dscr_std": 0.20388086558002416,
+    "min_dscr_p5": 0.9454686146329958,
+    "min_dscr_p25": 1.1800086643068035,
+    "min_dscr_p50": 1.25,
+    "min_dscr_p75": 1.257825011435878,
+    "min_dscr_p95": 1.642326576252676,
+    "avg_breach_year": 1.6,
+    "avg_additional_balloon": 14348.127475730542,
+    "max_additional_balloon": 28991635.672522563
+  },
+  "comparison": {
+    "breach_probability_reduction": 0.6094,
+    "breach_probability_reduction_pct": 87.38170347003155,
+    "breaches_avoided_count": 6094,
+    "breaches_avoided_pct": 60.940000000000005,
+    "dscr_p25_improvement": 0.3719827271491116
+  },
+  "thesis_summary": {
+    "traditional_bankable": false,
+    "tokenized_bankable": true,
+    "tokenization_enables_bankability": true,
+    "key_finding": "DSCR-contingent amortization reduces breach probability from 69.7% to 8.8% (87% reduction), transforming the project from non-bankable to bankable status."
+  },
+  "metadata": {
+    "timestamp_utc": "2025-11-25T07:04:32.879362+00:00",
+    "parameters": {
+      "principal": 50000000,
+      "interest_rate": 0.055,
+      "tenor": 15,
+      "grace_years": 4,
+      "covenant": 1.2,
+      "simulations": 10000,
+      "seed": 42,
+      "stress_factor": 1.0
+    },
+    "contingent_config": {
+      "dscr_floor": 1.25,
+      "dscr_target": 1.5,
+      "dscr_accelerate": 2.0,
+      "max_deferral_pct": 0.3,
+      "deferral_rate": 0.12,
+      "catch_up_enabled": true
+    }
+  }
+}

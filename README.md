@@ -191,6 +191,7 @@ docker compose -f quant-token-compose.yml -p qptf exec quant_token_app pytest te
 - **Sensibilidades Delta**: `TokenizedSpreadModel.simulate_delta_scenarios()` genera 7 escenarios estándar (Tinlake ±50 %, beta overrides, Infra ×2, stressed) y exporta CSVs auditables para alimentar `WACDCalculator`.
 - **Colateral**: `pftoken.pricing.collateral_adjust.CollateralAnalyzer` aplica haircuts + descuento temporal y devuelve LGD ajustadas por tramo. Hoy se modela de forma agregada; falta inventario granular por activo (ver `docs/requirements.md` y `docs/architecture.md`).
 - **Curvas reales**: snapshots FRED (Par Yield DGS1–DGS30, swap rates DSWP* y curvas combinadas) viven en `data/derived/market_curves/` y se cargan con `pftoken.pricing.load_zero_curve_from_csv`.
+- **Derivados (WP-11)**: `docs/derivatives.md` documenta el pricer de caps Black-76, calibración de vol implícita, métricas de break-even y la integración de cobertura en `outputs/leo_iot_results.json`.
 - **Documentación**: ver `docs/pricing.md` para ejemplos detallados.
 - **Tests**: `pytest tests/test_pricing tests/test_integration/test_pricing_pipeline.py`
   ejecuta el stack completo con la data canónica `data/input/leo_iot/`.

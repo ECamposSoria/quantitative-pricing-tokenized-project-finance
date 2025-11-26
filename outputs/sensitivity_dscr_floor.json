@@ -1,0 +1,373 @@
+{
+  "metadata": {
+    "simulations": 1000,
+    "seed": 42,
+    "dscr_floors": [
+      1.15,
+      1.2,
+      1.25,
+      1.3,
+      1.35
+    ],
+    "max_deferral_pcts": [
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4
+    ]
+  },
+  "results": [
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.15,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3249218463897709e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.2,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3220012187957767e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.25,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3224184513092043e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.3,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3224184513092043e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.35,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3224184513092043e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.15,
+      "max_deferral_pct": 0.4,
+      "breach_probability": 0.642,
+      "breach_count": 642,
+      "avg_balloon": 1.3224184513092043e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.15,
+      "dscr_p50": 1.15
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.15,
+      "breach_probability": 0.111,
+      "breach_count": 111,
+      "avg_balloon": 1.3087093830108646e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1656551980389125,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.2,
+      "breach_probability": 0.11,
+      "breach_count": 110,
+      "avg_balloon": 1.308906823396683e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.25,
+      "breach_probability": 0.109,
+      "breach_count": 109,
+      "avg_balloon": 1.3088025152683261e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.3,
+      "breach_probability": 0.109,
+      "breach_count": 109,
+      "avg_balloon": 1.3088025152683261e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.35,
+      "breach_probability": 0.109,
+      "breach_count": 109,
+      "avg_balloon": 1.3088025152683261e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.2,
+      "max_deferral_pct": 0.4,
+      "breach_probability": 0.109,
+      "breach_count": 109,
+      "avg_balloon": 1.3088025152683261e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.2
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.15,
+      "breach_probability": 0.099,
+      "breach_count": 99,
+      "avg_balloon": 1.2923777103424075e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.1656551980389125,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.2,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 3440.350429041522,
+      "max_balloon": 3440350.4290286396,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.25,
+      "breach_probability": 0.096,
+      "breach_count": 96,
+      "avg_balloon": 13947.395088573487,
+      "max_balloon": 11366006.226157118,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.3,
+      "breach_probability": 0.096,
+      "breach_count": 96,
+      "avg_balloon": 13947.395088573487,
+      "max_balloon": 11366006.226157118,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.35,
+      "breach_probability": 0.096,
+      "breach_count": 96,
+      "avg_balloon": 13947.395088573487,
+      "max_balloon": 11366006.226157118,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.25,
+      "max_deferral_pct": 0.4,
+      "breach_probability": 0.096,
+      "breach_count": 96,
+      "avg_balloon": 13947.395088573487,
+      "max_balloon": 11366006.226157118,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.25
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.15,
+      "breach_probability": 0.103,
+      "breach_count": 103,
+      "avg_balloon": 1.2712627649307255e-08,
+      "max_balloon": 1.877546310424805e-08,
+      "dscr_p25": 1.1656551980389125,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.2,
+      "breach_probability": 0.099,
+      "breach_count": 99,
+      "avg_balloon": 3440.350429041358,
+      "max_balloon": 3440350.429028649,
+      "dscr_p25": 1.1656551980389125,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.25,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 16330.525606033687,
+      "max_balloon": 13676418.87432132,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.3,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 18535.645140167184,
+      "max_balloon": 13676418.87432132,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.35,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 18535.645140167184,
+      "max_balloon": 13676418.87432132,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.3,
+      "max_deferral_pct": 0.4,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 18535.645140167184,
+      "max_balloon": 13676418.87432132,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.3
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.15,
+      "breach_probability": 0.105,
+      "breach_count": 105,
+      "avg_balloon": 1.2675300240516665e-08,
+      "max_balloon": 2.294778823852539e-08,
+      "dscr_p25": 1.1650294231290053,
+      "dscr_p50": 1.35
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.2,
+      "breach_probability": 0.099,
+      "breach_count": 99,
+      "avg_balloon": 3440.3504290412925,
+      "max_balloon": 3440350.4290286396,
+      "dscr_p25": 1.1656551980389125,
+      "dscr_p50": 1.35
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.25,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 18469.796576556022,
+      "max_balloon": 15815689.844843708,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.35
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.3,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 22784.02481756884,
+      "max_balloon": 15815689.844843708,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.35
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.35,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 22784.02481756884,
+      "max_balloon": 15815689.844843708,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.35
+    },
+    {
+      "dscr_floor": 1.35,
+      "max_deferral_pct": 0.4,
+      "breach_probability": 0.097,
+      "breach_count": 97,
+      "avg_balloon": 22784.02481756884,
+      "max_balloon": 15815689.844843708,
+      "dscr_p25": 1.1660722785898265,
+      "dscr_p50": 1.35
+    }
+  ],
+  "pivot_breach_probability": {
+    "1.15": {
+      "0.15": 0.642,
+      "0.2": 0.642,
+      "0.25": 0.642,
+      "0.3": 0.642,
+      "0.35": 0.642,
+      "0.4": 0.642
+    },
+    "1.2": {
+      "0.15": 0.111,
+      "0.2": 0.11,
+      "0.25": 0.109,
+      "0.3": 0.109,
+      "0.35": 0.109,
+      "0.4": 0.109
+    },
+    "1.25": {
+      "0.15": 0.099,
+      "0.2": 0.097,
+      "0.25": 0.096,
+      "0.3": 0.096,
+      "0.35": 0.096,
+      "0.4": 0.096
+    },
+    "1.3": {
+      "0.15": 0.103,
+      "0.2": 0.099,
+      "0.25": 0.097,
+      "0.3": 0.097,
+      "0.35": 0.097,
+      "0.4": 0.097
+    },
+    "1.35": {
+      "0.15": 0.105,
+      "0.2": 0.099,
+      "0.25": 0.097,
+      "0.3": 0.097,
+      "0.35": 0.097,
+      "0.4": 0.097
+    }
+  },
+  "optimal_config": {
+    "dscr_floor": 1.25,
+    "max_deferral_pct": 0.25,
+    "breach_probability": 0.096,
+    "avg_balloon": 13947.395088573487,
+    "max_balloon": 11366006.226157118,
+    "dscr_p25": 1.1660722785898265
+  }
+}

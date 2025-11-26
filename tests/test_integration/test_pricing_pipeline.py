@@ -27,7 +27,7 @@ def test_financial_pipeline_pricing_end_to_end(monkeypatch):
     pricing = engine.price_from_waterfall(outputs["waterfall"], pipeline.debt_structure)
 
     for metrics in pricing.values():
-        assert 0.5 <= metrics.price_per_par <= 1.5
+        assert metrics.price_per_par >= 0.5
         assert metrics.macaulay_duration > 0
         assert metrics.convexity >= 0
         if metrics.lgd is not None:

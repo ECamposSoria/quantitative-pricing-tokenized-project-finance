@@ -1,4 +1,5 @@
 from pftoken.pipeline import FinancialPipeline
+from pftoken.constants import TOKENIZED_OPTIMAL_STRUCTURE
 
 
 def _make_pipeline_stub() -> FinancialPipeline:
@@ -94,4 +95,4 @@ def test_structure_comparison_contains_recommended_structure():
         frontier_result=frontier,
     )["structure_comparison"]
     recommended = comparison["tokenized"]["recommended_structure"]
-    assert recommended == {"senior": 0.55, "mezzanine": 0.34, "subordinated": 0.12}
+    assert recommended == TOKENIZED_OPTIMAL_STRUCTURE

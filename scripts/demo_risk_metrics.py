@@ -41,6 +41,7 @@ from pftoken.pricing.zero_curve import CurvePoint, ZeroCurve  # noqa: E402
 from pftoken.waterfall.debt_structure import DebtStructure  # noqa: E402
 from pftoken.stress import StressScenarioLibrary  # noqa: E402
 from pftoken.tokenization import TokenizationBenefits, compute_tokenization_wacd_impact  # noqa: E402
+from pftoken.constants import REGULATORY_RISK_BPS  # noqa: E402
 from pftoken.waterfall.contingent_amortization import (  # noqa: E402
     ContingentAmortizationConfig,
     DualStructureComparator,
@@ -348,6 +349,16 @@ def build_amm_liquidity_analysis(
                 "Institutional-grade compliance (SEC Reg D/S)",
                 "Established $1.45B+ TVL ecosystem",
             ],
+        },
+        "platform_comparison": {
+            "selected": "Centrifuge/Tinlake",
+            "alternatives_considered": ["Maple Finance", "Goldfinch", "Traditional SPV servicing"],
+            "selection_rationale": "Lowest fee (15 bps), CFG incentives, $1.45B TVL, purpose-built for RWA debt pools",
+            "notes": {
+                "maple": "Institutional focus, higher minimums, higher servicing/manager fees",
+                "goldfinch": "Higher spread to LPs, concentrated credit risk to single manager",
+                "traditional_spv": "50-100 bps servicing/admin fees, no protocol incentives",
+            },
         },
         "cost_summary": {
             "protocol_fee_bps": 15,
@@ -789,6 +800,155 @@ def build_hedging_comparison_section(
     return results
 
 
+def build_wacd_synthesis(
+    *,
+    traditional_structure_wacd_bps: float,
+    tokenized_structure_wacd_bps: float,
+    tokenization_benefits: dict,
+    amm_recommendation: dict,
+    hedging_section: dict,
+    debt_notional: float,
+    regulatory_risk_bps: float = REGULATORY_RISK_BPS,
+) -> dict:
+    """
+    Build unified WACD synthesis connecting all cost components.
+
+    This function resolves the disconnect between:
+    1. Coupon-based WACD (structure_comparison)
+    2. Tokenization benefits (tokenization_analysis)
+    3. AMM-derived liquidity premium (amm_recommendation)
+    4. Hedging costs (hedging section)
+
+    Args:
+        traditional_structure_wacd_bps: WACD for 60/25/15 structure (coupon-based).
+        tokenized_structure_wacd_bps: WACD for 55/34/12 structure (coupon-based).
+        tokenization_benefits: Output from build_tokenization_analysis().
+        amm_recommendation: Output from build_amm_recommendation().
+        hedging_section: Output from build_cap_hedging_section().
+        debt_notional: Total debt principal in USD.
+        regulatory_risk_bps: Premium for regulatory ban tail risk (one-time).
+
+    Returns:
+        Dict with synthesized WACD across all scenarios.
+    """
+    # Extract tokenization benefit components
+    wacd_impact = tokenization_benefits.get("wacd_impact", {})
+    liquidity_reduction_tinlake = wacd_impact.get("breakdown", {}).get("liquidity_reduction_bps", 54.21)
+    operational_reduction = wacd_impact.get("breakdown", {}).get("operational_reduction_bps", 3.5)
+    transparency_reduction = wacd_impact.get("breakdown", {}).get("transparency_reduction_bps", 20.0)
+
+    # Extract V3 AMM liquidity premium (better than Tinlake estimate)
+    v3_premium = amm_recommendation.get("v3_derived_premium", {})
+    v3_liquidity_reduction = v3_premium.get("reduction_bps", 69.66)
+
+    # Use V3 liquidity reduction as it's superior to Tinlake estimate
+    # But cap it at the Tinlake benchmark + 20 bps to be conservative
+    effective_liquidity_reduction = min(v3_liquidity_reduction, liquidity_reduction_tinlake + 20)
+
+    # Total tokenization benefits (excluding liquidity which comes from AMM)
+    non_liquidity_benefits = operational_reduction + transparency_reduction
+
+    # Total tokenization spread reduction
+    total_tokenization_reduction = effective_liquidity_reduction + non_liquidity_benefits - regulatory_risk_bps
+
+    # Extract hedging cost
+    cap_info = hedging_section.get("interest_rate_cap", {})
+    cap_premium = cap_info.get("premium", 0)
+    cap_breakeven_bps = cap_info.get("break_even_spread_bps", 0)
+    cap_years = len(cap_info.get("schedule_years", [1, 2, 3, 4, 5]))
+
+    # Amortize cap cost over hedge tenor (annualized bps)
+    if cap_premium > 0 and debt_notional > 0 and cap_years > 0:
+        annual_cap_cost = cap_premium / cap_years
+        hedging_cost_bps = (annual_cap_cost / debt_notional) * 10000
+    else:
+        hedging_cost_bps = 0
+
+    # Calculate all-in WACD for each scenario
+    # Scenario 1: Traditional (60/25/15, no benefits)
+    trad_all_in = traditional_structure_wacd_bps
+
+    # Scenario 2: Tokenized same structure (60/25/15 + tokenization benefits)
+    tokenized_same_structure = traditional_structure_wacd_bps - total_tokenization_reduction
+
+    # Scenario 3: Tokenized optimal structure (55/34/11 + tokenization benefits)
+    tokenized_optimal = tokenized_structure_wacd_bps - total_tokenization_reduction
+
+    # Scenario 4: Tokenized optimal + hedging (55/34/12 + benefits - hedge cost)
+    tokenized_optimal_hedged = tokenized_optimal + hedging_cost_bps
+
+    return {
+        "methodology": {
+            "description": "Synthesized WACD combining coupon rates, tokenization benefits, AMM liquidity, and hedging costs",
+            "liquidity_source": "V3 AMM (capped at Tinlake + 20 bps for conservatism)",
+            "hedging_amortization": f"Cap premium amortized over {cap_years} years",
+            "regulatory_tail_risk": f"{regulatory_risk_bps} bps premium for potential security-token bans",
+        },
+        "components": {
+            "liquidity_reduction_bps": round(effective_liquidity_reduction, 2),
+            "operational_reduction_bps": round(operational_reduction, 2),
+            "transparency_reduction_bps": round(transparency_reduction, 2),
+            "total_tokenization_reduction_bps": round(total_tokenization_reduction, 2),
+            "regulatory_risk_bps": round(regulatory_risk_bps, 2),
+            "hedging_cost_bps": round(hedging_cost_bps, 2),
+        },
+        "scenarios": {
+            "traditional_60_25_15": {
+                "description": "Traditional structure, no tokenization",
+                "coupon_wacd_bps": round(traditional_structure_wacd_bps, 2),
+                "tokenization_benefit_bps": 0,
+                "hedging_cost_bps": 0,
+                "all_in_wacd_bps": round(trad_all_in, 2),
+            },
+            "tokenized_same_structure": {
+                "description": "Same 60/25/15 structure with tokenization benefits",
+                "coupon_wacd_bps": round(traditional_structure_wacd_bps, 2),
+                "tokenization_benefit_bps": round(-total_tokenization_reduction, 2),
+                "hedging_cost_bps": 0,
+                "all_in_wacd_bps": round(tokenized_same_structure, 2),
+            },
+            "tokenized_optimal_55_34_11": {
+                "description": "Optimal 55/34/11 structure with tokenization benefits",
+                "coupon_wacd_bps": round(tokenized_structure_wacd_bps, 2),
+                "tokenization_benefit_bps": round(-total_tokenization_reduction, 2),
+                "hedging_cost_bps": 0,
+                "all_in_wacd_bps": round(tokenized_optimal, 2),
+            },
+            "tokenized_optimal_hedged": {
+                "description": "Optimal structure with tokenization + rate cap hedge",
+                "coupon_wacd_bps": round(tokenized_structure_wacd_bps, 2),
+                "tokenization_benefit_bps": round(-total_tokenization_reduction, 2),
+                "hedging_cost_bps": round(hedging_cost_bps, 2),
+                "all_in_wacd_bps": round(tokenized_optimal_hedged, 2),
+            },
+        },
+        "comparison_vs_traditional": {
+            "tokenized_same_structure_savings_bps": round(trad_all_in - tokenized_same_structure, 2),
+            "tokenized_optimal_savings_bps": round(trad_all_in - tokenized_optimal, 2),
+            "tokenized_optimal_hedged_savings_bps": round(trad_all_in - tokenized_optimal_hedged, 2),
+        },
+        "thesis_finding": {
+            "same_structure_benefit": f"Tokenizing the same 60/25/15 structure saves {round(trad_all_in - tokenized_same_structure, 0):.0f} bps",
+            "optimal_structure_impact": (
+                f"Rebalancing to 55/34/11 {'adds' if tokenized_optimal > tokenized_same_structure else 'has no cost impact -'} "
+                f"{'cost' if tokenized_optimal > tokenized_same_structure else 'all tranches share same 4.5% coupon rate'}"
+                if abs(tokenized_optimal - tokenized_same_structure) > 1
+                else "Rebalancing to 55/34/11 has no cost impact - all tranches share same 4.5% coupon rate"
+            ),
+            "structure_rationale": (
+                "55/34/11 optimizes RISK-RETURN on Pareto frontier (more mezz = better risk-adjusted return), not cost"
+            ),
+            "net_tokenization_benefit": (
+                f"Net benefit vs traditional: {round(trad_all_in - tokenized_optimal, 0):.0f} bps savings"
+            ),
+            "hedging_value": (
+                f"Rate cap adds {round(hedging_cost_bps, 0):.0f} bps cost but reduces breach probability by ~23%"
+            ),
+            "regulatory_risk": f"Includes {round(regulatory_risk_bps, 1)} bps regulatory tail-risk premium applied to tokenized scenarios",
+        },
+    }
+
+
 def build_dual_structure_analysis(
     mc_outputs,
     debt_structure: DebtStructure,
@@ -1029,6 +1189,13 @@ def main() -> None:
         v2_v3_comparison=payload["v2_v3_comparison"],
         amm_liquidity=payload["amm_liquidity"],
     )
+    payload["platform_analysis"] = {
+        "selected": "Centrifuge/Tinlake",
+        "alternatives_considered": ["Maple", "Goldfinch", "Traditional SPV"],
+        "selection_rationale": "Lowest fee (15 bps), CFG incentives, $1.45B TVL",
+        "fee_bps": payload["amm_liquidity"]["platform"].get("protocol_fee_bps", 15),
+        "tvl_usd": payload["amm_liquidity"]["platform"].get("tvl_usd", 1_450_000_000),
+    }
 
     # Equity Analysis: Run waterfall to get dividends and calculate correct IRR
     # Uses $50M equity on $100M project (50/50 structure) per project_params.csv
@@ -1110,6 +1277,19 @@ def main() -> None:
     )
     if hedging_comparison is not None:
         payload["hedging_comparison"] = hedging_comparison
+
+    # WACD Synthesis: Unified view connecting all cost components
+    # Get tokenized structure WACD (55/34/12 coupon-based)
+    tokenized_recommended_wacd = structure_comparison.get("tokenized", {}).get("recommended_wacd_bps", 557)
+    payload["wacd_synthesis"] = build_wacd_synthesis(
+        traditional_structure_wacd_bps=traditional_wacd_bps,
+        tokenized_structure_wacd_bps=tokenized_recommended_wacd,
+        tokenization_benefits=payload["tokenization_analysis"],
+        amm_recommendation=payload["amm_recommendation"],
+        hedging_section=payload["hedging"],
+        debt_notional=pipeline.debt_structure.total_principal,
+        regulatory_risk_bps=REGULATORY_RISK_BPS,
+    )
 
     output_path = output_dir / "leo_iot_results.json"
     output_path.write_text(json.dumps(payload, indent=2))

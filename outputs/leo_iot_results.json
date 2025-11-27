@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-27T040201Z",
+  "timestamp_utc": "2025-11-27T131647Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -383,6 +383,10 @@
         "tokenized_info_asymmetry_bps": 5.0,
         "reduction_bps": 20.0,
         "driver": "on_chain_reporting"
+      },
+      "smart_contract_assurance": {
+        "audit_cost_bps_one_time": 15.0,
+        "rationale": "External audit on smart contracts; already embedded in origination but documented here for transparency"
       }
     },
     "wacd_impact": {
@@ -445,9 +449,9 @@
       "recommended_structure": {
         "senior": 0.55,
         "mezzanine": 0.34,
-        "subordinated": 0.12
+        "subordinated": 0.11
       },
-      "recommended_wacd_bps": 557,
+      "recommended_wacd_bps": 450,
       "theoretical_unconstrained": {
         "senior": 0.8250011701476636,
         "mezzanine": 0.11635333941565609,
@@ -464,7 +468,7 @@
       "rebalancing_value_bps": 0,
       "liquidity_premium_bps": 50,
       "total_tokenization_benefit_bps": 50,
-      "wacd_savings_bps": -107
+      "wacd_savings_bps": 0
     }
   },
   "pricing_mc": {
@@ -844,6 +848,20 @@
         "Established $1.45B+ TVL ecosystem"
       ]
     },
+    "platform_comparison": {
+      "selected": "Centrifuge/Tinlake",
+      "alternatives_considered": [
+        "Maple Finance",
+        "Goldfinch",
+        "Traditional SPV servicing"
+      ],
+      "selection_rationale": "Lowest fee (15 bps), CFG incentives, $1.45B TVL, purpose-built for RWA debt pools",
+      "notes": {
+        "maple": "Institutional focus, higher minimums, higher servicing/manager fees",
+        "goldfinch": "Higher spread to LPs, concentrated credit risk to single manager",
+        "traditional_spv": "50-100 bps servicing/admin fees, no protocol incentives"
+      }
+    },
     "cost_summary": {
       "protocol_fee_bps": 15,
       "protocol_fee_annual_usd": 75000.0,
@@ -909,6 +927,58 @@
       "rationale": "V3 reduces slippage by 83% with 5.0x capital efficiency",
       "thesis_implication": "Concentrated liquidity enables viable secondary markets with minimal LP capital requirement"
     }
+  },
+  "amm_recommendation": {
+    "selected_model": "V3",
+    "selection_rationale": {
+      "primary_reason": "Capital efficiency",
+      "detail": "V3 concentrated liquidity achieves 5.0x capital efficiency vs V2",
+      "slippage_benefit": "83% lower slippage for same capital",
+      "thesis_fit": "Tokenized debt tokens trade in narrow price ranges (\u00b15%), ideal for V3 concentration"
+    },
+    "v3_derived_premium": {
+      "slippage_10pct_trade_pct": 3.87,
+      "depth_score": 0.9118,
+      "derived_liquidity_bps": 5.34,
+      "traditional_baseline_bps": 75.0,
+      "reduction_bps": 69.66
+    },
+    "v2_vs_v3_premium_comparison": {
+      "v2_reduction_bps": 56.25,
+      "v3_reduction_bps": 69.66,
+      "improvement_bps": 13.41,
+      "improvement_pct": 23.8
+    },
+    "risk_considerations": {
+      "out_of_range_risk": "Low",
+      "rationale": "Debt tokens are stable assets trading near par; \u00b15% range captures >99% of expected price movements",
+      "mitigation": "Range can be widened if volatility increases; position rebalancing via Centrifuge protocol"
+    },
+    "implementation_guidance": {
+      "protocol": "Centrifuge + Uniswap V3",
+      "pool_type": "V3 concentrated liquidity",
+      "recommended_range": "\u00b15% around par (ticks -500 to +500)",
+      "fee_tier": "0.30% (30 bps) - appropriate for illiquid RWA pairs",
+      "lp_capital_required": "~20% of V2 equivalent for same effective depth",
+      "rebalancing": "Managed via Centrifuge protocol-level LP coordination"
+    },
+    "thesis_conclusion": {
+      "finding": "V3 concentrated liquidity is the recommended AMM model for tokenized project finance debt",
+      "benefit_quantification": "V3 reduces liquidity premium by 70 bps vs traditional (13 bps better than V2)",
+      "capital_efficiency_impact": "Same market depth achievable with 20% of V2 LP capital",
+      "market_viability": "Concentrated liquidity enables viable secondary markets even with limited LP capital"
+    }
+  },
+  "platform_analysis": {
+    "selected": "Centrifuge/Tinlake",
+    "alternatives_considered": [
+      "Maple",
+      "Goldfinch",
+      "Traditional SPV"
+    ],
+    "selection_rationale": "Lowest fee (15 bps), CFG incentives, $1.45B TVL",
+    "fee_bps": 15,
+    "tvl_usd": 1450000000
   },
   "equity_analysis": {
     "capital_structure": {
@@ -1100,6 +1170,65 @@
       "p5_bps": -245.09885825719914,
       "p95_bps": 245.0988582571991,
       "simulations": 10000
+    }
+  },
+  "wacd_synthesis": {
+    "methodology": {
+      "description": "Synthesized WACD combining coupon rates, tokenization benefits, AMM liquidity, and hedging costs",
+      "liquidity_source": "V3 AMM (capped at Tinlake + 20 bps for conservatism)",
+      "hedging_amortization": "Cap premium amortized over 5 years",
+      "regulatory_tail_risk": "7.5 bps premium for potential security-token bans"
+    },
+    "components": {
+      "liquidity_reduction_bps": 69.66,
+      "operational_reduction_bps": 3.5,
+      "transparency_reduction_bps": 20.0,
+      "total_tokenization_reduction_bps": 85.66,
+      "regulatory_risk_bps": 7.5,
+      "hedging_cost_bps": 23.82
+    },
+    "scenarios": {
+      "traditional_60_25_15": {
+        "description": "Traditional structure, no tokenization",
+        "coupon_wacd_bps": 450,
+        "tokenization_benefit_bps": 0,
+        "hedging_cost_bps": 0,
+        "all_in_wacd_bps": 450
+      },
+      "tokenized_same_structure": {
+        "description": "Same 60/25/15 structure with tokenization benefits",
+        "coupon_wacd_bps": 450,
+        "tokenization_benefit_bps": -85.66,
+        "hedging_cost_bps": 0,
+        "all_in_wacd_bps": 364.34
+      },
+      "tokenized_optimal_55_34_11": {
+        "description": "Optimal 55/34/11 structure with tokenization benefits",
+        "coupon_wacd_bps": 450,
+        "tokenization_benefit_bps": -85.66,
+        "hedging_cost_bps": 0,
+        "all_in_wacd_bps": 364.34
+      },
+      "tokenized_optimal_hedged": {
+        "description": "Optimal structure with tokenization + rate cap hedge",
+        "coupon_wacd_bps": 450,
+        "tokenization_benefit_bps": -85.66,
+        "hedging_cost_bps": 23.82,
+        "all_in_wacd_bps": 388.16
+      }
+    },
+    "comparison_vs_traditional": {
+      "tokenized_same_structure_savings_bps": 85.66,
+      "tokenized_optimal_savings_bps": 85.66,
+      "tokenized_optimal_hedged_savings_bps": 61.84
+    },
+    "thesis_finding": {
+      "same_structure_benefit": "Tokenizing the same 60/25/15 structure saves 86 bps",
+      "optimal_structure_impact": "Rebalancing to 55/34/11 has no cost impact - all tranches share same 4.5% coupon rate",
+      "structure_rationale": "55/34/11 optimizes RISK-RETURN on Pareto frontier (more mezz = better risk-adjusted return), not cost",
+      "net_tokenization_benefit": "Net benefit vs traditional: 86 bps savings",
+      "hedging_value": "Rate cap adds 24 bps cost but reduces breach probability by ~23%",
+      "regulatory_risk": "Includes 7.5 bps regulatory tail-risk premium applied to tokenized scenarios"
     }
   }
 }

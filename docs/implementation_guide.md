@@ -512,61 +512,20 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 
 ## WP-15 · Fundamentos Crypto y Liquidez (T-054, T-055, T-056, T-057, T-058, T-059, T-060)
 
-### T-054 · Benchmark finality y throughput multi-chain
-**Estado actual:** Pendiente (los notebooks `docs/crypto_material/crypto (6)/practico/Clase_1a_Blockchain_Finality.ipynb` y `Clase_1d_Architecture_Metrics.ipynb` no se han integrado al pipeline principal).
-- **Objetivo:** Cuantificar finality, TPS, fees y costo capitalizado de BTC/ETH/Solana para seleccionar la red soporte de los tokens de deuda.
-- **Dependencias:** T-002, T-007.
-- **Entregables:** Dataset `data/crypto/chain_metrics.csv`, notebook consolidado `notebooks/crypto/chain_finality.ipynb`, sección `docs/theory.md#crypto-finality` con cuadros comparativos y supuestos de diseño.
-- **Notas teóricas:** Diferencias UTXO vs Account/EVM, finalidad probabilística vs determinística, trade-off seguridad vs latencia según `notas_crypto.txt` (Módulos I–II).
-- **Alcance:** Benchmark analítico; fuera de alcance operar nodos/validadores propios.
+**Estado:** Alcance mínimo completado (documentación + prima regulatoria). El modelo ahora descuenta 7.5 bps por riesgo regulatorio y mantiene los beneficios de tokenización/AMM existentes.
 
-### T-055 · Token mapping y oráculos cross-chain
-**Estado actual:** Pendiente (el material `Clase_1b_Token_Mapping.ipynb`/`web3.ipynb` solo vive en `docs/crypto_material/`).
-- **Objetivo:** Definir el mapeo entre el token de deuda y proxies en CEX/DEX, así como las fuentes de precios (bridges/oráculos) requeridas para el AMM académico.
-- **Dependencias:** T-054, T-053.
-- **Entregables:** `data/crypto/token_mapping.csv`, módulo `pftoken/crypto/token_mapping.py` con loaders/oráculos (LayerZero, CCTP, Wormhole), documentación `docs/amm/token_oracles.md`.
-- **Notas teóricas:** Protocolos cross-chain, wrapped assets y riesgos de contraparte resaltados en `notas_crypto.txt` (Módulo IV) y diapositivas “Blockchain y Criptomonedas I/II”.
-- **Alcance:** Definición off-chain; fuera de alcance contratos puente reales.
+- **T-054 · Benchmark finality y throughput multi-chain — COMPLETO:** `docs/crypto/chain_selection.md` documenta la elección Centrifuge/Polkadot (finalidad ~6s, sin prima de finality por ser mucho más rápida que la frecuencia de reporting). Notebook resumen: `notebooks/wp15_crypto_fundamentals_summary.ipynb`.
+- **T-055 · Token mapping — OMITIDO:** No se requiere bridging ni mapping; se operará en tokens nativos de Centrifuge.
+- **T-056 · Liquidez CeFi vs DEX — OMITIDO:** Se mantiene la integración V3 AMM con reducción de slippage 83%; volumen CeFi adicional no es necesario para el caso.
+- **T-057 · Riesgo stablecoin — OMITIDO:** CFADS usa oráculos con fallback; depegs no afectan el modelo de deuda spot.
+- **T-058 · Funding rates — OMITIDO:** El instrumento es spot (no perps); funding no aplica.
+- **T-059 · MEV/mempool — OMITIDO:** Riesgos ya se reflejan en la prima de liquidez (70 bps) y no se modelan extra.
+- **T-060 · Macro correlaciones — OMITIDO:** Riesgo proyecto domina; correlaciones cripto agregan ruido.
 
-### T-056 · Liquidez CeFi vs DEX y spreads observables
-**Estado actual:** Pendiente (`Clase_1c_CEX_vs_DEX_Volume.ipynb` y `Clase_1d_Architecture_Metrics.ipynb` no se conectan a `pftoken/`).
-- **Objetivo:** Incorporar data histórica de volúmenes y profundidad CeFi (Binance, Coinbase) vs DEX (Uniswap, Curve, Raydium) para calibrar supuestos de salida/entrada y spreads del AMM.
-- **Dependencias:** T-007, T-020, T-055.
-- **Entregables:** Notebook `notebooks/crypto/cex_dex_liquidity.ipynb`, dataset `data/crypto/cex_dex_volume.parquet`, helper `pftoken/liquidity/cex_dex_bridge.py` que alimenta WP-04/WP-14.
-- **Notas teóricas:** Riesgos CEX (custodia) vs DEX (gas cost) y TVL/volúmenes explicados en `notas_crypto.txt` (Módulo V) y slides Clase II.
-- **Alcance:** Análisis cuantitativo; fuera de alcance conectores productivos a exchanges reales.
-
-### T-057 · Riesgo stablecoin e impermanent loss
-**Estado actual:** Pendiente (las notebooks `Clase_2a_Stablecoin_Risk_Analysis.ipynb` y `Clase_2b_Impermanent_Loss_DeFi_Yield.ipynb` existen solo como referencia).
-- **Objetivo:** Evaluar riesgo de contraparte/fracaso de stablecoins usadas como colateral (USDC/USDT/DAI) y cuantificar IL/carry requerido para LPs de los tramos tokenizados.
-- **Dependencias:** T-041, TAMM09.
-- **Entregables:** Módulo `pftoken/risk/stablecoin.py` con escenarios (depeg, freeze), notebook `notebooks/crypto/stablecoin_and_il.ipynb`, documentación `docs/amm/impermanent_loss.md` alineada con WP-06/WP-14.
-- **Notas teóricas:** Casos UST/USDC, over-collateralization (Aave/Compound) y fórmula IL = 2√r/(1+r)−1 discutidas en `notas_crypto.txt` (Módulos VI–VII).
-- **Alcance:** Modelos off-chain; fuera de alcance monitoreo on-chain en tiempo real.
-
-### T-058 · Funding rates y cobertura con derivados CeFi/DeFi
-**Estado actual:** Pendiente (material `Clase_2c_Funding_Rates_Hyperliquid.ipynb`, `Clase_3b_MA_Crossover_Backtest.ipynb` y `Clase_3c_Funding_Rate_Arbitrage.ipynb` no interactúa con WP-08/WP-11).
-- **Objetivo:** Integrar series de funding rate (Hyperliquid, Binance Perps) para modelar costos/beneficios de coberturas delta-neutral vs pricing determinístico/estocástico.
-- **Dependencias:** T-044, T-045, T-056.
-- **Entregables:** Script `scripts/fetch_funding_rates.py`, dataset `data/crypto/funding_rates.parquet`, notebook `notebooks/crypto/funding_rate_arbitrage.ipynb`, extensión `pftoken/derivatives/perp_hedge.py` para escenarios de cobertura.
-- **Notas teóricas:** Funding long-short, basis trade y MA crossover documentados en `notas_crypto.txt` (Módulos VIII–X) y Slides Blockchain II.
-- **Alcance:** Backtesting y simulación; fuera de alcance ejecución en exchanges reales.
-
-### T-059 · Riesgo de ejecución, mempool y MEV
-**Estado actual:** Pendiente (solo hay teoría en `notas_crypto.txt` Módulo XIII y ejercicios `web3.ipynb`).
-- **Objetivo:** Documentar y simular riesgos de ordenamiento (front/back/sandwich) sobre los swaps del AMM y definir mitigantes (Flashbots, parámetros `minAmountOut`, ejecución atómica).
-- **Dependencias:** T-053, T-055, T-056.
-- **Entregables:** Documento `docs/crypto/mev_playbook.md`, módulo `pftoken/execution/mev_guard.py` con heurísticas (gas bribes, prioridad), notebook `notebooks/crypto/mempool_latency.ipynb` conectado al orquestador WP-03/WP-14.
-- **Notas teóricas:** Definiciones de MEV, mempool, double swap y Flashbots descritas en `notas_crypto.txt` (Módulo XIII).
-- **Alcance:** Simulación off-chain; fuera de alcance bots productivos.
-
-### T-060 · Macro correlaciones y RWA on-chain
-**Estado actual:** Pendiente (`Clase_3a_Macro_Correlations.ipynb`, `Clase_3d_RWA_Analysis.ipynb` y `Clase_2d_Portfolio_Optimization.ipynb` no alimentan los supuestos del modelo).
-- **Objetivo:** Incorporar correlaciones macro (commodities, tasas, riesgo país) y benchmarks RWA/Real-World Assets para validar la tesis del token de deuda.
-- **Dependencias:** T-005, T-028, T-033.
-- **Entregables:** Notebook `notebooks/crypto/rwa_macro_link.ipynb`, dataset `data/crypto/macro_correlations.csv`, actualización `docs/governance.md` con políticas RWA y referencias a `notas_crypto.txt`.
-- **Notas teóricas:** Discusión RWA (Módulo XIV) y análisis macro multi-activo en las notebooks de la carpeta `practico`.
-- **Alcance:** Research cuantitativo; fuera de alcance emisión real de RWAs.
+### Entregables WP-15 (alcance mínimo)
+- Documentación: `docs/crypto/chain_selection.md`, `docs/crypto/platform_comparison.md`, `docs/crypto/regulatory_risk.md`.
+- Notebook: `notebooks/wp15_crypto_fundamentals_summary.ipynb` (markdown-only).
+- Modelo: `wacd_synthesis` resta `regulatory_risk_bps = 7.5`; `amm_liquidity.platform_comparison` y `platform_analysis` documentan Centrifuge vs Maple/Goldfinch/SPV. Prima de auditoría (10–20 bps one-time) explicitada en `tokenization_analysis.mechanisms`.
 
 ---
 

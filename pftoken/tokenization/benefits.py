@@ -14,6 +14,7 @@ class TokenizationBenefits:
     liquidity_premium_tokenized_bps: float = 25.0
     admin_cost_traditional_pct: float = 0.50
     admin_cost_tokenized_pct: float = 0.15
+    audit_cost_one_time_bps: float = 15.0  # midpoint of 10–20 bps audit on $50M notional
     min_ticket_traditional: float = 1_000_000.0
     min_ticket_tokenized: float = 100.0
     investor_base_multiplier: float = 100.0
@@ -66,6 +67,10 @@ class TokenizationBenefits:
                     "tokenized_info_asymmetry_bps": self.info_asymmetry_tokenized_bps,
                     "reduction_bps": self.transparency_benefit_bps,
                     "driver": "on_chain_reporting",
+                },
+                "smart_contract_assurance": {
+                    "audit_cost_bps_one_time": self.audit_cost_one_time_bps,
+                    "rationale": "External audit on smart contracts; already embedded in origination but documented here for transparency",
                 },
             },
             "total_benefit_bps": self.total_benefit_bps,

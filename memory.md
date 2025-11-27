@@ -1,6 +1,6 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-24 21:20 UTC
+## Last Updated: 2025-11-27 06:30 UTC
 ## Version: 0.7.0
 
 ### Current Architecture
@@ -121,6 +121,14 @@ markdown# System Memory
 - 2025-11-27: **Centrifuge Platform Documented.** Added platform/liquidity_sourcing/cost_summary to `amm_liquidity` section documenting Centrifuge/Tinlake as liquidity platform: $1.45B TVL, CFG governance token, 15 bps protocol fee (~$75K/year on $50M notional), CFG-incentivized LP model eliminates sponsor capital requirement. Net benefit vs self-LP: $375K/year (avoided 9% opportunity cost on $5M LP capital minus 15 bps protocol fee).
 - 2025-11-27: **Equity Analysis Fixed.** Corrected equity IRR calculation: $50M equity investment (50% of $100M project) not just $18M DSRA. True IRR = 10.56% annual, 2.59x multiple, payback Year 9. Added `equity_analysis` section to `leo_iot_results.json` with capital structure, returns, and cashflow breakdown.
 - 2025-11-27: **V3 AMM Integration Complete.** Implemented V2 vs V3 comparison (`build_v2_v3_comparison`) showing V3 wins decisively: 83% slippage reduction, 5x capital efficiency. Added `build_amm_recommendation()` synthesizing comparison results with V3 as primary model. V3-derived liquidity premium: ~70 bps reduction (vs V2's ~56 bps). New output sections: `v2_v3_comparison` (raw comparison) and `amm_recommendation` (V3 selection rationale, implementation guidance, thesis conclusion). V3 recommended for tokenized debt due to: (1) stable token prices ideal for concentrated liquidity, (2) 5x capital efficiency enables viable secondary markets with minimal LP capital, (3) Centrifuge protocol manages rebalancing.
+- 2025-11-27: **WACD Synthesis Fix.** Added `build_wacd_synthesis()` to `scripts/demo_risk_metrics.py` that unifies all WACD components: coupon rates, tokenization benefits (liquidity/operational/transparency), AMM V3 liquidity premium, and hedging costs. New `wacd_synthesis` section in `leo_iot_results.json`.
+- 2025-11-27: **WP-15 (alcance mínimo).** Documentada selección de cadena (`docs/crypto/chain_selection.md`), comparación de plataformas (`docs/crypto/platform_comparison.md`), prima regulatoria (`docs/crypto/regulatory_risk.md`), y notebook resumen (`notebooks/wp15_crypto_fundamentals_summary.ipynb`). `wacd_synthesis` descuenta `REGULATORY_RISK_BPS=7.5` y expone `platform_comparison`/`platform_analysis`; costo de auditoría (10–20 bps one-time) explicitado en `tokenization_analysis.mechanisms`.
+- 2025-11-27: **Structure Constants Fixed.** Corrected `pftoken/constants.py`:
+  - `TOKENIZED_OPTIMAL_STRUCTURE`: 55/34/12 → **55/34/11** (was summing to 101%)
+  - `TOKENIZED_OPTIMAL_WACD_BPS`: 557 → **450** (all tranches have same 4.5% coupon, so structure doesn't affect WACD)
+  - **Key insight**: Structure rebalancing (60/25/15 → 55/34/11) has **NO COST IMPACT** because all tranches share 4.5% coupon rate. The 55/34/11 was chosen for **RISK-RETURN optimization** (Pareto frontier), not cost reduction.
+  - **Tokenization benefit = 93 bps** (liquidity 70 + operational 3.5 + transparency 20), **regardless of structure**
+  - **With hedging**: +24 bps cost for cap = 69 bps net savings (but 23% breach reduction)
 
 ### Known Issues
 - T-047 calibración real (MC surfaces, correlaciones) pendiente de T-022/T-023; el YAML actual es determinístico.

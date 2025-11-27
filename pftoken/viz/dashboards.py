@@ -12,6 +12,7 @@ from pftoken.models import ProjectParameters
 from pftoken.pipeline import FinancialPipeline
 
 from . import plots
+from . import amm_viz
 
 USD_PER_MILLION = 1_000_000
 
@@ -19,6 +20,8 @@ USD_PER_MILLION = 1_000_000
 def build_financial_dashboard(
     params: ProjectParameters,
     mc_ratio_summary: dict | None = None,
+    include_amm: bool = False,
+    amm_context: dict | None = None,
 ) -> Dict[str, Figure]:
     """Generate the extended dashboard using the financial pipeline outputs."""
 
@@ -107,6 +110,20 @@ def build_financial_dashboard(
                 threshold=params.project.min_dscr_covenant,
                 title="DSCR Fan Chart (MC)",
             )
+
+    if include_amm and amm_context:
+        if "pool_prices" in amm_context and "dcf_prices" in amm_context:
+            figures["price_vs_dcf"] = amm_viz.plot_price_vs_dcf(
+                amm_context["pool_prices"], amm_context["dcf_prices"]
+            )
+        if "il_surface" in amm_context and "ratios" in amm_context and "ranges" in amm_context:
+            figures["il_heatmap"] = amm_viz.plot_il_heatmap(
+                amm_context["il_surface"], amm_context["ratios"], amm_context["ranges"]
+            )
+        if "stress_results" in amm_context:
+            figures["stress_outcomes"] = amm_viz.plot_stress_outcomes(amm_context["stress_results"])
+        if "depth_curve" in amm_context:
+            figures["liquidity_depth"] = amm_viz.plot_liquidity_depth(amm_context["depth_curve"])
 
     return figures
 

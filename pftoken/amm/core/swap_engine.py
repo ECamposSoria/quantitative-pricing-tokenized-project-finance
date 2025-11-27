@@ -9,9 +9,10 @@ with routing, slippage checks, or MEV-aware logic.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Protocol, runtime_checkable
 
 from .pool_v2 import ConstantProductPool, SwapQuote
+from .pool_v3 import ConcentratedLiquidityPool, SwapResult
 
 Side = Literal["token0", "token1"]
 
@@ -23,9 +24,18 @@ class SwapIntent:
     min_amount_out: float = 0.0
 
 
-def execute_swap(pool: ConstantProductPool, intent: SwapIntent) -> SwapQuote:
+@runtime_checkable
+class ExecutablePool(Protocol):
+    def execute_swap(self, amount_in: float, side_in: Side): ...
+
+
+def execute_swap(pool: ExecutablePool | ConcentratedLiquidityPool, intent: SwapIntent) -> SwapQuote | SwapResult:
     """Route a swap intent to the provided pool."""
-    quote = pool.execute_swap(intent.amount_in, intent.side_in)
+    if isinstance(pool, ConcentratedLiquidityPool):
+        quote = pool.simulate_swap(intent.amount_in, intent.side_in)
+    else:
+        quote = pool.execute_swap(intent.amount_in, intent.side_in)
+
     if quote.amount_out < intent.min_amount_out:
         raise ValueError(
             f"Swap output {quote.amount_out:.6f} below minimum {intent.min_amount_out:.6f}"

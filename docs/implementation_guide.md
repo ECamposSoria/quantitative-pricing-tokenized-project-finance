@@ -453,7 +453,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 ## WP-14 · AMM Simplificado (T-053, TAMM01, TAMM02, TAMM05, TAMM06, TAMM09, TAMM11)
 
 ### T-053 · Diseño arquitectura AMM
-**Estado actual:** En progreso (`pftoken/amm/` tiene módulos core/análisis; falta documento y definición formal de interfaces).
+**Estado actual:** Hecho (`docs/amm/architecture.md`, `docs/amm/amm_overview.md`, `docs/amm/integration_guide.md` + módulos core/análisis implementados).
 - **Objetivo:** Definir alcance teórico del AMM académico (V2/V3, pricing DCF vs mercado, stress de liquidez) y documentar supuestos/limitaciones.
 - **Dependencias:** T-007, T-020.
 - **Entregables:** Documento `docs/amm/architecture.md`, interfaces base (`Pool`, `PoolState`, `PoolConfig`), diagrama de flujo DCF↔Pool↔Arbitrage↔Stress.
@@ -469,7 +469,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulador off-chain; fuera de alcance despliegue on-chain.
 
 ### TAMM02 · Pool V3 Concentrated Liquidity
-**Estado actual:** En progreso (`pftoken/amm/core/pool_v3.py` define posiciones/ticks pero falta `simulate_swap` y gestión completa de liquidez activa).
+**Estado actual:** Hecho (`pftoken/amm/core/pool_v3.py` con simulate_swap tick-crossing Q64.96, helpers `sqrt_price_math`, tests `tests/test_amm/test_pool_v3.py`).
 - **Objetivo:** Modelar liquidez concentrada con rangos [P_low, P_high], tick math y capital efficiency.
 - **Dependencias:** TAMM01.
 - **Entregables:** Swaps atravesando rangos, `tick_spacing`, cálculo de eficiencia/APR, visualización de distribución de liquidez.
@@ -477,7 +477,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulador académico; fuera de alcance implementación completa Uniswap.
 
 ### TAMM05 · Market Price Calculator
-**Estado actual:** En progreso (`pftoken/amm/pricing/market_price.py` cubre spot/TWAP, falta slippage por tamaño y análisis histórico).
+**Estado actual:** Hecho (`pftoken/amm/pricing/market_price.py` con spot/TWAP/exec price/depth/arbitrage_signal; slippage curves in `pricing/slippage.py`; tests `tests/test_amm/test_market_pricing.py`, `test_slippage.py`).
 - **Objetivo:** Extraer precios observables (spot, TWAP, ejecución por tamaño) y compararlos con precio DCF para detectar arbitrajes.
 - **Dependencias:** TAMM01, T-007.
 - **Entregables:** Funciones `calculate_execution_price`, `market_depth_curve`, `detect_arbitrage_opportunity`, tracking histórico y visualización dual (mercado vs DCF).
@@ -485,7 +485,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Análisis; fuera de alcance conexión con exchanges reales.
 
 ### TAMM06 · DCF Integration Convergence
-**Estado actual:** Pendiente (solo existen helpers `pricing/arbitrage.py`; falta `ArbitrageEngine`).
+**Estado actual:** Hecho (`pftoken/amm/pricing/arbitrage_engine.py`, convergence hooks in `dcf_integration.py`, tests `tests/test_amm/test_arbitrage_engine.py`).
 - **Objetivo:** Simular traders que cierran brechas precio mercado vs DCF, midiendo velocidad de convergencia, capital y ganancias.
 - **Dependencias:** TAMM05, T-007.
 - **Entregables:** `ArbitrageEngine` (sizing α·liq·spread, constraints de capital), escenarios de shock ±10 %, métricas de convergencia (half-life).
@@ -493,7 +493,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulación; fuera de alcance bots reales.
 
 ### TAMM09 · Impermanent Loss Calculator
-**Estado actual:** En progreso (`pftoken/amm/analysis/impermanent_loss.py`, `lp_pnl.py` calculan IL y PnL básico).
+**Estado actual:** Hecho (`impermanent_loss.py` v2/v3 range, surfaces, breakeven; `lp_pnl.py` decomposition; docs `docs/amm/impermanent_loss.md`; tests `tests/test_amm/test_impermanent_loss.py`, `test_lp_pnl.py`).
 - **Objetivo:** Cuantificar IL para LPs V2/V3, break-even de fees y recomendaciones de rango.
 - **Dependencias:** TAMM01, TAMM02.
 - **Entregables:** Funciones IL v2/v3, `calculate_fees_earned`, simulaciones de trayectorias y `recommend_lp_strategy`, visualizaciones IL vs price_ratio y superficies rango×volatilidad.
@@ -501,7 +501,7 @@ Modelo Cuantitativo de Project Finance Tokenizado para Constelación LEO IoT
 - **Alcance:** Simulación; fuera de alcance incentivos token reales.
 
 ### TAMM11 · Liquidity Stress Testing
-**Estado actual:** En progreso (`pftoken/stress/liquidity_stress.py` + `scripts/run_amm_stress.py` aplican shocks proporcionales; faltan escenarios de panic sell, retiro LP, flash crash).
+**Estado actual:** Hecho (`pftoken/stress/liquidity_stress.py` panic sell/LP withdrawal/flash crash, `amm_stress_scenarios.py`, `amm_metrics_export.py`, CLI `scripts/run_amm_stress.py`, viz hooks in `pftoken/viz/amm_viz.py`, test `tests/test_integration/test_amm_stress.py`).
 - **Objetivo:** Simular eventos extremos (panic sells coordinados, retiro de liquidez, flash crash) y evaluar resiliencia de pools V2/V3.
 - **Dependencias:** TAMM01, TAMM02, TAMM06.
 - **Entregables:** `LiquidityStressTester` con escenarios 1–4, métricas (max price impact, recovery time, LP losses, arbitraje), dashboard comparativo y análisis de circuit breakers.

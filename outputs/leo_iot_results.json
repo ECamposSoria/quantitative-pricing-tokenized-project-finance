@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-26T185147Z",
+  "timestamp_utc": "2025-11-27T040201Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -771,6 +771,186 @@
       "curve_currency": "USD"
     }
   },
+  "amm_liquidity": {
+    "pool_config": {
+      "debt_notional": 50000000.0,
+      "depth_assumption_pct": 10.0,
+      "reserve_per_side": 5000000.0,
+      "fee_bps": 30
+    },
+    "stress_metrics": {
+      "scenarios_run": [
+        "PS",
+        "LP",
+        "FC"
+      ],
+      "slippage_curve": [
+        [
+          0.1,
+          -0.17310274564700823
+        ],
+        [
+          0.25,
+          -0.35923130824662497
+        ],
+        [
+          0.5,
+          -0.5546653315533308
+        ]
+      ],
+      "il_by_scenario": {
+        "PS": 0.0,
+        "LP": 0.0,
+        "FC": -0.006192010000093506
+      },
+      "recovery_steps": {
+        "PS": 0,
+        "LP": 0,
+        "FC": 2
+      }
+    },
+    "derived_premium": {
+      "depth_score": 0.698,
+      "slippage_10pct_trade_pct": 17.31,
+      "max_stress_il_pct": 0.62,
+      "avg_recovery_steps": 0.67,
+      "derived_liquidity_bps": 18.75,
+      "traditional_baseline_bps": 75.0,
+      "reduction_bps": 56.25
+    },
+    "comparison_with_tinlake": {
+      "tinlake_reduction_bps": 54.21,
+      "amm_reduction_bps": 56.25,
+      "delta_bps": 2.04,
+      "validation": "consistent"
+    },
+    "platform": {
+      "name": "Centrifuge/Tinlake",
+      "description": "Decentralized RWA liquidity protocol for tokenized real-world assets",
+      "tvl_usd": 1450000000,
+      "governance_token": "CFG",
+      "protocol_fee_bps": 15,
+      "documentation": "https://docs.centrifuge.io"
+    },
+    "liquidity_sourcing": {
+      "model": "protocol_incentives",
+      "description": "CFG token rewards attract external LPs, eliminating sponsor capital requirement",
+      "sponsor_lp_capital_required_usd": 0,
+      "lp_source": "CFG-incentivized external liquidity providers",
+      "benefits": [
+        "No sponsor capital locked as LP",
+        "Protocol-level liquidity aggregation across pools",
+        "Institutional-grade compliance (SEC Reg D/S)",
+        "Established $1.45B+ TVL ecosystem"
+      ]
+    },
+    "cost_summary": {
+      "protocol_fee_bps": 15,
+      "protocol_fee_annual_usd": 75000.0,
+      "lp_opportunity_cost_avoided_usd": 450000.0,
+      "net_benefit_vs_self_lp_usd": 375000.0,
+      "rationale": "Using Centrifuge avoids locking sponsor capital as LP while only paying 15bps protocol fee"
+    }
+  },
+  "v2_v3_comparison": {
+    "config": {
+      "debt_notional": 50000000.0,
+      "lp_capital_per_side": 2500000.0,
+      "v3_tick_range": [
+        -500,
+        500
+      ],
+      "v3_price_range": [
+        0.9512,
+        1.0513
+      ],
+      "trade_sizes_pct": [
+        5.0,
+        10.0,
+        25.0
+      ]
+    },
+    "v2_results": [
+      {
+        "trade_pct": 5.0,
+        "slippage_pct": -9.27
+      },
+      {
+        "trade_pct": 10.0,
+        "slippage_pct": -17.31
+      },
+      {
+        "trade_pct": 25.0,
+        "slippage_pct": -35.92
+      }
+    ],
+    "v3_results": [
+      {
+        "trade_pct": 5.0,
+        "slippage_pct": -1.96
+      },
+      {
+        "trade_pct": 10.0,
+        "slippage_pct": -3.87
+      },
+      {
+        "trade_pct": 25.0,
+        "slippage_pct": -4.88
+      }
+    ],
+    "comparison": {
+      "avg_slippage_v2_pct": 20.83,
+      "avg_slippage_v3_pct": 3.57,
+      "slippage_reduction_pct": 82.9,
+      "capital_efficiency_multiple": 5.0
+    },
+    "recommendation": {
+      "winner": "V3",
+      "rationale": "V3 reduces slippage by 83% with 5.0x capital efficiency",
+      "thesis_implication": "Concentrated liquidity enables viable secondary markets with minimal LP capital requirement"
+    }
+  },
+  "equity_analysis": {
+    "capital_structure": {
+      "total_project_cost_musd": 100.0,
+      "debt_musd": 50.0,
+      "equity_musd": 50.0,
+      "debt_pct": 50.0,
+      "equity_pct": 50.0
+    },
+    "returns": {
+      "equity_irr_pct": 10.56,
+      "total_dividends_musd": 129.42,
+      "multiple": 2.59,
+      "payback_year": 9
+    },
+    "cashflows": {
+      "initial_investment_musd": -50.0,
+      "dividends_by_year": [
+        0.0,
+        0.0,
+        0.0,
+        1.31,
+        6.86,
+        8.92,
+        13.13,
+        15.37,
+        16.95,
+        13.94,
+        12.12,
+        11.86,
+        10.27,
+        8.78,
+        9.93
+      ]
+    },
+    "lp_opportunity_cost": {
+      "note": "If sponsors provide AMM LP capital instead of Centrifuge",
+      "lp_capital_musd": 5.0,
+      "annual_opportunity_cost_musd": 0.45,
+      "vs_stablecoin_yield_pct": 1.5
+    }
+  },
   "hedging": {
     "interest_rate_cap": {
       "notional": 50000000.0,
@@ -809,22 +989,6 @@
         }
       ],
       "notes": "WP-11 InterestRateCap priced with flat vol; annual resets; premiums in USD."
-    },
-    "interest_rate_collar": {
-      "notional": 50000000.0,
-      "cap_strike": 0.04,
-      "floor_strike": 0.03,
-      "volatility": 0.2,
-      "cap_premium": 595432.7724620807,
-      "floor_premium": 269293.8777952474,
-      "net_premium": 326138.8946668333,
-      "carry_cost_bps": 65.22777893336665,
-      "effective_rate_band": [
-        0.03,
-        0.04
-      ],
-      "zero_cost_floor_strike": 0.03462354483924122,
-      "notes": "Collar = long cap, short floor; premiums in USD."
     }
   },
   "dual_structure_comparison": {
@@ -900,7 +1064,7 @@
       "floor_strike": 0.03,
       "base_rate": 0.045,
       "cap_premium": 595432.7724620807,
-      "collar_net_premium": 326138.8946668333
+      "collar_net_premium": 326139.0
     },
     "scenarios": {
       "none": {
@@ -925,7 +1089,7 @@
         "min_dscr_p5": 1.25,
         "min_dscr_p25": 1.25,
         "min_dscr_p50": 1.5565338191509843,
-        "cost": 326138.8946668333
+        "cost": 326139.0
       }
     },
     "recommendation": "cap",

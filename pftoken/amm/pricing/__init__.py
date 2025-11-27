@@ -5,4 +5,5 @@ __all__ = [
     "dcf_integration",
     "arbitrage",
     "slippage",
+    "liquidity_premium",
 ]

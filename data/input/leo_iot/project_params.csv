@@ -22,4 +22,6 @@ spread_sub,0.12,ratio,Subordinated spread 1200 bps
 target_dscr_years_5_10,1.20,ratio,DSCR target years 5-10
 dsra_months_cover,6.0,months,DSRA covers 6 months of service
 mra_target_pct_next_rcapex,0.35,ratio,MRA equals 35% of next RCAPEX
-dsra_initial,18.0,usd,DSRA initial equity funding
+dsra_initial,18.0,usd,DSRA initial equity funding (MUSD)
+total_project_cost,100.0,usd,Total project cost (MUSD) including debt and equity
+equity_investment,50.0,usd,Total equity investment (MUSD) - 50% of project cost

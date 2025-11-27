@@ -196,6 +196,16 @@ docker compose -f quant-token-compose.yml -p qptf exec quant_token_app pytest te
 - **Tests**: `pytest tests/test_pricing tests/test_integration/test_pricing_pipeline.py`
   ejecuta el stack completo con la data canónica `data/input/leo_iot/`.
 
+## WP-14 – AMM Analytics (Simplificado)
+
+- **Concentrated Liquidity**: `pftoken.amm.core.pool_v3` implementa swaps con tick math Q64.96 y rutas en `swap_engine`.
+- **Pricing & Arb**: `pftoken.amm.pricing.market_price` (ejecución con slippage, depth, signals) y `arbitrage_engine` (trayectorias estilo Almgren–Chriss).
+- **IL/LP Analytics**: `pftoken.amm.analysis.impermanent_loss` (v2 + rango v3) y `lp_pnl` para descomposición de PnL.
+- **Stress/Export**: escenarios AMM en `pftoken.stress.amm_stress_scenarios`, métricas WP-09 en `pftoken.stress.amm_metrics_export`, CLI `scripts/run_amm_stress.py`.
+- **Visualización**: `pftoken.viz.amm_viz` y hooks en `dashboards.build_financial_dashboard(include_amm=True, amm_context=...)`.
+- **Tests**: ver `tests/test_amm/*` y `tests/test_integration/test_amm_stress.py`.
+ - **Docs**: `docs/amm/architecture.md`, `docs/amm/amm_overview.md`, `docs/amm/integration_guide.md`, `docs/amm/impermanent_loss.md`.
+
 ### Stochastic Calibration Snapshot
 
 - `pftoken.models.calibration` carga tanto los parámetros estructurales (PD/LGD) como las distribuciones para variables aleatorias.

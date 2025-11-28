@@ -14,6 +14,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
 import numpy as np
 from pftoken.derivatives import (
     CapletPeriod,
@@ -30,6 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from pftoken.pipeline import FinancialPipeline  # noqa: E402
+from pftoken.models import RatioCalculator  # noqa: E402
 from pftoken.simulation import (  # noqa: E402
     MonteCarloConfig,
     MonteCarloPipeline,
@@ -82,6 +84,171 @@ def extract_breach_curves(mc_outputs, years: list[int]) -> dict | None:
         "survival": survival.tolist(),
         "hazard": hazard.tolist(),
     }
+
+
+def build_cfads_components_section(cfads_results) -> list[dict]:
+    """Serialize CFADS components (in MUSD) for downstream viz/storytelling."""
+    return [
+        {
+            "year": r.year,
+            "revenue_gross_musd": r.revenue_gross,
+            "opex_musd": r.opex,
+            "maintenance_opex_musd": r.maintenance_opex,
+            "working_cap_change_musd": r.working_cap_change,
+            "ebitda_musd": r.ebitda,
+            "capex_musd": r.capex,
+            "rcapex_musd": r.rcapex,
+            "tax_paid_musd": r.tax_paid,
+            "pre_tax_cash_musd": r.pre_tax_cash,
+            "cfads_musd": r.cfads,
+        }
+        for r in cfads_results
+    ]
+
+
+def build_coverage_ratios(
+    *,
+    cfads_vector: dict[int, float],
+    debt_schedule,
+    tranches,
+) -> dict:
+    """Compute LLCR and a simple ICR series (CFADS / interest)."""
+    calculator = RatioCalculator(cfads_vector, debt_schedule, tranches=tranches)
+    llcr = [
+        {
+            "tranche": obs.tranche,
+            "llcr": round(float(obs.value), 4),
+            "threshold": float(obs.threshold),
+        }
+        for obs in calculator.llcr_by_tranche().values()
+    ]
+
+    icr_by_year = []
+    for year in sorted(cfads_vector.keys()):
+        interest_musd = float(
+            debt_schedule.loc[debt_schedule["year"] == year, "interest_due"].sum() / 1_000_000.0
+        )
+        cfads_musd = float(cfads_vector.get(year, 0.0))
+        icr_value = float("inf") if interest_musd == 0 else cfads_musd / interest_musd
+        icr_by_year.append(
+            {
+                "year": year,
+                "icr": icr_value,
+                "cfads_musd": cfads_musd,
+                "interest_musd": interest_musd,
+            }
+        )
+    finite_icr = [row["icr"] for row in icr_by_year if np.isfinite(row["icr"])]
+    summary = {
+        "icr_min": min(finite_icr) if finite_icr else None,
+        "icr_p50": float(np.median(finite_icr)) if finite_icr else None,
+    }
+    return {"llcr": llcr, "icr_by_year": icr_by_year, "icr_summary": summary}
+
+
+def build_debt_schedule_section(debt_schedule) -> dict:
+    """Expose the debt schedule per tranche/year in MUSD."""
+    df = debt_schedule.copy()
+    for col in ("interest_due", "principal_due"):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    by_line_item = []
+    for row in df.itertuples(index=False):
+        by_line_item.append(
+            {
+                "year": int(row.year),
+                "tranche": str(row.tranche_name),
+                "interest_due_musd": float(row.interest_due) / 1_000_000.0,
+                "principal_due_musd": float(row.principal_due) / 1_000_000.0,
+            }
+        )
+    by_year = (
+        df.groupby("year")[["interest_due", "principal_due"]]
+        .sum()
+        .reset_index()
+        .assign(
+            interest_due=lambda d: d["interest_due"] / 1_000_000.0,
+            principal_due=lambda d: d["principal_due"] / 1_000_000.0,
+        )
+    )
+    by_tranche = (
+        df.groupby("tranche_name")[["interest_due", "principal_due"]]
+        .sum()
+        .reset_index()
+        .assign(
+            interest_due=lambda d: d["interest_due"] / 1_000_000.0,
+            principal_due=lambda d: d["principal_due"] / 1_000_000.0,
+        )
+    )
+    return {
+        "by_line_item": by_line_item,
+        "by_year": by_year.to_dict(orient="records"),
+        "by_tranche": by_tranche.to_dict(orient="records"),
+    }
+
+
+def build_waterfall_cascade_section(waterfall_results: dict[int, object]) -> list[dict]:
+    """Flatten WaterfallResult series (values converted to MUSD)."""
+    cascade = []
+    for year in sorted(waterfall_results.keys()):
+        result = waterfall_results[year]
+        interest_musd = sum(result.interest_payments.values()) / 1_000_000.0
+        principal_musd = sum(result.principal_payments.values()) / 1_000_000.0
+        cascade.append(
+            {
+                "year": year,
+                "cfads_musd": result.cfads_available,
+                "interest_paid_musd": interest_musd,
+                "principal_paid_musd": principal_musd,
+                "dsra_funding_musd": result.dsra_funding / 1_000_000.0,
+                "dsra_release_musd": result.dsra_release / 1_000_000.0,
+                "mra_funding_musd": result.mra_funding / 1_000_000.0,
+                "mra_release_musd": result.mra_release / 1_000_000.0,
+                "cash_sweep_musd": result.cash_sweep / 1_000_000.0,
+                "dividends_musd": result.dividends / 1_000_000.0,
+                "remaining_cash_musd": result.remaining_cash / 1_000_000.0,
+                "dsra_balance_musd": result.dsra_balance / 1_000_000.0,
+                "dsra_target_musd": result.dsra_target / 1_000_000.0,
+                "mra_balance_musd": result.mra_balance / 1_000_000.0,
+                "mra_target_musd": result.mra_target / 1_000_000.0,
+                "events": list(result.events or []),
+            }
+        )
+    return cascade
+
+
+REQUIRED_SECTIONS = [
+    "timestamp_utc",
+    "monte_carlo",
+    "risk_metrics",
+    "stress_results",
+    "tokenization_analysis",
+    "current_structure",
+    "current_wacd_pct",
+    "is_efficient",
+    "structure_comparison",
+    "pricing_mc",
+    "amm_liquidity",
+    "v2_v3_comparison",
+    "amm_recommendation",
+    "platform_analysis",
+    "equity_analysis",
+    "hedging",
+    "hedging_comparison",
+    "dual_structure_comparison",
+    "wacd_synthesis",
+    "cfads_components",
+    "coverage_ratios",
+    "debt_schedule",
+    "waterfall_cascade",
+]
+
+
+def validate_output_schema(payload: dict) -> None:
+    missing = [section for section in REQUIRED_SECTIONS if section not in payload]
+    if missing:
+        raise ValueError(f"Output JSON missing required sections: {missing}")
 
 
 def extract_asset_distribution(mc_outputs) -> dict | None:
@@ -1156,6 +1323,15 @@ def main() -> None:
         "tranches": extract_tranche_metrics(mc_outputs),
     }
 
+    cfads_components = build_cfads_components_section(pipeline.cfads_calculator.cfads_results)
+    coverage_ratios = build_coverage_ratios(
+        cfads_vector=det_run["cfads"],
+        debt_schedule=pipeline.params.debt_schedule,
+        tranches=pipeline.params.tranches,
+    )
+    debt_schedule_section = build_debt_schedule_section(pipeline.params.debt_schedule)
+    waterfall_cascade = build_waterfall_cascade_section(det_run["waterfall"])
+
     payload = {
         "timestamp_utc": timestamp,
         "monte_carlo": mc_section,
@@ -1167,6 +1343,10 @@ def main() -> None:
         "is_efficient": current_eval.get("is_efficient", False),
         "structure_comparison": structure_comparison,
         "pricing_mc": mc_outputs.pricing_mc,
+        "cfads_components": cfads_components,
+        "coverage_ratios": coverage_ratios,
+        "debt_schedule": debt_schedule_section,
+        "waterfall_cascade": waterfall_cascade,
     }
 
     # AMM Liquidity Analysis (WP-14): Bridge AMM simulation to liquidity premium
@@ -1290,6 +1470,8 @@ def main() -> None:
         debt_notional=pipeline.debt_structure.total_principal,
         regulatory_risk_bps=REGULATORY_RISK_BPS,
     )
+
+    validate_output_schema(payload)
 
     output_path = output_dir / "leo_iot_results.json"
     output_path.write_text(json.dumps(payload, indent=2))

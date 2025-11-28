@@ -10,3 +10,8 @@ pydantic>=2.5
 openpyxl==3.1.5
 pyyaml==6.0.2
 requests==2.32.3
+plotly==5.18.0
+ipywidgets==8.1.1
+nbconvert==7.14.0
+kaleido==0.2.1
+mistune<3

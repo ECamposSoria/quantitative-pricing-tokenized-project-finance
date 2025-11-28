@@ -13,6 +13,7 @@ from pftoken.pipeline import FinancialPipeline
 
 from . import plots
 from . import amm_viz
+from . import plotly_panels
 
 USD_PER_MILLION = 1_000_000
 
@@ -136,4 +137,19 @@ def save_dashboard(figures: Dict[str, Figure], output_dir: Path | str) -> None:
         fig.savefig(output_path / f"{name}.png", dpi=150, bbox_inches="tight")
 
 
-__all__ = ["build_financial_dashboard", "save_dashboard"]
+def build_interactive_dashboard(results: Dict) -> Dict[str, object]:
+    """Generate Plotly-based dashboard panels from the consolidated JSON results."""
+    return plotly_panels.build_interactive_dashboard(results)
+
+
+def export_interactive_dashboard(figures: Dict[str, object], output_path: Path | str) -> None:
+    """Export stacked HTML with Plotly panels."""
+    plotly_panels.export_dashboard_html(figures, output_path)
+
+
+__all__ = [
+    "build_financial_dashboard",
+    "save_dashboard",
+    "build_interactive_dashboard",
+    "export_interactive_dashboard",
+]

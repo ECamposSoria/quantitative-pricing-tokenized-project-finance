@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-27T131647Z",
+  "timestamp_utc": "2025-11-27T170036Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -775,6 +775,981 @@
       "curve_currency": "USD"
     }
   },
+  "cfads_components": [
+    {
+      "year": 1,
+      "revenue_gross_musd": 0.0,
+      "opex_musd": 0.6,
+      "maintenance_opex_musd": 0.0,
+      "working_cap_change_musd": 0.0,
+      "ebitda_musd": -0.6,
+      "capex_musd": 0.0,
+      "rcapex_musd": 0.0,
+      "tax_paid_musd": 0.0,
+      "pre_tax_cash_musd": -0.6,
+      "cfads_musd": -0.6
+    },
+    {
+      "year": 2,
+      "revenue_gross_musd": 0.0,
+      "opex_musd": 1.2,
+      "maintenance_opex_musd": 0.0,
+      "working_cap_change_musd": 0.0,
+      "ebitda_musd": -1.2,
+      "capex_musd": 0.0,
+      "rcapex_musd": 0.0,
+      "tax_paid_musd": 0.0,
+      "pre_tax_cash_musd": -1.2,
+      "cfads_musd": -1.2
+    },
+    {
+      "year": 3,
+      "revenue_gross_musd": 3.0,
+      "opex_musd": 2.4,
+      "maintenance_opex_musd": 0.1,
+      "working_cap_change_musd": 0.2,
+      "ebitda_musd": 0.5000000000000001,
+      "capex_musd": 0.0,
+      "rcapex_musd": 0.0,
+      "tax_paid_musd": 0.0,
+      "pre_tax_cash_musd": 0.3000000000000001,
+      "cfads_musd": 0.3000000000000001
+    },
+    {
+      "year": 4,
+      "revenue_gross_musd": 10.0,
+      "opex_musd": 4.5,
+      "maintenance_opex_musd": 0.2,
+      "working_cap_change_musd": 0.3,
+      "ebitda_musd": 5.3,
+      "capex_musd": 0.0,
+      "rcapex_musd": 0.0,
+      "tax_paid_musd": 0.0,
+      "pre_tax_cash_musd": 5.0,
+      "cfads_musd": 5.0
+    },
+    {
+      "year": 5,
+      "revenue_gross_musd": 20.0,
+      "opex_musd": 6.5,
+      "maintenance_opex_musd": 0.3,
+      "working_cap_change_musd": 0.5,
+      "ebitda_musd": 13.2,
+      "capex_musd": 0.0,
+      "rcapex_musd": 0.0,
+      "tax_paid_musd": 0.3,
+      "pre_tax_cash_musd": 12.7,
+      "cfads_musd": 12.399999999999999
+    },
+    {
+      "year": 6,
+      "revenue_gross_musd": 28.0,
+      "opex_musd": 8.5,
+      "maintenance_opex_musd": 0.4,
+      "working_cap_change_musd": 0.5,
+      "ebitda_musd": 19.1,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.2,
+      "tax_paid_musd": 0.6,
+      "pre_tax_cash_musd": 17.400000000000002,
+      "cfads_musd": 16.8
+    },
+    {
+      "year": 7,
+      "revenue_gross_musd": 34.0,
+      "opex_musd": 10.0,
+      "maintenance_opex_musd": 0.5,
+      "working_cap_change_musd": 0.5,
+      "ebitda_musd": 23.5,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.5,
+      "tax_paid_musd": 0.9,
+      "pre_tax_cash_musd": 21.5,
+      "cfads_musd": 20.6
+    },
+    {
+      "year": 8,
+      "revenue_gross_musd": 38.0,
+      "opex_musd": 11.5,
+      "maintenance_opex_musd": 0.6,
+      "working_cap_change_musd": 0.6,
+      "ebitda_musd": 25.9,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.65,
+      "tax_paid_musd": 1.2,
+      "pre_tax_cash_musd": 23.65,
+      "cfads_musd": 22.45
+    },
+    {
+      "year": 9,
+      "revenue_gross_musd": 40.0,
+      "opex_musd": 12.0,
+      "maintenance_opex_musd": 0.7,
+      "working_cap_change_musd": 0.6,
+      "ebitda_musd": 27.3,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.7,
+      "tax_paid_musd": 1.4,
+      "pre_tax_cash_musd": 25.0,
+      "cfads_musd": 23.6
+    },
+    {
+      "year": 10,
+      "revenue_gross_musd": 38.0,
+      "opex_musd": 12.0,
+      "maintenance_opex_musd": 1.2,
+      "working_cap_change_musd": 0.6,
+      "ebitda_musd": 24.8,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.55,
+      "tax_paid_musd": 1.4,
+      "pre_tax_cash_musd": 22.65,
+      "cfads_musd": 21.25
+    },
+    {
+      "year": 11,
+      "revenue_gross_musd": 35.0,
+      "opex_musd": 11.5,
+      "maintenance_opex_musd": 0.8,
+      "working_cap_change_musd": 0.5,
+      "ebitda_musd": 22.7,
+      "capex_musd": 0.0,
+      "rcapex_musd": 3.4,
+      "tax_paid_musd": 1.2,
+      "pre_tax_cash_musd": 18.8,
+      "cfads_musd": 17.6
+    },
+    {
+      "year": 12,
+      "revenue_gross_musd": 33.0,
+      "opex_musd": 11.0,
+      "maintenance_opex_musd": 0.8,
+      "working_cap_change_musd": 0.4,
+      "ebitda_musd": 21.2,
+      "capex_musd": 0.0,
+      "rcapex_musd": 2.25,
+      "tax_paid_musd": 1.1,
+      "pre_tax_cash_musd": 18.55,
+      "cfads_musd": 17.45
+    },
+    {
+      "year": 13,
+      "revenue_gross_musd": 30.0,
+      "opex_musd": 10.5,
+      "maintenance_opex_musd": 0.9,
+      "working_cap_change_musd": 0.3,
+      "ebitda_musd": 18.6,
+      "capex_musd": 0.0,
+      "rcapex_musd": 2.0,
+      "tax_paid_musd": 0.9,
+      "pre_tax_cash_musd": 16.3,
+      "cfads_musd": 15.4
+    },
+    {
+      "year": 14,
+      "revenue_gross_musd": 27.0,
+      "opex_musd": 10.0,
+      "maintenance_opex_musd": 0.8,
+      "working_cap_change_musd": 0.2,
+      "ebitda_musd": 16.2,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.5,
+      "tax_paid_musd": 0.8,
+      "pre_tax_cash_musd": 14.5,
+      "cfads_musd": 13.7
+    },
+    {
+      "year": 15,
+      "revenue_gross_musd": 24.0,
+      "opex_musd": 9.5,
+      "maintenance_opex_musd": 0.6,
+      "working_cap_change_musd": 0.2,
+      "ebitda_musd": 13.9,
+      "capex_musd": 0.0,
+      "rcapex_musd": 1.25,
+      "tax_paid_musd": 0.7,
+      "pre_tax_cash_musd": 12.450000000000001,
+      "cfads_musd": 11.750000000000002
+    }
+  ],
+  "coverage_ratios": {
+    "llcr": [
+      {
+        "tranche": "senior",
+        "llcr": 4.3138,
+        "threshold": 1.35
+      },
+      {
+        "tranche": "mezzanine",
+        "llcr": 10.3532,
+        "threshold": 1.2
+      },
+      {
+        "tranche": "subordinated",
+        "llcr": 17.2554,
+        "threshold": 1.05
+      }
+    ],
+    "icr_by_year": [
+      {
+        "year": 1,
+        "icr": -0.16271186440677965,
+        "cfads_musd": -0.6,
+        "interest_musd": 3.6875
+      },
+      {
+        "year": 2,
+        "icr": -0.3254237288135593,
+        "cfads_musd": -1.2,
+        "interest_musd": 3.6875
+      },
+      {
+        "year": 3,
+        "icr": 0.08135593220338985,
+        "cfads_musd": 0.3000000000000001,
+        "interest_musd": 3.6875
+      },
+      {
+        "year": 4,
+        "icr": 1.3559322033898304,
+        "cfads_musd": 5.0,
+        "interest_musd": 3.6875
+      },
+      {
+        "year": 5,
+        "icr": 3.3627118644067795,
+        "cfads_musd": 12.399999999999999,
+        "interest_musd": 3.6875
+      },
+      {
+        "year": 6,
+        "icr": 5.011525016011524,
+        "cfads_musd": 16.8,
+        "interest_musd": 3.352273
+      },
+      {
+        "year": 7,
+        "icr": 6.827872968417774,
+        "cfads_musd": 20.6,
+        "interest_musd": 3.017045
+      },
+      {
+        "year": 8,
+        "icr": 8.371187008216069,
+        "cfads_musd": 22.45,
+        "interest_musd": 2.681818
+      },
+      {
+        "year": 9,
+        "icr": 10.057142467519904,
+        "cfads_musd": 23.6,
+        "interest_musd": 2.346591
+      },
+      {
+        "year": 10,
+        "icr": 10.56497509400342,
+        "cfads_musd": 21.25,
+        "interest_musd": 2.011363
+      },
+      {
+        "year": 11,
+        "icr": 10.500334996482986,
+        "cfads_musd": 17.6,
+        "interest_musd": 1.676137
+      },
+      {
+        "year": 12,
+        "icr": 13.013560204309167,
+        "cfads_musd": 17.45,
+        "interest_musd": 1.340909
+      },
+      {
+        "year": 13,
+        "icr": 15.312991581832032,
+        "cfads_musd": 15.4,
+        "interest_musd": 1.005682
+      },
+      {
+        "year": 14,
+        "icr": 20.43388445160376,
+        "cfads_musd": 13.7,
+        "interest_musd": 0.670455
+      },
+      {
+        "year": 15,
+        "icr": 35.05087597359402,
+        "cfads_musd": 11.750000000000002,
+        "interest_musd": 0.335227
+      }
+    ],
+    "icr_summary": {
+      "icr_min": -0.3254237288135593,
+      "icr_p50": 8.371187008216069
+    }
+  },
+  "debt_schedule": {
+    "by_line_item": [
+      {
+        "year": 1,
+        "tranche": "senior",
+        "interest_due_musd": 1.8,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 1,
+        "tranche": "mezzanine",
+        "interest_due_musd": 1.0625,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 1,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.825,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 2,
+        "tranche": "senior",
+        "interest_due_musd": 1.8,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 2,
+        "tranche": "mezzanine",
+        "interest_due_musd": 1.0625,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 2,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.825,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 3,
+        "tranche": "senior",
+        "interest_due_musd": 1.8,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 3,
+        "tranche": "mezzanine",
+        "interest_due_musd": 1.0625,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 3,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.825,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 4,
+        "tranche": "senior",
+        "interest_due_musd": 1.8,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 4,
+        "tranche": "mezzanine",
+        "interest_due_musd": 1.0625,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 4,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.825,
+        "principal_due_musd": 0.0
+      },
+      {
+        "year": 5,
+        "tranche": "senior",
+        "interest_due_musd": 1.8,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 5,
+        "tranche": "mezzanine",
+        "interest_due_musd": 1.0625,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 5,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.825,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 6,
+        "tranche": "senior",
+        "interest_due_musd": 1.636364,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 6,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.965909,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 6,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.75,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 7,
+        "tranche": "senior",
+        "interest_due_musd": 1.472727,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 7,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.869318,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 7,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.675,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 8,
+        "tranche": "senior",
+        "interest_due_musd": 1.309091,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 8,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.772727,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 8,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.6,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 9,
+        "tranche": "senior",
+        "interest_due_musd": 1.145455,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 9,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.676136,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 9,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.525,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 10,
+        "tranche": "senior",
+        "interest_due_musd": 0.981818,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 10,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.579545,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 10,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.45,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 11,
+        "tranche": "senior",
+        "interest_due_musd": 0.818182,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 11,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.482955,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 11,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.375,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 12,
+        "tranche": "senior",
+        "interest_due_musd": 0.654545,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 12,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.386364,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 12,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.3,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 13,
+        "tranche": "senior",
+        "interest_due_musd": 0.490909,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 13,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.289773,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 13,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.225,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 14,
+        "tranche": "senior",
+        "interest_due_musd": 0.327273,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 14,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.193182,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 14,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.15,
+        "principal_due_musd": 0.681818
+      },
+      {
+        "year": 15,
+        "tranche": "senior",
+        "interest_due_musd": 0.163636,
+        "principal_due_musd": 2.727273
+      },
+      {
+        "year": 15,
+        "tranche": "mezzanine",
+        "interest_due_musd": 0.096591,
+        "principal_due_musd": 1.136364
+      },
+      {
+        "year": 15,
+        "tranche": "subordinated",
+        "interest_due_musd": 0.075,
+        "principal_due_musd": 0.681818
+      }
+    ],
+    "by_year": [
+      {
+        "year": 1,
+        "interest_due": 3.6875,
+        "principal_due": 0.0
+      },
+      {
+        "year": 2,
+        "interest_due": 3.6875,
+        "principal_due": 0.0
+      },
+      {
+        "year": 3,
+        "interest_due": 3.6875,
+        "principal_due": 0.0
+      },
+      {
+        "year": 4,
+        "interest_due": 3.6875,
+        "principal_due": 0.0
+      },
+      {
+        "year": 5,
+        "interest_due": 3.6875,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 6,
+        "interest_due": 3.352273,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 7,
+        "interest_due": 3.017045,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 8,
+        "interest_due": 2.681818,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 9,
+        "interest_due": 2.346591,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 10,
+        "interest_due": 2.011363,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 11,
+        "interest_due": 1.676137,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 12,
+        "interest_due": 1.340909,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 13,
+        "interest_due": 1.005682,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 14,
+        "interest_due": 0.670455,
+        "principal_due": 4.545455
+      },
+      {
+        "year": 15,
+        "interest_due": 0.335227,
+        "principal_due": 4.545455
+      }
+    ],
+    "by_tranche": [
+      {
+        "tranche_name": "mezzanine",
+        "interest_due": 10.625,
+        "principal_due": 12.500004
+      },
+      {
+        "tranche_name": "senior",
+        "interest_due": 18.0,
+        "principal_due": 30.000003
+      },
+      {
+        "tranche_name": "subordinated",
+        "interest_due": 8.25,
+        "principal_due": 7.499998
+      }
+    ]
+  },
+  "waterfall_cascade": [
+    {
+      "year": 1,
+      "cfads_musd": -0.6,
+      "interest_paid_musd": 3.6875,
+      "principal_paid_musd": 0.0,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.0,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 0.0,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 14.3125,
+      "dsra_target_musd": 1.84375,
+      "mra_balance_musd": 0.0,
+      "mra_target_musd": 0.0,
+      "events": [
+        "cfads_deficit",
+        "dsra_draw",
+        "dsra_draw",
+        "dsra_draw",
+        "block_dividends",
+        "cash_sweep",
+        "technical_default"
+      ]
+    },
+    {
+      "year": 2,
+      "cfads_musd": -1.2,
+      "interest_paid_musd": 3.6875,
+      "principal_paid_musd": 0.0,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.0,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 0.0,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 10.625,
+      "dsra_target_musd": 1.84375,
+      "mra_balance_musd": 0.0,
+      "mra_target_musd": 0.0,
+      "events": [
+        "cfads_deficit",
+        "dsra_draw",
+        "dsra_draw",
+        "dsra_draw",
+        "block_dividends",
+        "cash_sweep",
+        "technical_default"
+      ]
+    },
+    {
+      "year": 3,
+      "cfads_musd": 0.3000000000000001,
+      "interest_paid_musd": 3.6875,
+      "principal_paid_musd": 0.0,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.0,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 0.0,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 7.2375,
+      "dsra_target_musd": 1.84375,
+      "mra_balance_musd": 0.0,
+      "mra_target_musd": 0.0,
+      "events": [
+        "dsra_draw",
+        "dsra_draw",
+        "dsra_draw",
+        "block_dividends",
+        "cash_sweep",
+        "technical_default"
+      ]
+    },
+    {
+      "year": 4,
+      "cfads_musd": 5.0,
+      "interest_paid_musd": 3.6875,
+      "principal_paid_musd": 0.0,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.0,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 1.3125,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 7.2375,
+      "dsra_target_musd": 4.1164775,
+      "mra_balance_musd": 0.0,
+      "mra_target_musd": 0.0,
+      "events": []
+    },
+    {
+      "year": 5,
+      "cfads_musd": 12.399999999999999,
+      "interest_paid_musd": 3.6875,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 3.288636,
+      "mra_funding_musd": 0.6,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 6.855680999999998,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.948864,
+      "dsra_target_musd": 3.948864,
+      "mra_balance_musd": 0.6,
+      "mra_target_musd": 0.6,
+      "events": []
+    },
+    {
+      "year": 6,
+      "cfads_musd": 16.8,
+      "interest_paid_musd": 3.352273,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.167614,
+      "mra_funding_musd": 0.15,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 8.919886,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.78125,
+      "dsra_target_musd": 3.78125,
+      "mra_balance_musd": 0.75,
+      "mra_target_musd": 0.75,
+      "events": []
+    },
+    {
+      "year": 7,
+      "cfads_musd": 20.6,
+      "interest_paid_musd": 3.017045,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.1676135,
+      "mra_funding_musd": 0.075,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 13.1301135,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.6136365,
+      "dsra_target_musd": 3.6136365,
+      "mra_balance_musd": 0.825,
+      "mra_target_musd": 0.825,
+      "events": []
+    },
+    {
+      "year": 8,
+      "cfads_musd": 22.45,
+      "interest_paid_musd": 2.681818,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.1676135,
+      "mra_funding_musd": 0.025,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 15.3653405,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.446023,
+      "dsra_target_musd": 3.446023,
+      "mra_balance_musd": 0.85,
+      "mra_target_musd": 0.85,
+      "events": []
+    },
+    {
+      "year": 9,
+      "cfads_musd": 23.6,
+      "interest_paid_musd": 2.346591,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.167614,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.075,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 16.950568,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.278409,
+      "dsra_target_musd": 3.278409,
+      "mra_balance_musd": 0.775,
+      "mra_target_musd": 0.775,
+      "events": []
+    },
+    {
+      "year": 10,
+      "cfads_musd": 21.25,
+      "interest_paid_musd": 2.011363,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.167613,
+      "mra_funding_musd": 0.925,
+      "mra_release_musd": 0.0,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 13.935795,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 3.110796,
+      "dsra_target_musd": 3.110796,
+      "mra_balance_musd": 1.7,
+      "mra_target_musd": 1.7,
+      "events": []
+    },
+    {
+      "year": 11,
+      "cfads_musd": 17.6,
+      "interest_paid_musd": 1.676137,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.167614,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.575,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 12.121022,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 2.943182,
+      "dsra_target_musd": 2.943182,
+      "mra_balance_musd": 1.125,
+      "mra_target_musd": 1.125,
+      "events": []
+    },
+    {
+      "year": 12,
+      "cfads_musd": 17.45,
+      "interest_paid_musd": 1.340909,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.1676135,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.125,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 11.8562495,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 2.7755685,
+      "dsra_target_musd": 2.7755685,
+      "mra_balance_musd": 1.0,
+      "mra_target_musd": 1.0,
+      "events": []
+    },
+    {
+      "year": 13,
+      "cfads_musd": 15.4,
+      "interest_paid_musd": 1.005682,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.1676135,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.25,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 10.2664765,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 2.607955,
+      "dsra_target_musd": 2.607955,
+      "mra_balance_musd": 0.75,
+      "mra_target_musd": 0.75,
+      "events": []
+    },
+    {
+      "year": 14,
+      "cfads_musd": 13.7,
+      "interest_paid_musd": 0.670455,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 0.167614,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.125,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 8.776704,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 2.440341,
+      "dsra_target_musd": 2.440341,
+      "mra_balance_musd": 0.625,
+      "mra_target_musd": 0.625,
+      "events": []
+    },
+    {
+      "year": 15,
+      "cfads_musd": 11.750000000000002,
+      "interest_paid_musd": 0.335227,
+      "principal_paid_musd": 4.545455,
+      "dsra_funding_musd": 0.0,
+      "dsra_release_musd": 2.440341,
+      "mra_funding_musd": 0.0,
+      "mra_release_musd": 0.625,
+      "cash_sweep_musd": 0.0,
+      "dividends_musd": 9.934659000000002,
+      "remaining_cash_musd": 0.0,
+      "dsra_balance_musd": 0.0,
+      "dsra_target_musd": 0.0,
+      "mra_balance_musd": 0.0,
+      "mra_target_musd": 0.0,
+      "events": []
+    }
+  ],
   "amm_liquidity": {
     "pool_config": {
       "debt_notional": 50000000.0,

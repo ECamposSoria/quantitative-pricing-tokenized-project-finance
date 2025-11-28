@@ -17,6 +17,63 @@ necesarios para:
 > **Nota:** Todos los módulos se entregan como *placeholders*; sirven como
 andamiaje para iteraciones futuras.
 
+## Quick Start
+
+### 1. Build Docker Image
+
+```bash
+docker build -t qptf-quant_token_app:latest .
+```
+
+O usando docker-compose:
+
+```bash
+docker compose -f quant-token-compose.yml -p qptf build
+```
+
+### 2. Run Simulation (Generate Results JSON)
+
+```bash
+docker run --rm -v "$(pwd)":/app -w /app qptf-quant_token_app:latest \
+    python scripts/demo_risk_metrics.py
+```
+
+Esto genera `outputs/leo_iot_results.json` con todos los resultados del análisis:
+- Monte Carlo (10k simulaciones)
+- Métricas de riesgo (PD/LGD/EL por tranche)
+- Stress testing (16 escenarios)
+- Comparación AMM V2 vs V3
+- Análisis de hedging
+- Síntesis WACD
+- Comparación estructura tradicional vs tokenizada
+
+### 3. Run/Export Notebook
+
+**Ejecutar notebook y exportar a HTML:**
+
+```bash
+docker run --rm -v "$(pwd)":/app -w /app qptf-quant_token_app:latest \
+    jupyter nbconvert --to html --execute notebooks/TP_Quant_Final.ipynb \
+    --output-dir=outputs/dashboards/
+```
+
+El HTML interactivo se genera en `outputs/dashboards/TP_Quant_Final.html`.
+
+**Abrir Jupyter Lab para edición interactiva:**
+
+```bash
+docker run --rm -p 8888:8888 -v "$(pwd)":/app -w /app qptf-quant_token_app:latest \
+    jupyter lab --ip=0.0.0.0 --allow-root --no-browser
+```
+
+### 4. Run Tests
+
+```bash
+docker run --rm -v "$(pwd)":/app -w /app qptf-quant_token_app:latest pytest tests/ -v
+```
+
+---
+
 ## Repository Structure
 
 ```

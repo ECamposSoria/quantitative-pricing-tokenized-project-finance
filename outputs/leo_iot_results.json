@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2025-11-27T170036Z",
+  "timestamp_utc": "2025-11-28T233655Z",
   "monte_carlo": {
     "config": {
       "simulations": 10000,
@@ -981,12 +981,12 @@
       },
       {
         "tranche": "mezzanine",
-        "llcr": 10.3532,
+        "llcr": 3.0451,
         "threshold": 1.2
       },
       {
         "tranche": "subordinated",
-        "llcr": 17.2554,
+        "llcr": 2.5883,
         "threshold": 1.05
       }
     ],

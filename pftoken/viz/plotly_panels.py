@@ -128,7 +128,7 @@ def capital_structure_panel(results: Dict) -> go.Figure:
     if recommended:
         fig.add_trace(
             go.Bar(
-                name="Tokenized (55/34/11)",
+                name="Tokenizado (55/34/11)",
                 x=labels,
                 y=[recommended.get(label, 0.0) * 100 for label in labels],
                 marker_color="#1f77b4",
@@ -137,17 +137,17 @@ def capital_structure_panel(results: Dict) -> go.Figure:
     if current:
         fig.add_trace(
             go.Bar(
-                name="Current (70/25/15)",
+                name="Tradicional (60/25/15)",
                 x=labels,
                 y=[current.get(label, 0.0) * 100 for label in labels],
                 marker_color="#9DB2CE",
             )
         )
     fig.update_layout(
-        title="Capital Structure",
+        title="Estructura de Capital",
         template="plotly_white",
         barmode="group",
-        yaxis_title="% of Debt Notional",
+        yaxis_title="% del Notional de Deuda",
     )
     return fig
 

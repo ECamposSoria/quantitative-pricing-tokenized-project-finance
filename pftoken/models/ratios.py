@@ -93,15 +93,35 @@ class RatioCalculator:
         return results
 
     def llcr_by_tranche(self) -> Dict[str, LLCRObservation]:
+        """Calculate LLCR using cumulative debt by seniority.
+
+        LLCR for each tranche = NPV(CFADS) / Cumulative debt up to that tranche.
+        - Senior: NPV / Senior debt (most coverage, safest)
+        - Mezzanine: NPV / (Senior + Mezzanine debt)
+        - Subordinated: NPV / Total debt (least coverage)
+        """
         if not self.tranches:
             return {}
+
+        # Sort tranches by seniority (lower number = more senior)
+        sorted_tranches = sorted(self.tranches, key=lambda t: self._get_seniority(t))
+
         llcr: Dict[str, LLCRObservation] = {}
-        for tranche in self.tranches:
-            discount_rate = self._get_coupon(tranche)
+        cumulative_debt = 0.0
+
+        for tranche in sorted_tranches:
+            # Use weighted average coupon for discounting
+            discount_rate = self._weighted_average_coupon()
             npv_cfads = self._npv_cfads(discount_rate)
-            outstanding = self._get_principal(tranche) / 1_000_000.0
-            llcr_value = float("inf") if outstanding == 0 else npv_cfads / outstanding
+
+            # Add this tranche's debt to cumulative total
+            tranche_debt = self._get_principal(tranche) / 1_000_000.0
+            cumulative_debt += tranche_debt
+
+            # LLCR = NPV(CFADS) / Cumulative debt
+            llcr_value = float("inf") if cumulative_debt == 0 else npv_cfads / cumulative_debt
             threshold = LLCR_TARGET_BY_PRIORITY.get(self._get_seniority(tranche), DEFAULT_COVENANT_LIMITS.min_llcr)
+
             llcr[tranche.name] = LLCRObservation(
                 tranche=tranche.name,
                 value=llcr_value,

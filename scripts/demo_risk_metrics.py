@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
+from dataclasses import replace
 from pftoken.derivatives import (
     CapletPeriod,
     InterestRateCap,
@@ -36,6 +37,8 @@ from pftoken.simulation import (  # noqa: E402
     MonteCarloConfig,
     MonteCarloPipeline,
     PipelineInputs,
+    PathDependentConfig,
+    RegimeConfig,
     build_financial_path_callback,
 )
 from pftoken.pricing.base_pricing import TrancheCashFlow  # noqa: E402
@@ -50,6 +53,7 @@ from pftoken.waterfall.contingent_amortization import (  # noqa: E402
 )
 from pftoken.waterfall.full_waterfall import WaterfallOrchestrator  # noqa: E402
 from pftoken.hedging import HedgeConfig, run_hedging_comparison  # noqa: E402
+from pftoken.models.calibration import load_placeholder_calibration  # noqa: E402
 
 
 def extract_dscr_fan_chart(mc_outputs, years: list[int]) -> dict | None:
@@ -1217,6 +1221,26 @@ def main() -> None:
         action="store_true",
         help="Include collar pricing (long cap / short floor) in hedging outputs.",
     )
+    parser.add_argument(
+        "--enable-path-default",
+        action="store_true",
+        help="Enable first-passage defaults (path-dependent barrier) in Monte Carlo.",
+    )
+    parser.add_argument(
+        "--enable-regime-switching",
+        action="store_true",
+        help="Enable regime-switching mu/sigma for asset paths.",
+    )
+    parser.add_argument(
+        "--enable-regime-lgd",
+        action="store_true",
+        help="Apply regime-based recovery adjustments (LGD) when regime-switching is active.",
+    )
+    parser.add_argument(
+        "--enable-regime-spreads",
+        action="store_true",
+        help="Apply regime-based spread lifts when regime-switching is active.",
+    )
     args = parser.parse_args()
 
     data_dir = PROJECT_ROOT / "data" / "input" / "leo_iot"
@@ -1233,6 +1257,50 @@ def main() -> None:
         tenor_years=pipeline.params.project.tenor_years,
     )
 
+    calibration = load_placeholder_calibration()
+    # Override toggles from CLI while preserving YAML defaults.
+    path_cfg = PathDependentConfig.from_dict(calibration.path_dependent)
+    if args.enable_path_default:
+        path_cfg = PathDependentConfig(
+            enable_path_default=True,
+            barrier_calibration_mode=path_cfg.barrier_calibration_mode,
+            barrier_ratio=path_cfg.barrier_ratio,
+        )
+    regime_cfg = RegimeConfig.from_dict(calibration.regime_switching)
+    if args.enable_regime_switching or args.enable_regime_lgd or args.enable_regime_spreads:
+        regime_cfg = RegimeConfig(
+            enable_regime_switching=bool(args.enable_regime_switching or regime_cfg.enable_regime_switching),
+            enable_regime_lgd=bool(args.enable_regime_lgd or regime_cfg.enable_regime_lgd),
+            enable_regime_spreads=bool(args.enable_regime_spreads or regime_cfg.enable_regime_spreads),
+            n_regimes=regime_cfg.n_regimes,
+            transition_matrix=regime_cfg.transition_matrix,
+            regime_params=regime_cfg.regime_params,
+        )
+    calibration_override = replace(
+        calibration,
+        path_dependent={
+            "enable_path_default": path_cfg.enable_path_default,
+            "barrier_calibration_mode": path_cfg.barrier_calibration_mode,
+            "barrier_ratio": path_cfg.barrier_ratio,
+        },
+        regime_switching={
+            "enable_regime_switching": regime_cfg.enable_regime_switching,
+            "enable_regime_lgd": regime_cfg.enable_regime_lgd,
+            "enable_regime_spreads": regime_cfg.enable_regime_spreads,
+            "n_regimes": regime_cfg.n_regimes,
+            "transition_matrix": regime_cfg.transition_matrix.tolist() if regime_cfg.transition_matrix is not None else None,
+            "regimes": {
+                int(k): {
+                    "mu": v.mu,
+                    "sigma": v.sigma,
+                    "recovery_adj": v.recovery_adj,
+                    "spread_lift_bps": v.spread_lift_bps,
+                }
+                for k, v in regime_cfg.regime_params.items()
+            },
+        },
+    )
+
     # Monte Carlo configuration (moderate size to keep runtime reasonable).
     mc_config = MonteCarloConfig(simulations=args.sims, seed=42, antithetic=True)
     debt_by_tranche = {t.name: t.principal / 1_000_000.0 for t in pipeline.debt_structure.tranches}  # MUSD
@@ -1247,6 +1315,8 @@ def main() -> None:
         debt_structure=pipeline.debt_structure,
         include_tranche_cashflows=True,
         usd_per_million=1_000_000.0,
+        path_config=path_cfg,
+        regime_config=regime_cfg,
     )
 
     mc_inputs = PipelineInputs(
@@ -1257,7 +1327,7 @@ def main() -> None:
         dscr_threshold=pipeline.params.project.min_dscr_covenant,
         llcr_threshold=pipeline.params.project.min_llcr_covenant,
     )
-    mc_pipeline = MonteCarloPipeline(mc_config, mc_inputs, path_callback=path_callback)
+    mc_pipeline = MonteCarloPipeline(mc_config, mc_inputs, calibration=calibration_override, path_callback=path_callback)
     mc_outputs = mc_pipeline.run_complete_analysis(
         analyze_ratios=True,
         zero_curve=zero_curve,
@@ -1307,15 +1377,45 @@ def main() -> None:
         dscr_finite = np.where(np.isnan(dscr_paths), np.inf, dscr_paths)
         baseline_dscr_min = float(np.nanpercentile(dscr_finite.min(axis=1), 50))
 
+    first_passage_default = mc_outputs.monte_carlo.derived.get("first_passage_default")
+    regime_paths = mc_outputs.monte_carlo.derived.get("regime_paths")
+
+    path_stats = None
+    if first_passage_default is not None:
+        first_passage_arr = np.asarray(first_passage_default, dtype=float)
+        path_stats = {
+            "first_passage_rate": float(first_passage_arr.mean()),
+            "first_passage_pct": float(first_passage_arr.mean() * 100.0),
+        }
+
+    regime_stats = None
+    if regime_paths is not None:
+        regimes = np.asarray(regime_paths, dtype=int)
+        overall_counts = np.bincount(regimes.flatten(), minlength=max(1, regimes.max() + 1))
+        overall_pct = (overall_counts / regimes.size * 100.0).tolist()
+        last_period = regimes[:, -1]
+        last_counts = np.bincount(last_period, minlength=len(overall_counts))
+        last_pct = (last_counts / last_period.size * 100.0).tolist()
+        regime_stats = {
+            "overall_pct": overall_pct,
+            "last_period_pct": last_pct,
+        }
+
     mc_section = {
         "config": {
             "simulations": mc_config.simulations,
             "seed": mc_config.seed,
             "antithetic": mc_config.antithetic,
+            "enable_path_default": path_cfg.enable_path_default,
+            "enable_regime_switching": regime_cfg.enable_regime_switching,
+            "enable_regime_lgd": regime_cfg.enable_regime_lgd,
+            "enable_regime_spreads": regime_cfg.enable_regime_spreads,
         },
         "dscr_fan_chart": extract_dscr_fan_chart(mc_outputs, years),
         "breach_probability": extract_breach_curves(mc_outputs, years),
         "asset_value_distribution": extract_asset_distribution(mc_outputs),
+        "path_dependent": path_stats,
+        "regime_switching": regime_stats,
     }
 
     risk_section = {

@@ -28,6 +28,8 @@ from .breach_probability import BreachProbabilityAnalyzer
 from .default_flags import DefaultDetector
 from .merton_integration import compute_pathwise_pd_lgd, loss_paths_from_pd_lgd
 from .monte_carlo import MonteCarloConfig, MonteCarloEngine, MonteCarloResult
+from .path_dependent import PathDependentConfig
+from .regime_switching import RegimeConfig
 from .ratio_simulation import RatioDistributions
 
 
@@ -103,12 +105,22 @@ class MonteCarloPipeline:
         # PD/LGD and loss generation if asset values are present.
         asset_values = mc_result.derived.get("asset_values")
         if asset_values is not None:
+            path_cfg = PathDependentConfig.from_dict(getattr(self.calibration, "path_dependent", None))
+            regime_cfg = RegimeConfig.from_dict(getattr(self.calibration, "regime_switching", None))
+            asset_value_paths = mc_result.derived.get("asset_value_paths")
+            first_passage_default = mc_result.derived.get("first_passage_default")
+            regime_recovery_adj = mc_result.derived.get("regime_recovery_adj")
             pd_lgd = compute_pathwise_pd_lgd(
                 asset_values,
                 self.inputs.debt_by_tranche,
                 discount_rate=self.inputs.discount_rate,
                 horizon_years=self.inputs.horizon_years,
                 calibration=self.calibration,
+                path_config=path_cfg,
+                regime_config=regime_cfg,
+                asset_paths=asset_value_paths,
+                default_flags=first_passage_default,
+                regime_recovery_adj=regime_recovery_adj,
             )
             pd_lgd_paths = {
                 name: {

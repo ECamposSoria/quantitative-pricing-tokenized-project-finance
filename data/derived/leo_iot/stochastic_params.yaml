@@ -84,3 +84,29 @@ correlation:
     - [0.20, -0.10, 0.15, 0.00, 0.25, 0.05, -0.05, 0.05, 1.0, 0.00, 0.00]
     - [0.05, -0.10, 0.00, 0.00, 0.05, -0.05, -0.05, -0.05, 0.00, 1.0, -0.25]
     - [-0.10, 0.05, 0.00, 0.05, 0.00, 0.10, 0.05, 0.00, 0.00, -0.25, 1.0]
+path_dependent:
+  enable_path_default: false
+  barrier_calibration_mode: match_terminal_pd
+  barrier_ratio: 0.55
+
+regime_switching:
+  enable_regime_switching: false
+  enable_regime_lgd: false
+  enable_regime_spreads: false
+  n_regimes: 2
+  transition_matrix:
+    - [0.95, 0.05]
+    - [0.20, 0.80]
+  regimes:
+    0:
+      name: normal
+      mu: 0.05
+      sigma: 0.20
+      recovery_adj: 0.0
+      spread_lift_bps: 0.0
+    1:
+      name: stress
+      mu: 0.02
+      sigma: 0.35
+      recovery_adj: -0.30
+      spread_lift_bps: 50.0

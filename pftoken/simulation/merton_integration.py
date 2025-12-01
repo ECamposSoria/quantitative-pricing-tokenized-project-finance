@@ -10,6 +10,8 @@ from scipy.stats import norm
 import warnings
 
 from pftoken.models.calibration import CalibrationSet
+from .path_dependent import PathDependentConfig, evaluate_first_passage
+from .regime_switching import RegimeConfig
 
 
 @dataclass(frozen=True)
@@ -27,6 +29,12 @@ def compute_pathwise_pd_lgd(
     discount_rate: float,
     horizon_years: float,
     calibration: CalibrationSet,
+    path_config: PathDependentConfig | None = None,
+    regime_config: RegimeConfig | None = None,
+    asset_paths: np.ndarray | None = None,
+    debt_schedule_by_period: np.ndarray | None = None,
+    default_flags: np.ndarray | None = None,
+    regime_recovery_adj: np.ndarray | None = None,
 ) -> Dict[str, TranchePathMetrics]:
     """
     Vectorized Merton-style PD/LGD per tranche for each simulated asset value.
@@ -43,12 +51,46 @@ def compute_pathwise_pd_lgd(
         Time to maturity of the tranche (years).
     calibration : CalibrationSet
         Contains asset vol/recovery/pd_floor per tranche.
+    path_config : PathDependentConfig, optional
+        Enables first-passage defaults when provided with asset_paths.
+    regime_config : RegimeConfig, optional
+        Enables regime-based LGD adjustments when paired with regime_recovery_adj.
+    asset_paths : np.ndarray, optional
+        Shape (n_sims, n_periods) asset values; used for first-passage defaults.
+    debt_schedule_by_period : np.ndarray, optional
+        Debt barriers per period for first-passage evaluation. If omitted, uses total debt.
+    default_flags : np.ndarray, optional
+        Pre-computed default flags (e.g., from callbacks). Combined with first-passage.
+    regime_recovery_adj : np.ndarray, optional
+        Recovery adjustments per path (or per path/period) to apply when regime_config.enable_regime_lgd.
     """
 
     asset_values = np.asarray(asset_values, dtype=float)
     if asset_values.ndim != 1:
         raise ValueError("asset_values must be a 1D array of simulated enterprise values.")
     results: Dict[str, TranchePathMetrics] = {}
+    path_cfg = path_config or PathDependentConfig()
+    regime_cfg = regime_config or RegimeConfig()
+
+    first_passage = None
+    if path_cfg.enable_path_default:
+        if asset_paths is None:
+            warnings.warn("enable_path_default=True but asset_paths=None; skipping first-passage defaults.")
+        else:
+            debt_schedule_arr = None
+            if debt_schedule_by_period is not None:
+                debt_schedule_arr = np.asarray(debt_schedule_by_period, dtype=float)
+            else:
+                total_debt = float(sum(debt_by_tranche.values()))
+                periods = asset_paths.shape[1]
+                debt_schedule_arr = np.full(periods, total_debt, dtype=float)
+            first_passage = evaluate_first_passage(asset_paths, debt_schedule_arr, path_cfg)
+
+    combined_defaults = None
+    if first_passage is not None or default_flags is not None:
+        first_passage = np.asarray(first_passage if first_passage is not None else np.zeros_like(asset_values, dtype=bool))
+        defaults_from_flags = np.asarray(default_flags if default_flags is not None else np.zeros_like(asset_values, dtype=bool))
+        combined_defaults = np.logical_or(first_passage, defaults_from_flags)
 
     # Sort tranches by seniority and compute cumulative debt barriers
     seniority_order = {"senior": 1, "mezzanine": 2, "subordinated": 3}
@@ -74,6 +116,19 @@ def compute_pathwise_pd_lgd(
 
         pd_path = np.maximum(norm.cdf(-dd), cal.pd_floor)
         lgd_path = np.full_like(pd_path, 1.0 - cal.recovery_rate)
+
+        if combined_defaults is not None:
+            pd_path = np.where(combined_defaults, 1.0, pd_path)
+            dd = np.where(combined_defaults, -np.inf, dd)
+
+        if regime_cfg.enable_regime_lgd and regime_recovery_adj is not None:
+            recovery_adj = np.asarray(regime_recovery_adj, dtype=float)
+            if recovery_adj.ndim > 1:
+                recovery_adj = recovery_adj.mean(axis=1)
+            if recovery_adj.shape[0] != pd_path.shape[0]:
+                raise ValueError("regime_recovery_adj must align with the number of simulations.")
+            recovery = np.clip(cal.recovery_rate + recovery_adj, 0.0, 1.0)
+            lgd_path = 1.0 - recovery
 
         dd_min, dd_max = float(dd.min()), float(dd.max())
         if dd_max < 0:

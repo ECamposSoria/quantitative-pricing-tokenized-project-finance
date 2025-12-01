@@ -1,7 +1,7 @@
 markdown# System Memory
 
-## Last Updated: 2025-11-27 06:30 UTC
-## Version: 0.7.0
+## Last Updated: 2025-12-01 20:00 UTC
+## Version: 0.7.1
 
 ### Current Architecture
 - `ProjectParameters` ahora es un loader liviano (dataclasses) que alimenta CFADS, ratios y el nuevo `FinancialPipeline` (CFADS → waterfall → covenants → viz).
@@ -32,6 +32,7 @@ markdown# System Memory
 - `StructureComparator` amplía el output con métricas de liquidez (cobertura DSRA/MRA) y la comparación global se integra en `FinancialPipeline`.
 - Gobernanza offline documentada en `docs/governance.md` y soportada por `GovernanceController`, `ThresholdPolicy`, `StaticOracle` y `LoggingAction`.
 - `StochasticVariables` + `CorrelatedSampler` (WP-07 T-022/T-023) generan distribuciones lognormal/beta/normal/bernoulli con antithetic variates y matrices de correlación validadas (Cholesky + eigenvalue check). Los parámetros provienen de `data/derived/leo_iot/stochastic_params.yaml`.
+- WP-07 extensión: módulo path-dependent (first-passage barrier) y regime-switching con toggles `enable_path_default`/`enable_regime_switching`/`enable_regime_lgd`/`enable_regime_spreads` (default off). `path_callbacks` puede emitir `asset_value_paths` + `first_passage_default`; `compute_pathwise_pd_lgd` aplica defaults/lgd por régimen; config en `stochastic_params.yaml` (barrier_ratio calibrado a 0.55) y tests `tests/test_simulation/test_path_dependent.py`, `tests/test_simulation/test_regime_switching.py`.
 - Docker multi-stage + healthcheck (`pftoken.healthcheck`), usuario no root (`appuser`), y Compose actualizado con `restart`/`mem_limit` para cumplir la política de operación.
 - `scripts/export_excel_validation.py` genera snapshots (CFADS/Ratios/Waterfall) en `data/output/excel_exports/<timestamp>/` para refrescar `TP_Quant_Validation.xlsx` sin tocar los CSV fuente.
 - README/user-guide actualizados para reflejar política de datos inmutable, DSRA/MRA baseline y el nuevo flujo de validación.
@@ -140,6 +141,13 @@ markdown# System Memory
 - **WP-08 Capital Structure Finding:** El proyecto como estructurado (70% LTV, $72M debt) **NO ES BANKABLE**. Los precios estocásticos muestran 0.86-0.92 per par (yields implícitos 11-20%) reflejando 60% probabilidad de breach acumulada. Para alcanzar bankability se requiere reducir LTV a 50-55% (~$50M debt) y ajustar proporciones a 55/34/12 (senior/mezz/sub) conforme estructura tokenizada óptima.
 - **WP-11 Interest Rate Cap (T-045): ✅ COMPLETE.** Implementado Black-76 pricer con calibración via brentq, 3 métricas de break-even (spread bps, tasa breakeven, carry cost %), comparación con par swap, y análisis de cobertura integrado con `InterestRateSensitivity`. Premium $857k (119 bps/año) sobre $72M notional @ 4% strike con flat vol 20%. Tests passing (6/6) en Docker. **Contexto de riesgo:** Cap reduce sensibilidad a tasas (+50bps: $733k hedge value, ratio 26%), PERO riesgo operacional domina (60% breach probability). **Estructura óptima:** Collar (buy 4% cap + sell 3% floor) auto-financiable (~42 bps net < 78 bps tokenization benefit). **Secuencia recomendada:** (1) Deleveraging a 50% LTV (team meeting), (2) Verificar breach < 20%, (3) Evaluar collar deployment si rate risk permanece material. Cap pricer disponible como tooling cuando estructura se estabilice. Ver `docs/derivatives.md` y outputs `leo_iot_results.json:hedging` para detalles.
 - **WP-13 Hedging Comparison (MC Integration): ✅ COMPLETE.** Nuevo módulo `pftoken/hedging/hedge_simulator.py` integra payouts de Cap/Collar en simulación Monte Carlo. Compara 3 escenarios (unhedged, cap, collar) bajo shocks estocásticos de tasa N(0, 0.015). **Resultados 10K sims:** Unhedged 2.71% breach → Cap 2.09% (−23%, $595K) → Collar 2.38% (−12%, $326K). **Recomendación: Cap** provee mejor reducción de breach pero a mayor costo. Con estructura tokenizada (DSCR-contingent), breach ya es bajo; hedges proveen protección incremental. Output en `leo_iot_results.json:hedging_comparison`. Files: `pftoken/hedging/__init__.py`, `pftoken/hedging/hedge_simulator.py`, `pftoken/simulation/path_callbacks.py` (rate_shock export).
+- **2025-12-01: Notebook TP_Quant_Final.ipynb actualizado con extensiones avanzadas.**
+  - Añadidas secciones 4.5 y 4.6 documentando path-dependent (first-passage barrier, 3.9% PD) y regime-switching (85% normal / 15% stress).
+  - Resumen Ejecutivo actualizado con métricas de 10K simulaciones: Traditional 23.0% → Tokenized 2.5% → Tok+Hedge 1.9%.
+  - Tabla de Contenidos extendida con referencia a secciones 4.5-4.6.
+  - Sección de Limitaciones 11.5 marcada con [IMPLEMENTADO] para las extensiones Merton single-period y correlaciones estáticas.
+  - Contribuciones Metodológicas 11.4 ampliada con punto 5 sobre extensiones path-dependent y regime-switching.
+  - Trabajo Futuro 11.6 actualizado para reflejar que path-dependent y regime-switching básicos ya están implementados; pendiente habilitar `enable_regime_lgd` y `enable_regime_spreads`.
 
 ### Next Steps
 - **PENDING TEAM DECISION:** Implementar estructura dual a 50% LTV ($50M total debt):

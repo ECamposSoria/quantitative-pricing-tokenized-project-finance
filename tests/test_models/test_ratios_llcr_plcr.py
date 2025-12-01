@@ -31,6 +31,13 @@ def test_dscr_matches_excel(cfads_calculator, project_parameters: ProjectParamet
 
 
 def test_llcr_per_tranche(cfads_calculator, project_parameters: ProjectParameters):
+    """Test LLCR with cumulative debt by seniority.
+
+    LLCR for each tranche = NPV(CFADS) / Cumulative debt up to that tranche.
+    - Senior: NPV / Senior debt (most coverage)
+    - Mezzanine: NPV / (Senior + Mezzanine debt)
+    - Subordinated: NPV / Total debt (least coverage)
+    """
     cfads_vector = cfads_calculator.calculate_cfads_vector()
     ratio_calc = RatioCalculator(
         cfads_vector,
@@ -38,11 +45,25 @@ def test_llcr_per_tranche(cfads_calculator, project_parameters: ProjectParameter
         tranches=project_parameters.tranches,
     )
     llcr = ratio_calc.llcr_by_tranche()
-    for tranche in project_parameters.tranches:
-        expected = _manual_llcr(cfads_vector, tranche.coupon_rate, tranche.initial_principal / 1_000_000.0)
+
+    # Sort tranches by priority_level (lower = more senior)
+    sorted_tranches = sorted(project_parameters.tranches, key=lambda t: t.priority_level)
+
+    # Calculate expected LLCR with cumulative debt
+    cumulative_debt = 0.0
+    weighted_coupon = sum(t.coupon_rate * t.initial_principal for t in sorted_tranches) / sum(t.initial_principal for t in sorted_tranches)
+
+    for tranche in sorted_tranches:
+        cumulative_debt += tranche.initial_principal / 1_000_000.0
+        expected = _manual_llcr(cfads_vector, weighted_coupon, cumulative_debt)
         modeled = llcr[tranche.name].value
-        assert _relative_error(modeled, expected) <= 1e-4
+        assert _relative_error(modeled, expected) <= 1e-4, f"LLCR mismatch for {tranche.name}: {modeled:.2f} vs {expected:.2f}"
         assert modeled >= llcr[tranche.name].threshold
+
+    # Verify Senior has highest LLCR (most coverage)
+    senior_llcr = llcr[sorted_tranches[0].name].value
+    sub_llcr = llcr[sorted_tranches[-1].name].value
+    assert senior_llcr > sub_llcr, "Senior should have higher LLCR than Subordinated"
 
 
 def test_plcr_alignment(cfads_calculator, project_parameters: ProjectParameters):

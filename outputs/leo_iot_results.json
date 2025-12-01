@@ -2034,6 +2034,20 @@
         }
       ],
       "notes": "WP-11 InterestRateCap priced with flat vol; annual resets; premiums in USD."
+    },
+    "zero_cost_collar": {
+      "cap_strike": 0.04,
+      "floor_strike": 0.0322,
+      "floor_strike_pct": "3.22%",
+      "cap_strike_pct": "4.00%",
+      "net_premium": 0.0,
+      "floor_premium": 595432.77,
+      "cap_premium": 595432.77,
+      "notional": 50000000.0,
+      "volatility": 0.2,
+      "forward_rate": 0.03673665918685987,
+      "methodology": "Black-76 floorlet pricing, solved for floor strike where floor_premium = cap_premium",
+      "effective_band": "3.22% - 4.00%"
     }
   },
   "dual_structure_comparison": {
@@ -2145,6 +2159,12 @@
       "p5_bps": -245.09885825719914,
       "p95_bps": 245.0988582571991,
       "simulations": 10000
+    },
+    "zero_cost_collar": {
+      "floor_strike": 0.0322,
+      "cap_strike": 0.04,
+      "net_premium": 0.0,
+      "effective_band": "3.22% - 4.00%"
     }
   },
   "wacd_synthesis": {

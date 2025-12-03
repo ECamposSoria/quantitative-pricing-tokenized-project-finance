@@ -70,7 +70,7 @@ class TokenizedSpreadConfig:
     token_ticket_size_multiplier: float = 0.01
     auto_calibrate_liquidity: bool = True
     liquidity_calibration_source: str = "tinlake"
-    traditional_liquidity_premium_bps: float = 75.0
+    traditional_liquidity_premium_bps: float = 70.0
     tradfi_turnover_ratio: float = 0.05
     min_liquidity_factor: float = 0.2
 

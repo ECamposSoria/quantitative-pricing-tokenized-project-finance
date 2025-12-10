@@ -32,6 +32,11 @@ class Tranche:
     def coupon_rate(self) -> float:
         return self.rate
 
+    @property
+    def base_rate(self) -> float:
+        base = self.rate - self.spread_bps / 10_000.0
+        return base if base >= 0 else 0.0
+
     def calculate_periodic_interest(self, balance: float, periods_per_year: int = 1) -> float:
         """Annualized interest payment for the provided balance."""
         if periods_per_year <= 0:
@@ -95,12 +100,17 @@ class DebtStructure:
     def total_principal(self) -> float:
         return sum(tranche.principal for tranche in self.tranches)
 
-    def calculate_wacd(self) -> float:
-        """Weighted average cost of debt."""
+    def calculate_wacd(self, *, include_spreads: bool = True) -> float:
+        """Weighted average cost of debt; include spreads by default."""
         total = self.total_principal
         if total == 0:
             return 0.0
-        return sum(tranche.principal / total * tranche.rate for tranche in self.tranches)
+
+        def _effective_rate(tranche: Tranche) -> float:
+            base = tranche.base_rate
+            return base + tranche.spread_bps / 10_000.0 if include_spreads else base
+
+        return sum((tranche.principal / total) * _effective_rate(tranche) for tranche in self.tranches)
 
     def get_tranche(self, name: str) -> Tranche:
         for tranche in self.tranches:

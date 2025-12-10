@@ -14,6 +14,6 @@ def test_debt_structure_from_tranches(project_parameters: ProjectParameters):
 
 def test_debt_structure_wacd(project_parameters: ProjectParameters):
     debt_structure = DebtStructure.from_tranche_params(project_parameters.tranches)
-    wacd = debt_structure.calculate_wacd()
-    # Updated to match current LEO IoT project WACD (4.5%)
-    assert pytest.approx(wacd, rel=1e-4) == 0.045
+    wacd = debt_structure.calculate_wacd(include_spreads=True)
+    # WACD with coupon-inclusive rates (6.0% / 8.5% / 11.0%)
+    assert pytest.approx(wacd, rel=1e-4) == 0.07375

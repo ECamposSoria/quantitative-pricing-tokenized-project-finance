@@ -21,7 +21,7 @@ TOKENIZED_OPTIMAL_STRUCTURE = {
 TRADITIONAL_WACD_BPS = 737.5
 TOKENIZED_OPTIMAL_WACD_BPS = 740
 
-# Regulatory risk premium for security-token ban tail risk (midpoint 5–10 bps).
+# Regulatory risk premium for security-token ban tail risk (midpoint 5-10 bps).
 REGULATORY_RISK_BPS = 7.5
 
 __all__ = ["TOKENIZED_OPTIMAL_STRUCTURE", "TOKENIZED_OPTIMAL_WACD_BPS", "REGULATORY_RISK_BPS"]
